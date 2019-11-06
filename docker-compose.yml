@@ -1,0 +1,37 @@
+version: "3"
+services:
+ api:
+    build:
+     context: ./
+     dockerfile: ./src/Scorpio.Api/Dockerfile
+    image: scorpio/webapi
+    container_name: "scorpio_webapi"
+    environment:
+      - RabbitMq:host=rabbitmq
+    ports:
+      - "8080:80"
+    depends_on:
+     - rabbitmq
+
+ rabbitmq:
+    image: "rabbitmq:3-management"
+    container_name: "scorpio_rabbitmq"
+    ports:
+      - "5672:5672"
+      - "8083:15672"
+    volumes:
+      - 'rabbitmq_data:/data'
+
+ portainer:
+    image: "portainer/portainer"
+    container_name: "scorpio_portainer"
+    ports:
+      - "8084:9000"
+    command: -H unix:///var/run/docker.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+
+volumes:
+  rabbitmq_data:
+  portainer_data:
