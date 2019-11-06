@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29418.71
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scorpio.Stubs.MessageProducer", "src\Scorpio.Stubs.MessageProducer\Scorpio.Stubs.MessageProducer.csproj", "{F1E2A333-1848-4D73-AC10-29EB40E64572}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scorpio.Messaging.Abstractions", "src\Scorpio.Messaging\Scorpio.Messaging.Abstractions.csproj", "{F3F11583-4012-4F61-B34F-8209BD52A0DD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scorpio.Messaging.Abstractions", "src\Scorpio.Messaging.Abstractions\Scorpio.Messaging.Abstractions.csproj", "{F3F11583-4012-4F61-B34F-8209BD52A0DD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scorpio.Messaging.RabbitMQ", "src\Scorpio.Messaging.RabbitMQ\Scorpio.Messaging.RabbitMQ.csproj", "{5635A59A-68EE-46C8-8DF7-3AE1355B441C}"
 EndProject
@@ -43,7 +43,6 @@ Global
 		{1B66931E-D5DA-4AD6-BB53-AC8B32FD4DC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1B66931E-D5DA-4AD6-BB53-AC8B32FD4DC0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F6823114-51DE-415C-A778-56D27554D92C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F6823114-51DE-415C-A778-56D27554D92C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F6823114-51DE-415C-A778-56D27554D92C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F6823114-51DE-415C-A778-56D27554D92C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection

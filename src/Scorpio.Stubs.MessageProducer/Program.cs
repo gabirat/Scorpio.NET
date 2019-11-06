@@ -47,7 +47,8 @@ namespace Scorpio.Stubs.MessageProducer
             var services = new ServiceCollection();
 
             services.AddLogging(configure => configure.AddSerilog());
-            services.AddRabbitMqConnection();
+            // TODO config builder
+            //services.AddRabbitMqConnection();
             services.AddRabbitMqEventBus();
 
             var builder = new ContainerBuilder();
