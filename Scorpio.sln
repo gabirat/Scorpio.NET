@@ -12,6 +12,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scorpio.Api", "src\Scorpio.Api\Scorpio.Api.csproj", "{1B66931E-D5DA-4AD6-BB53-AC8B32FD4DC0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{36D1A7DA-DB49-4469-85CA-C1C743C1B6AE}"
+	ProjectSection(SolutionItems) = preProject
+		readme.md = readme.md
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{FDCE29D6-4470-418E-AB6F-1C60F5BFA0B9}"
 	ProjectSection(SolutionItems) = preProject
