@@ -3,6 +3,7 @@ import "./App.css";
 import { Range } from "react-range";
 import "semantic-ui-css/semantic.min.css";
 import MessagingService from "./messaging/MessagingService";
+import GamepadPoller from "./components/gamepad/gamepadPoller";
 
 const App: React.FC = () => {
   const [values, setValues] = useState([0]);
@@ -28,6 +29,7 @@ const App: React.FC = () => {
 
   return (
     <div className="App">
+      <GamepadPoller />
       <Range
         step={0.1}
         min={0}
