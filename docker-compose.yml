@@ -7,7 +7,7 @@ services:
     image: scorpio/webapi
     container_name: "scorpio_webapi"
     environment:
-      - RabbitMq:host=rabbitmq
+      - RabbitMq__host=rabbitmq
     ports:
       - "8080:80"
     depends_on:
