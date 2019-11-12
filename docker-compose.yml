@@ -8,6 +8,8 @@ services:
     container_name: "scorpio_webapi"
     environment:
       - RabbitMq__host=rabbitmq
+      - MongoDb__ConnectionString=mongodb://mongodbuser:mongodbpassword@mongodb:27017
+      - MongoDb__Database=scorpiodb
       # TODO whis will not work when deployed on rover, we will need either rover ip here, or dns, or abadon cors
       - WEBAPP_URL=localhost
     ports:

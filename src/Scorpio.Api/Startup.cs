@@ -79,14 +79,14 @@ namespace Scorpio.Api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseDeveloperExceptionPage();
-            app.UseCors("corsPolicy");
+            app.UseExceptionHandlingMiddleware();
 
-            app.UseHttpsRedirection();
-
+            if (env.EnvironmentName == "DEVELOPMENT")
+            {
+                app.UseDeveloperExceptionPage();
+                app.UseCors("corsPolicy");
+            }
             app.UseRouting();
-
-            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

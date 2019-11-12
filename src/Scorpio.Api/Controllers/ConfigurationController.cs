@@ -1,13 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Matty.Framework;
+using Microsoft.AspNetCore.Mvc;
 using Scorpio.Api.DataAccess;
 using Scorpio.Api.Models;
+using System;
 using System.Threading.Tasks;
 
 namespace Scorpio.Api.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ConfigurationController : ControllerBase
+    public class ConfigurationController : ScorpioController
     {
         private readonly IUiConfigurationRepository _uiConfigurationRepository;
 
@@ -33,8 +33,20 @@ namespace Scorpio.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Add(UiConfiguration uiConfiguration)
         {
-            var result = await _uiConfigurationRepository.CreateAsync(uiConfiguration);
-            return CreatedAtAction(nameof(Add), result);
+            var response = new ServiceResult<UiConfiguration>(User);
+
+            try
+            {
+                var result = await _uiConfigurationRepository.CreateAsync(uiConfiguration);
+                response.Data = result;
+                response.AddSuccessMessage($"Successfully created {uiConfiguration.Name}");
+                return CreatedAtAction(nameof(Add), response);
+            }
+            catch (Exception ex)
+            {
+                response.AddErrorMessage(ex.Message);
+                return BadRequest(response);
+            }
         }
 
         [HttpDelete]
@@ -46,8 +58,19 @@ namespace Scorpio.Api.Controllers
                 return NotFound();
             }
 
-            await _uiConfigurationRepository.DeleteAsync(uiConfiguration);
-            return Ok();
+            var response = new ServiceResult<UiConfiguration>(User);
+
+            try
+            {
+                await _uiConfigurationRepository.DeleteAsync(uiConfiguration);
+                response.AddSuccessMessage($"Successfully deleted {uiConfiguration.Name}");
+                return CreatedAtAction(nameof(Add), response);
+            }
+            catch (Exception ex)
+            {
+                response.AddErrorMessage(ex.Message);
+                return BadRequest(response);
+            }
         }
 
         [HttpPut]
@@ -59,8 +82,19 @@ namespace Scorpio.Api.Controllers
                 return NotFound();
             }
 
-            await _uiConfigurationRepository.UpdateAsync(uiConfiguration);
-            return Ok();
+            var response = new ServiceResult<UiConfiguration>(User);
+
+            try
+            {
+                await _uiConfigurationRepository.UpdateAsync(uiConfiguration);
+                response.AddSuccessMessage($"Successfully updated config: {uiConfiguration.Name}");
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.AddErrorMessage(ex.Message);
+                return BadRequest(response);
+            }
         }
     }
 }
