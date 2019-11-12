@@ -8,6 +8,8 @@ services:
     container_name: "scorpio_webapi"
     environment:
       - RabbitMq__host=rabbitmq
+      # TODO whis will not work when deployed on rover, we will need either rover ip here, or dns, or abadon cors
+      - WEBAPP_URL=localhost
     ports:
       - "8080:80"
     depends_on:
@@ -31,6 +33,21 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
+
+ web:
+    build:
+     context: ./src/Scorpio.Web
+     dockerfile: ./Dockerfile
+    image: "scorpio/webapp"
+    container_name: "scorpio_webapp"
+    ports:
+      - "80:3000"
+    environment:
+      - REACT_APP_API_URL=api:8080
+    volumes:
+    # for frontend autoreload: TODO make production & development docker-compose.yml
+      - ./src/Scorpio.Web/src:/webapp/src
+
 
 volumes:
   rabbitmq_data:

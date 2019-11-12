@@ -9,10 +9,8 @@ COPY ["src/Scorpio.Messaging.Abstractions/Scorpio.Messaging.Abstractions.csproj"
 COPY ["src/Scorpio.Messaging.RabbitMQ/Scorpio.Messaging.RabbitMQ.csproj", "Scorpio.Messaging.RabbitMQ/"]
 RUN dotnet restore "Scorpio.Api/Scorpio.Api.csproj"
 
-run ls -la 
 COPY . /
 WORKDIR "/src/Scorpio.Api"
-RUN ls -la
 # RUN dotnet build "Scorpio.Api.csproj" -c Release -o /app/build
 
 FROM build AS publish

@@ -10,6 +10,7 @@ using Scorpio.Api.Events;
 using Scorpio.Api.Hubs;
 using Scorpio.Messaging.Abstractions;
 using Scorpio.Messaging.RabbitMQ;
+using System;
 
 namespace Scorpio.Api
 {
@@ -54,7 +55,7 @@ namespace Scorpio.Api
             {
                 settings.AddPolicy("corsPolicy", builder =>
                 {
-                    builder.WithOrigins("http://localhost:3000")
+                    builder.WithOrigins("http://" + System.Environment.GetEnvironmentVariable("BACKEND_ORIGIN") ?? "localhost:3000")
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials();
