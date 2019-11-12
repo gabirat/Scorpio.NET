@@ -2,10 +2,14 @@ import React, { useState } from "react";
 import "./App.css";
 import { Range } from "react-range";
 import "semantic-ui-css/semantic.min.css";
-import MessagingService from "./messaging/MessagingService";
-import GamepadPoller from "./components/gamepad/gamepadPoller";
+import MessagingService from "./services/messagingService";
+import GamepadService from "./services/gamepad/gamepadService";
+import RawGamepadWidget from "./components/dashboard/widgets/rawGamepadWidget";
 
 const App: React.FC = () => {
+  const gamepad = new GamepadService();
+  gamepad.init();
+
   const [values, setValues] = useState([0]);
   let messingService: MessagingService = MessagingService.getInstance();
 
@@ -29,8 +33,8 @@ const App: React.FC = () => {
 
   return (
     <div className="App">
-      <GamepadPoller />
-      <Range
+      <RawGamepadWidget gamepadIndex={0}></RawGamepadWidget>
+      {/* <Range
         step={0.1}
         min={0}
         max={100}
@@ -102,7 +106,7 @@ const App: React.FC = () => {
         }}
       >
         ASDasdasd
-      </button>
+      </button> */}
     </div>
   );
 };
