@@ -3,14 +3,14 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Scorpio.Api.DataAccess;
 using Scorpio.Api.EventHandlers;
 using Scorpio.Api.Events;
 using Scorpio.Api.Hubs;
 using Scorpio.Messaging.Abstractions;
 using Scorpio.Messaging.RabbitMQ;
-using System;
 
 namespace Scorpio.Api
 {
@@ -32,7 +32,12 @@ namespace Scorpio.Api
             // Use NewtonSoft JSON as default serializer
             services.AddMvc(option => option.EnableEndpointRouting = false)
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
-                .AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
+                .AddNewtonsoftJson(options =>
+                    {
+                        options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                        options.SerializerSettings.Converters.Add(new StringEnumConverter());
+                        options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+                    });
 
             // SignalR - real time messaging with front end
             services.AddSignalR(settings =>
@@ -40,6 +45,9 @@ namespace Scorpio.Api
                 settings.EnableDetailedErrors = true;
             })
             .AddMessagePackProtocol();
+
+            // This allows access http context and user in constructor
+            services.AddHttpContextAccessor();
 
             // Register strongly typed config mapping
             services.Configure<RabbitMqConfiguration>(Configuration.GetSection("RabbitMq"));
@@ -51,6 +59,9 @@ namespace Scorpio.Api
 
             // TODO: automatically register via assembly scanning
             services.AddTransient<UpdateRoverPositionEventHandler>();
+
+            // Repositories
+            services.AddTransient<IUiConfigurationRepository, UiConfigurationRepository>();
 
             services.AddCors(settings =>
             {
