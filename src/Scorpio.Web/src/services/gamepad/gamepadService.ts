@@ -15,7 +15,7 @@ class GamepadService {
     window.scorpioGamepad = this;
   }
 
-  private _connectedGamepadsIds: Number[] = [];
+  private _connectedGamepadsIds: number[] = [];
   private _gamepadsState: IXboxGamepadModel[] = [];
 
   public init(): void {
@@ -23,7 +23,7 @@ class GamepadService {
     this.doPoll();
   }
 
-  public getGamepadState(index: Number): IXboxGamepadModel | null {
+  public getGamepadState(index: number): IXboxGamepadModel | null {
     return this._gamepadsState.find(x => x.index === index) || null;
   }
 

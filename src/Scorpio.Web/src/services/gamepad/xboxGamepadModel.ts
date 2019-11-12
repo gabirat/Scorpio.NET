@@ -1,13 +1,13 @@
 export interface IXboxGamepadModel {
-  index: Number;
+  index: number;
   name: string;
   leftStick: IStickModel;
   rightStick: IStickModel;
-  leftTrigger: Number;
-  rightTrigger: Number;
+  leftTrigger: number;
+  rightTrigger: number;
 }
 
-interface IStickModel {
-  xVal: Number;
-  yVal: Number;
+export interface IStickModel {
+  xVal: number;
+  yVal: number;
 }

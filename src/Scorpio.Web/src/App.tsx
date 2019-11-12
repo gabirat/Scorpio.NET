@@ -4,6 +4,7 @@ import { Range } from "react-range";
 import "semantic-ui-css/semantic.min.css";
 import MessagingService from "./services/messagingService";
 import GamepadService from "./services/gamepad/gamepadService";
+import RawGamepadWidget from "./components/dashboard/widgets/rawGamepadWidget";
 
 const App: React.FC = () => {
   const gamepad = new GamepadService();
@@ -32,7 +33,8 @@ const App: React.FC = () => {
 
   return (
     <div className="App">
-      <Range
+      <RawGamepadWidget gamepadIndex={0}></RawGamepadWidget>
+      {/* <Range
         step={0.1}
         min={0}
         max={100}
@@ -104,7 +106,7 @@ const App: React.FC = () => {
         }}
       >
         ASDasdasd
-      </button>
+      </button> */}
     </div>
   );
 };
