@@ -43,6 +43,7 @@ namespace Scorpio.Api
 
             // Register strongly typed config mapping
             services.Configure<RabbitMqConfiguration>(Configuration.GetSection("RabbitMq"));
+            services.Configure<MongoDbConfiguration>(Configuration.GetSection("MongoDb"));
 
             // Register event bus
             services.AddRabbitMqConnection(Configuration);

@@ -2,6 +2,8 @@ import LogService from "../logService";
 import GamepadProcessor from "./gamepadProcessor";
 import { IXboxGamepadModel } from "./xboxGamepadModel";
 
+const xboxGamepadId = "Xbox";
+
 declare global {
   interface Window {
     scorpioGamepad: GamepadService;
@@ -35,7 +37,7 @@ class GamepadService {
     const gamepads = navigator.getGamepads();
 
     for (const gamepad of gamepads) {
-      if (!gamepad || !gamepad.id.includes("Xbox")) continue;
+      if (!gamepad || !gamepad.id.includes(xboxGamepadId)) continue;
 
       const scorpioPad = new GamepadProcessor();
       const newState = scorpioPad.updateState(gamepad);
@@ -56,8 +58,10 @@ class GamepadService {
 
   private addEventListeners(): void {
     window.addEventListener("gamepadconnected", ((ev: GamepadEvent): void => {
-      LogService.info(`Gamepad ${ev.gamepad.id} with index: ${ev.gamepad.index} connected`);
-      this._connectedGamepadsIds.push(ev.gamepad.index);
+      if (ev.gamepad.id.includes(xboxGamepadId)) {
+        LogService.info(`Gamepad ${ev.gamepad.id} with index: ${ev.gamepad.index} connected`);
+        this._connectedGamepadsIds.push(ev.gamepad.index);
+      }
     }) as EventListener);
 
     window.addEventListener("gamepaddisconnected", ((ev: GamepadEvent): void => {
