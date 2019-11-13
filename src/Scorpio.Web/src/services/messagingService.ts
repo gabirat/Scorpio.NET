@@ -29,7 +29,7 @@ class MessagingService {
     if (this._isConnected) return;
 
     this._connection = new SignalR.HubConnectionBuilder()
-      .withUrl("http://localhost:8080/hub/main")
+      .withUrl(`http://${process.env.REACT_APP_API_URL}/hub/main`)
       .withHubProtocol(new MessagePackHubProtocol())
       .configureLogging(SignalR.LogLevel.Debug)
       .withAutomaticReconnect([0, 1000, 30000, 6000])
