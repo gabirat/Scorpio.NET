@@ -29,9 +29,9 @@ namespace Scorpio.Api.Hubs
             return base.OnDisconnectedAsync(exception);
         }
 
-        public void Data(IList<double> data)
+        public void Data(object data)
         {
-            _eventBus.Publish(new UpdateRoverPositionEvent(data.FirstOrDefault().ToString(), data.FirstOrDefault().ToString()));
+            _eventBus.Publish(new UpdateRoverPositionEvent("dupa", "dupsko"));
             Console.WriteLine($"Received SignalR data: {JsonConvert.SerializeObject(data)}");
             //await Clients.All.SendAsync("data", "pong");
             //await Clients.All.SendAsync("data",  data);

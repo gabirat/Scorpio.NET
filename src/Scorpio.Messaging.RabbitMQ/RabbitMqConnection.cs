@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using RabbitMQ.Client.Exceptions;
 using System;
 using System.IO;
 
@@ -38,7 +39,14 @@ namespace Scorpio.Messaging.RabbitMQ
 
             lock (_syncLock)
             {
-                _connection = _connectionFactory.CreateConnection();
+                try
+                {
+                    _connection = _connectionFactory.CreateConnection();
+                }
+                catch(BrokerUnreachableException)
+                {
+                    //TryConnect();
+                }
 
                 if (IsConnected)
                 {

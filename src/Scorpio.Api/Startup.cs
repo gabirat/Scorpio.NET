@@ -3,14 +3,14 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Scorpio.Api.DataAccess;
 using Scorpio.Api.EventHandlers;
 using Scorpio.Api.Events;
 using Scorpio.Api.Hubs;
 using Scorpio.Messaging.Abstractions;
 using Scorpio.Messaging.RabbitMQ;
-using System;
 
 namespace Scorpio.Api
 {
@@ -32,7 +32,12 @@ namespace Scorpio.Api
             // Use NewtonSoft JSON as default serializer
             services.AddMvc(option => option.EnableEndpointRouting = false)
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
-                .AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
+                .AddNewtonsoftJson(options =>
+                    {
+                        options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                        options.SerializerSettings.Converters.Add(new StringEnumConverter());
+                        options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+                    });
 
             // SignalR - real time messaging with front end
             services.AddSignalR(settings =>
@@ -41,21 +46,31 @@ namespace Scorpio.Api
             })
             .AddMessagePackProtocol();
 
+            // This allows access http context and user in constructor
+            services.AddHttpContextAccessor();
+
             // Register strongly typed config mapping
             services.Configure<RabbitMqConfiguration>(Configuration.GetSection("RabbitMq"));
+            services.Configure<MongoDbConfiguration>(Configuration.GetSection("MongoDb"));
 
             // Register event bus
             services.AddRabbitMqConnection(Configuration);
-            services.AddRabbitMqEventBus();
+            services.AddRabbitMqEventBus(Configuration);
 
             // TODO: automatically register via assembly scanning
             services.AddTransient<UpdateRoverPositionEventHandler>();
+            services.AddTransient<TestEventHandler>();
 
+            // Repositories
+            services.AddTransient<IUiConfigurationRepository, UiConfigurationRepository>();
+
+            var dupa = Configuration["BACKEND_ORIGIN"];
+            var url = "http://" + (dupa ?? "localhost:3000");
             services.AddCors(settings =>
             {
                 settings.AddPolicy("corsPolicy", builder =>
                 {
-                    builder.WithOrigins("http://" + System.Environment.GetEnvironmentVariable("BACKEND_ORIGIN") ?? "localhost:3000")
+                    builder.WithOrigins(url)
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials();
@@ -67,14 +82,14 @@ namespace Scorpio.Api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseDeveloperExceptionPage();
-            app.UseCors("corsPolicy");
+            app.UseExceptionHandlingMiddleware();
 
-            app.UseHttpsRedirection();
-
+            if (env.EnvironmentName.ToLower() == "development")
+            {
+                app.UseDeveloperExceptionPage();
+                app.UseCors("corsPolicy");
+            }
             app.UseRouting();
-
-            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
@@ -90,6 +105,7 @@ namespace Scorpio.Api
             var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
 
             eventBus.Subscribe<UpdateRoverPositionEvent, UpdateRoverPositionEventHandler>();
+            eventBus.Subscribe<Test, TestEventHandler>();
         }
     }
 }
