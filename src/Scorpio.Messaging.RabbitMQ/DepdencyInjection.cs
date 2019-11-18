@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using Scorpio.Messaging.Abstractions;
+using System;
 
 namespace Scorpio.Messaging.RabbitMQ
 {
@@ -13,31 +14,34 @@ namespace Scorpio.Messaging.RabbitMQ
         {
             return services.AddSingleton<IRabbitMqConnection>(sp =>
             {
-                var hostname = config["RabbitMq:host"];
-                
                 var logger = sp.GetRequiredService<ILogger<RabbitMqConnection>>();
 
+                var hostname = config["RabbitMq:host"];
+                var port = config["RabbitMq:port"];
+                var user = config["RabbitMq:userName"];
+                var password = config["RabbitMq:password"];
+                var virtualHost = config["RabbitMq:virtualHost"];
+
                 logger.LogInformation("************************************");
-                logger.LogInformation("Rabbit connecting to: " + hostname);
+                logger.LogInformation($"RabbitMQ connecting: {user}:{password}@{hostname}:{port}");
                 logger.LogInformation("************************************");
 
                 var factory = new ConnectionFactory
                 {
                     HostName = hostname,
-                    Port = 5672,
-                    UserName = "guest",
-                    Password = "guest",
-                    VirtualHost = "/"
+                    Port = int.Parse(port),
+                    UserName = user,
+                    Password = password,
+                    VirtualHost = virtualHost
                 };
 
                 return new RabbitMqConnection(factory, logger);
             });
         }
 
-        public static IServiceCollection AddRabbitMqEventBus(this IServiceCollection services)
+        public static IServiceCollection AddRabbitMqEventBus(this IServiceCollection services, IConfiguration config)
         {
             services.AddSingleton<IEventBusSubscriptionManager, GenericEventBusSubscriptionManager>();
-
             services.AddSingleton<IEventBus, RabbitMqEventBus>(provider =>
             {
                 var conn = provider.GetRequiredService<IRabbitMqConnection>();
@@ -45,7 +49,7 @@ namespace Scorpio.Messaging.RabbitMQ
                 var scope = provider.GetRequiredService<ILifetimeScope>();
                 var subsManager = provider.GetRequiredService<IEventBusSubscriptionManager>();
 
-                return new RabbitMqEventBus(conn, logger, scope, subsManager, "Hub");
+                return new RabbitMqEventBus(conn, logger, scope, subsManager, config);
             });
 
             return services;

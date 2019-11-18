@@ -55,19 +55,22 @@ namespace Scorpio.Api
 
             // Register event bus
             services.AddRabbitMqConnection(Configuration);
-            services.AddRabbitMqEventBus();
+            services.AddRabbitMqEventBus(Configuration);
 
             // TODO: automatically register via assembly scanning
             services.AddTransient<UpdateRoverPositionEventHandler>();
+            services.AddTransient<TestEventHandler>();
 
             // Repositories
             services.AddTransient<IUiConfigurationRepository, UiConfigurationRepository>();
 
+            var dupa = Configuration["BACKEND_ORIGIN"];
+            var url = "http://" + (dupa ?? "localhost:3000");
             services.AddCors(settings =>
             {
                 settings.AddPolicy("corsPolicy", builder =>
                 {
-                    builder.WithOrigins("http://" + System.Environment.GetEnvironmentVariable("BACKEND_ORIGIN") ?? "localhost:3000")
+                    builder.WithOrigins(url)
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials();
@@ -81,7 +84,7 @@ namespace Scorpio.Api
         {
             app.UseExceptionHandlingMiddleware();
 
-            if (env.EnvironmentName == "DEVELOPMENT")
+            if (env.EnvironmentName.ToLower() == "development")
             {
                 app.UseDeveloperExceptionPage();
                 app.UseCors("corsPolicy");
@@ -102,6 +105,7 @@ namespace Scorpio.Api
             var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
 
             eventBus.Subscribe<UpdateRoverPositionEvent, UpdateRoverPositionEventHandler>();
+            eventBus.Subscribe<Test, TestEventHandler>();
         }
     }
 }
