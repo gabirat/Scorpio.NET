@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29418.71
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scorpio.Stubs.MessageProducer", "src\Scorpio.Stubs.MessageProducer\Scorpio.Stubs.MessageProducer.csproj", "{F1E2A333-1848-4D73-AC10-29EB40E64572}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scorpio.Messaging.Abstractions", "src\Scorpio.Messaging.Abstractions\Scorpio.Messaging.Abstractions.csproj", "{F3F11583-4012-4F61-B34F-8209BD52A0DD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scorpio.Messaging.RabbitMQ", "src\Scorpio.Messaging.RabbitMQ\Scorpio.Messaging.RabbitMQ.csproj", "{5635A59A-68EE-46C8-8DF7-3AE1355B441C}"
@@ -29,10 +27,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F1E2A333-1848-4D73-AC10-29EB40E64572}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F1E2A333-1848-4D73-AC10-29EB40E64572}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F1E2A333-1848-4D73-AC10-29EB40E64572}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F1E2A333-1848-4D73-AC10-29EB40E64572}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F3F11583-4012-4F61-B34F-8209BD52A0DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F3F11583-4012-4F61-B34F-8209BD52A0DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F3F11583-4012-4F61-B34F-8209BD52A0DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
