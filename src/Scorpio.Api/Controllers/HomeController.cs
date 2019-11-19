@@ -6,10 +6,8 @@ using System.Reflection;
 
 namespace Scorpio.Api.Controllers
 {
-    [ApiController]
     [Route("")]
-    [Produces("application/json")]
-    public class HomeController : ControllerBase
+    public class HomeController : ScorpioController
     {
         private readonly IHubContext<MainHub> _mainHub;
         private readonly IOptions<RabbitMqConfiguration> _rabbitConfig;
@@ -31,7 +29,7 @@ namespace Scorpio.Api.Controllers
             {
                 Api = Assembly.GetExecutingAssembly().GetName(),
                 RaabiqMqConfig = _rabbitConfig.Value,
-                MongoDbConfig = _mongoConfig.Value
+                MongoDbConfig = _mongoConfig.Value,
             };
 
             return Ok(response);

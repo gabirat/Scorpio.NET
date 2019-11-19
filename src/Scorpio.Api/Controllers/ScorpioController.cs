@@ -2,9 +2,10 @@
 
 namespace Scorpio.Api.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    public class ScorpioController : ControllerBase
+    [Route("api/[controller]")]
+    [Produces("application/json")]
+    public abstract class ScorpioController : ControllerBase
     {
     }
 }
