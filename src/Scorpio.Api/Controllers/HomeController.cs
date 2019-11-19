@@ -7,7 +7,9 @@ using System.Reflection;
 namespace Scorpio.Api.Controllers
 {
     [Route("")]
-    public class HomeController : ScorpioController
+    [ApiController]
+    [Produces("application/json")]
+    public class HomeController : ControllerBase
     {
         private readonly IHubContext<MainHub> _mainHub;
         private readonly IOptions<RabbitMqConfiguration> _rabbitConfig;

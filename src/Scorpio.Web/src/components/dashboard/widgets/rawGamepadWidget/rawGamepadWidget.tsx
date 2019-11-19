@@ -29,7 +29,7 @@ export class RawGamepadWidget extends Component<IRawGamepadWidgetProps, IRawGame
 
   componentDidMount() {
     const { refreshInterval } = this.props;
-    this._interval = setInterval(this.doUpdate, refreshInterval ? refreshInterval : 1000);
+    this._interval = setInterval(this.doUpdate, refreshInterval ? refreshInterval : 50);
   }
 
   componentWillUnmount() {

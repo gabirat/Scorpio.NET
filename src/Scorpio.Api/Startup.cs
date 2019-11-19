@@ -69,14 +69,15 @@ namespace Scorpio.Api
 
             // Repositories
             services.AddTransient<IUiConfigurationRepository, UiConfigurationRepository>();
+            services.AddTransient<ISensorRepository, SensorRepository>();
+            services.AddTransient<ISensorDataRepository, SensorDataRepository>();
 
-            var dupa = Configuration["BACKEND_ORIGIN"];
-            var url = "http://" + (dupa ?? "localhost:3000");
+            var corsOrigins = "http://" + (Configuration["BACKEND_ORIGIN"] ?? "localhost:3000");
             services.AddCors(settings =>
             {
                 settings.AddPolicy("corsPolicy", builder =>
                 {
-                    builder.WithOrigins(url)
+                    builder.WithOrigins(corsOrigins)
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials();
