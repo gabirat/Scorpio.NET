@@ -29,6 +29,7 @@ namespace Scorpio.Api.Controllers
 
             var response = new
             {
+                SwaggerDocs = "/swagger",
                 Api = Assembly.GetExecutingAssembly().GetName(),
                 RaabiqMqConfig = _rabbitConfig.Value,
                 MongoDbConfig = _mongoConfig.Value,

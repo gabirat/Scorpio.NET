@@ -1,5 +1,6 @@
 import * as SignalR from "@microsoft/signalr";
 import { MessagePackHubProtocol } from "@microsoft/signalr-protocol-msgpack";
+import Endpoints from "../constants/endpoints";
 
 class MessagingService {
   private static _instance: MessagingService;
@@ -28,8 +29,9 @@ class MessagingService {
   public async connect(): Promise<void> {
     if (this._isConnected) return;
 
+    const endpoint = Endpoints.Hub;
     this._connection = new SignalR.HubConnectionBuilder()
-      .withUrl(`http://${process.env.REACT_APP_API_URL}/hub/main`)
+      .withUrl(endpoint)
       .withHubProtocol(new MessagePackHubProtocol())
       .configureLogging(SignalR.LogLevel.Debug)
       .withAutomaticReconnect([0, 1000, 30000, 6000])

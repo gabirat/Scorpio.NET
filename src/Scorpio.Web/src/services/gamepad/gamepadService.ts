@@ -1,7 +1,6 @@
 import LogService from "../logService";
 import GamepadProcessor from "./gamepadProcessor";
 import { IXboxGamepadModel } from "./xboxGamepadModel";
-import { isTSUndefinedKeyword } from "@babel/types";
 
 const xboxGamepadId = "Xbox";
 

@@ -1,28 +1,30 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import "./App.css";
 import "semantic-ui-css/semantic.min.css";
 import MessagingService from "./services/messagingService";
 import GamepadService from "./services/gamepad/gamepadService";
 import RawGamepadWidget from "./components/dashboard/widgets/rawGamepadWidget";
-
-import {Image} from "semantic-ui-react";
-import {BrowserRouter as Router, Route} from "react-router-dom";
+import { BrowserRouter as Router, Route } from "react-router-dom";
 import VideoStream from "./components/dashboard/widgets/VideoStream/VideoStream";
 import NavBar from "./components/NavBar/NavBar";
-
+import genericApi, { EMethod } from "./api/genericApi";
+import Endpoints from "./constants/endpoints";
 
 const leftItems = [
-  {as: "a", content: "Stream", key: "stream", url: "stream"},
-  {as: "a", content: "Gamepad Widget", key: "gamepadwidget", url: "gamepadwidget"}
+  { as: "a", content: "Stream", key: "stream", url: "stream" },
+  { as: "a", content: "Gamepad Widget", key: "gamepadwidget", url: "gamepadwidget" }
 ];
 const rightItems = [
-  {as: "a", content: "NotHidingTab1", key: "nothidingtab1", url: "nothidingtab1"},
-  {as: "a", content: "NotHidingTab2", key: "nothidingtab2", url: "nothidingtab2"}
+  { as: "a", content: "NotHidingTab1", key: "nothidingtab1", url: "nothidingtab1" },
+  { as: "a", content: "NotHidingTab2", key: "nothidingtab2", url: "nothidingtab2" }
 ];
 
 const App: React.FC = () => {
+  console.log("Environemnt: ", process.env);
   const gamepad = new GamepadService();
   gamepad.init();
+
+  const response = genericApi(Endpoints.GetConfigs, EMethod.GET, null).then(resp => console.log(resp));
 
   const [values, setValues] = useState([0]);
   let messingService: MessagingService = MessagingService.getInstance();
@@ -49,9 +51,9 @@ const App: React.FC = () => {
     <div className="App">
       <Router>
         <NavBar leftItems={leftItems} rightItems={rightItems}>
-          <Route exact path="/" render={() => <RawGamepadWidget gamepadIndex={0}/>}/>
-          <Route exact path="/gamepadwidget" render={() => <RawGamepadWidget gamepadIndex={0}/>}/>
-          <Route path="/stream" component={VideoStream}/>
+          <Route exact path="/" render={() => <RawGamepadWidget gamepadIndex={0} />} />
+          <Route exact path="/gamepadwidget" render={() => <RawGamepadWidget gamepadIndex={0} />} />
+          <Route path="/stream" component={VideoStream} />
         </NavBar>
       </Router>
 
