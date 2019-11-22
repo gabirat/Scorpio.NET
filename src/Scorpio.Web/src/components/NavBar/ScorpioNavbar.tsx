@@ -3,6 +3,7 @@ import NavBar from "./NavBar";
 
 const leftItems = [
   { as: "a", content: "Dashboard", key: "dashboard", url: "dashboard" },
+  { as: "a", content: "Gamepad", key: "gamepad", url: "gamepad" },
   { as: "a", content: "Stream", key: "stream", url: "stream" }
 ];
 

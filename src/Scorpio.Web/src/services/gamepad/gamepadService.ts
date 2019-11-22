@@ -4,21 +4,23 @@ import { IXboxGamepadModel } from "./xboxGamepadModel";
 
 const xboxGamepadId = "Xbox";
 
-declare global {
-  interface Window {
-    scorpioGamepad: GamepadService;
-  }
-}
-
 // TODO make this singleton
 class GamepadService {
-  constructor() {
+  private static _instance: GamepadService;
+  private _connectedGamepadsIds: number[] = [];
+  private _gamepadsState: IXboxGamepadModel[] = [];
+
+  private constructor() {
     this.updateGamepadState = this.updateGamepadState.bind(this);
     window.scorpioGamepad = this;
   }
 
-  private _connectedGamepadsIds: number[] = [];
-  private _gamepadsState: IXboxGamepadModel[] = [];
+  static getInstance(): GamepadService {
+    if (!GamepadService._instance) {
+      GamepadService._instance = new GamepadService();
+    }
+    return GamepadService._instance;
+  }
 
   public init(): void {
     this.addEventListeners();
@@ -27,6 +29,15 @@ class GamepadService {
 
   public getGamepadState(index: number): IXboxGamepadModel | null {
     return this._gamepadsState.find(x => x.index === index) || null;
+  }
+
+  public getConnectedGamepads() {
+    const pads = navigator.getGamepads();
+    if (pads) {
+      console.log(pads);
+    }
+
+    return [];
   }
 
   private doPoll(): void {

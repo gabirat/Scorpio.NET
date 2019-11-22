@@ -5,13 +5,26 @@ import { connect } from "react-redux";
 import { AppState } from "./redux/reducers/rootReducer";
 import { fetchConfigs, FetchConfigsAction } from "./redux/actions/configActions";
 
-import VideoStream from "./components/dashboard/widgets/VideoStream/VideoStream";
+import VideoStream from "./components/dashboardPage/widgets/VideoStream/VideoStream";
 import ScorpioNavbar from "./components/NavBar/ScorpioNavbar";
-import DashboardPage from "./components/dashboard/dashboardPage";
+import DashboardPage from "./components/dashboardPage/dashboardPage";
+import GamepadPage from "./components/gamepadPage/gamepadPage";
+
+import GamepadService from "./services/gamepad/gamepadService";
+
+declare global {
+  interface Window {
+    scorpioGamepad: GamepadService | {};
+  }
+}
 
 class MainComponent extends Component {
+  private _gamepadService: GamepadService;
   constructor(props: any) {
     super(props);
+    window.scorpioGamepad = {};
+    this._gamepadService = GamepadService.getInstance();
+    this._gamepadService.init();
     props.fetchConfigs();
   }
 
@@ -22,6 +35,7 @@ class MainComponent extends Component {
         <ScorpioNavbar />
         <Route exact path="/" component={DashboardPage} />
         <Route exact path="/dashboard" component={DashboardPage} />
+        <Route exact path="/gamepad" component={GamepadPage} />
         <Route path="/stream" component={VideoStream} />
       </>
     );

@@ -1,9 +1,11 @@
 import React, { Component } from "react";
+import { Select, DropdownItemProps } from "semantic-ui-react";
 import GamepadStick from "./gamepadStick";
 import GamepadTrigger from "./gamepadTrigger";
 import { IXboxGamepadModel } from "../../../../services/gamepad/xboxGamepadModel";
-import "./rawGamepadWidget.css";
 import MessagingService from "../../../../services/messagingService";
+import GamepadService from "../../../../services/gamepad/gamepadService";
+import "./rawGamepadWidget.css";
 
 interface IRawGamepadWidgetProps {
   gamepadIndex: number;
@@ -38,18 +40,36 @@ export class RawGamepadWidget extends Component<IRawGamepadWidgetProps, IRawGame
 
   doUpdate = (): void => {
     const { gamepadIndex } = this.props;
-    const gamepad = window.scorpioGamepad.getGamepadState(gamepadIndex);
-    if (gamepad) {
-      this._messagingService.send("data", gamepad);
-      console.log("sending", gamepad);
-      this.setState({ gamepad });
+    const windowScorpioGamepad = window.scorpioGamepad as GamepadService;
+
+    if (windowScorpioGamepad && typeof windowScorpioGamepad.getGamepadState === "function") {
+      const gamepad = windowScorpioGamepad.getGamepadState(gamepadIndex);
+      if (gamepad) {
+        this._messagingService.send("data", gamepad);
+        console.log("sending", gamepad);
+        this.setState({ gamepad });
+      }
     }
+  };
+
+  getDropdownOptions = (): DropdownItemProps[] => {
+    const windowScorpioGamepad = window.scorpioGamepad as GamepadService;
+    if (windowScorpioGamepad && typeof windowScorpioGamepad.getConnectedGamepads === "function") {
+      const options = windowScorpioGamepad.getConnectedGamepads();
+      console.warn(options);
+    }
+    return [{ key: "asd", value: "asd", text: "asdas12312d" }];
   };
 
   render() {
     const { leftStick, rightStick, index, name, leftTrigger, rightTrigger } = this.state.gamepad;
     return (
       <>
+        <Select
+          placeholder="Select gamepad"
+          options={this.getDropdownOptions()}
+          onChange={(ev, selection) => console.log(selection.value)}
+        />
         <div>
           Pad: {index} : {name}
         </div>
