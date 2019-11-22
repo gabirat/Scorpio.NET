@@ -10,6 +10,7 @@ using Scorpio.Api.DataAccess;
 using Scorpio.Api.EventHandlers;
 using Scorpio.Api.Events;
 using Scorpio.Api.Hubs;
+using Scorpio.Gamepad.Processors;
 using Scorpio.Messaging.Abstractions;
 using Scorpio.Messaging.RabbitMQ;
 
@@ -71,6 +72,8 @@ namespace Scorpio.Api
             services.AddTransient<IUiConfigurationRepository, UiConfigurationRepository>();
             services.AddTransient<ISensorRepository, SensorRepository>();
             services.AddTransient<ISensorDataRepository, SensorDataRepository>();
+
+            services.AddTransient<IGamepadProcessor, ExponentialGamepadProcessor>();
 
             var corsOrigins = "http://" + (Configuration["BACKEND_ORIGIN"] ?? "localhost:3000");
             services.AddCors(settings =>

@@ -13,7 +13,7 @@ namespace Scorpio.Messaging.RabbitMQ
 {
     public class RabbitMqEventBus : IEventBus, IDisposable
     {
-        private const string ExchangeName = "scorpio.exchange";
+        private readonly string _exchangeName;
         private readonly IEventBusSubscriptionManager _subsManager;
         private readonly ILogger<RabbitMqEventBus> _logger;
         private readonly ILifetimeScope _autofac;
@@ -26,6 +26,7 @@ namespace Scorpio.Messaging.RabbitMQ
             ILifetimeScope autofac, IEventBusSubscriptionManager subsManager, IConfiguration config)
         {
             _queueName = config["RabbitMq:myQueueName"] ?? throw new ArgumentNullException(nameof(_queueName));
+            _exchangeName = config["RabbitMq:exchangeName"] ?? throw new ArgumentNullException(nameof(_exchangeName));
             _persistentConnection = persistentConnection ?? throw new ArgumentNullException(nameof(persistentConnection));
             _config = config;
             _autofac = autofac;
@@ -44,7 +45,7 @@ namespace Scorpio.Messaging.RabbitMQ
                 var props = ConfigureChannel(channel);
                 var message = JsonConvert.SerializeObject(@event);
                 var body = Encoding.UTF8.GetBytes(message);
-                channel.BasicPublish(exchange: ExchangeName,
+                channel.BasicPublish(exchange: _exchangeName,
                     routingKey: routingKey,
                     basicProperties: props,
                     body: body);
@@ -78,11 +79,11 @@ namespace Scorpio.Messaging.RabbitMQ
             props.ContentType = "application/json";
             return props;
         }
- 
+
         public void Subscribe<TEvent, THandler>() where TEvent : IIntegrationEvent where THandler : IIntegrationEventHandler<TEvent>
         {
             var eventName = _subsManager.GetEventKey<TEvent>();
-   
+
             if (!_subsManager.HasSubscriptionsForEvent(eventName))
             {
                 if (!_persistentConnection.IsConnected)
@@ -93,7 +94,7 @@ namespace Scorpio.Messaging.RabbitMQ
                 using (var channel = _persistentConnection.CreateModel())
                 {
                     channel.QueueBind(queue: _queueName,
-                        exchange: ExchangeName,
+                        exchange: _exchangeName,
                         routingKey: eventName);
                 }
             }
@@ -118,7 +119,7 @@ namespace Scorpio.Messaging.RabbitMQ
                 _persistentConnection.TryConnect();
 
             var channel = _persistentConnection.CreateModel();
-            channel.ExchangeDeclare(ExchangeName, ExchangeType.Direct);
+            channel.ExchangeDeclare(_exchangeName, ExchangeType.Direct);
             channel.QueueDeclare(_queueName, true, false, false, null);
 
             var consumer = new EventingBasicConsumer(channel);
@@ -146,21 +147,25 @@ namespace Scorpio.Messaging.RabbitMQ
 
         private async Task ProcessEvent(string eventName, string message)
         {
-            if (_subsManager.HasSubscriptionsForEvent(eventName))
+            if (!_subsManager.HasSubscriptionsForEvent(eventName))
             {
-                using (var scope = _autofac.BeginLifetimeScope(ExchangeName))
+                return;
+            }
+
+            using (var scope = _autofac.BeginLifetimeScope(_exchangeName))
+            {
+                var subscriptions = _subsManager.GetHandlersForEvent(eventName);
+                foreach (var subscription in subscriptions)
                 {
-                    var subscriptions = _subsManager.GetHandlersForEvent(eventName);
-                    foreach (var subscription in subscriptions)
-                    {
-                        var handler = scope.ResolveOptional(subscription.HandlerType);
-                        if (handler is null) continue;
-                        var eventType = _subsManager.GetEventTypeByName(eventName);
-                        var integrationEvent = JsonConvert.DeserializeObject(message, eventType);
-                        var concreteType = typeof(IIntegrationEventHandler<>).MakeGenericType(eventType);
-                        await (Task)concreteType.GetMethod("Handle")
-                            .Invoke(handler, new object[] { integrationEvent });
-                    }
+                    var handler = scope.ResolveOptional(subscription.HandlerType);
+                    if (handler is null) continue;
+
+                    var eventType = _subsManager.GetEventTypeByName(eventName);
+                    var integrationEvent = JsonConvert.DeserializeObject(message, eventType);
+                    var concreteType = typeof(IIntegrationEventHandler<>).MakeGenericType(eventType);
+                    await (Task)concreteType
+                        .GetMethod(nameof(IIntegrationEventHandler<IIntegrationEvent>.Handle))
+                        .Invoke(handler, new[] { integrationEvent });
                 }
             }
         }
