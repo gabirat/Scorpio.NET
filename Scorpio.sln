@@ -21,6 +21,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{FDCE29
 EndProject
 Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "Scorpio.Web", "src\Scorpio.Web\Scorpio.Web.njsproj", "{F6823114-51DE-415C-A778-56D27554D92C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scorpio.Gamepad.IO", "src\Scorpio.Gamepad.IO\Scorpio.Gamepad.IO.csproj", "{8728FACB-63FF-4068-8553-0C0B1F80D96D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scorpio.Gamepad.Processors", "src\Scorpio.Gamepad.Processors\Scorpio.Gamepad.Processors.csproj", "{7E82C03C-DC99-4149-AE1E-7CBD2B1DAC08}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scorpio.Gamepad.Models", "src\Scorpio.Gamepad.Models\Scorpio.Gamepad.Models.csproj", "{4F4CE1B6-FA09-4901-9E84-157B820B16A9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +48,18 @@ Global
 		{F6823114-51DE-415C-A778-56D27554D92C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F6823114-51DE-415C-A778-56D27554D92C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F6823114-51DE-415C-A778-56D27554D92C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8728FACB-63FF-4068-8553-0C0B1F80D96D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8728FACB-63FF-4068-8553-0C0B1F80D96D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8728FACB-63FF-4068-8553-0C0B1F80D96D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8728FACB-63FF-4068-8553-0C0B1F80D96D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E82C03C-DC99-4149-AE1E-7CBD2B1DAC08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E82C03C-DC99-4149-AE1E-7CBD2B1DAC08}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E82C03C-DC99-4149-AE1E-7CBD2B1DAC08}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E82C03C-DC99-4149-AE1E-7CBD2B1DAC08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F4CE1B6-FA09-4901-9E84-157B820B16A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F4CE1B6-FA09-4901-9E84-157B820B16A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F4CE1B6-FA09-4901-9E84-157B820B16A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F4CE1B6-FA09-4901-9E84-157B820B16A9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
