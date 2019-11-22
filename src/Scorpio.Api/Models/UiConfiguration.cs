@@ -7,10 +7,15 @@ namespace Scorpio.Api.Models
         public string ParentId { get; set; }
 
         [Required]
-        public int Type { get; set; }
+        [RegularExpression("^page$|^member$", ErrorMessage = "Type must be either 'page' or 'member")] 
+        public string Type { get; set; }
 
+        [Required]
+        [MinLength(2)]
         public string Name { get; set; }
 
+        [Required]
+        [MinLength(2)]
         public string Data { get; set; }
 
         public override string ToString() => Name ?? string.Empty;

@@ -59,10 +59,10 @@ namespace Scorpio.Api.Controllers
             }
         }
 
-        [HttpDelete]
-        public virtual async Task<IActionResult> Delete(TEntity entity)
+        [HttpDelete("{id}")]
+        public virtual async Task<IActionResult> Delete(string id)
         {
-            var existing = await Repository.GetByIdAsync(entity.Id);
+            var existing = await Repository.GetByIdAsync(id);
             if (existing is null)
             {
                 return NotFound();
@@ -72,8 +72,8 @@ namespace Scorpio.Api.Controllers
 
             try
             {
-                await Repository.DeleteAsync(entity);
-                response.AddSuccessMessage($"Successfully deleted {entity}");
+                await Repository.DeleteAsync(existing);
+                response.AddSuccessMessage($"Successfully deleted {existing}");
                 return CreatedAtAction(nameof(Add), response);
             }
             catch (FormatException ex)
@@ -88,10 +88,10 @@ namespace Scorpio.Api.Controllers
             }
         }
 
-        [HttpPut]
-        public virtual async Task<IActionResult> Update(TEntity entity)
+        [HttpPut("{id}")]
+        public virtual async Task<IActionResult> Update(string id, TEntity entity)
         {
-            var existing = await Repository.GetByIdAsync(entity.Id);
+            var existing = await Repository.GetByIdAsync(id);
             if (existing is null)
             {
                 return NotFound();

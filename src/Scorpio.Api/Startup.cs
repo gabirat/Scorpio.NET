@@ -1,3 +1,5 @@
+using Matty.Framework;
+using Matty.Framework.Enums;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +15,7 @@ using Scorpio.Api.Hubs;
 using Scorpio.Gamepad.Processors;
 using Scorpio.Messaging.Abstractions;
 using Scorpio.Messaging.RabbitMQ;
+using System.Linq;
 
 namespace Scorpio.Api
 {
@@ -40,6 +43,20 @@ namespace Scorpio.Api
                         options.SerializerSettings.Converters.Add(new StringEnumConverter());
                         options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                     });
+
+            // Create custom BadRequest response to match MattyFramework response shape
+            services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.InvalidModelStateResponseFactory = context =>
+                {
+                    var result = new ServiceResult<object>(context.ModelState
+                        .Where(x => !string.IsNullOrEmpty(x.Value.Errors.FirstOrDefault()?.ErrorMessage))
+                        .Select(x => new Alert(x.Value.Errors.FirstOrDefault()?.ErrorMessage, MessageType.Error))
+                        .ToList());
+
+                    return new BadRequestObjectResult(result);
+                };
+            });
 
             // SignalR - real time messaging with front end
             services.AddSignalR(settings =>
