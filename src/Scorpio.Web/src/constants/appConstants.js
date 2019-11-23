@@ -2,6 +2,7 @@
 const baseUrl = process.env.REACT_APP_BACKEND_URL;
 
 export const API = {
+  ROOT: baseUrl + "/",
   CONFIG: {
     GET_ALL: baseUrl + "/api/configuration",
     POST_NEW: baseUrl + "/api/configuration",

@@ -13,7 +13,7 @@ export async function genericApi(endpoint, verb, data, actionToDispatchOnSuccess
         .catch(err => handleError(err, actionToDispatchOnError));
 
     default:
-      throw new Error("Unkown verb");
+      throw AlertDispatcher.dispatchError("genericApi: Unkown verb", verb);
   }
 }
 
