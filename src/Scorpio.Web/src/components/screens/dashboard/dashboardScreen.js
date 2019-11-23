@@ -245,6 +245,7 @@ class DashboardScreen extends Component {
                       showIcons={allowRearrange}
                       onEditClick={this.onWidgetEditClick}
                       onRemoveClick={this.onWidgetRemoveClick}
+                      {...obj.data.props}
                     >
                       <WidgetErrorBoundary key={indx}>
                         <DashboardWidget {...obj.data.props} key={indx} />

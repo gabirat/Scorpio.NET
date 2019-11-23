@@ -16,7 +16,19 @@ import streamScreen from "./components/screens/stream/streamScreen";
 import gamepadScreen from "./components/screens/gamepad/gamepadScreen";
 import aboutScreen from "./components/screens/about/aboutScreen";
 
+import GamepadService from "./services/GamepadService";
+
 class MainComponent extends Component {
+  constructor(props) {
+    super(props);
+    this.initGamepad();
+  }
+
+  initGamepad() {
+    window.scorpioGamepad = GamepadService;
+    GamepadService.init();
+  }
+
   async componentDidMount() {
     const result = await genericApi(API.CONFIG.GET_ALL, "GET");
     if (result && result.response && result.response.ok && result.body && Array.isArray(result.body)) {

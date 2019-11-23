@@ -3,10 +3,15 @@ import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { withRouter } from "react-router-dom";
 import * as actions from "../../../actions";
+import VideoStream from "./videoStream";
 
 class StreamScreen extends Component {
   render() {
-    return <div>STREAM {new Date().getTime()}</div>;
+    return (
+      <div>
+        <VideoStream />
+      </div>
+    );
   }
 }
 

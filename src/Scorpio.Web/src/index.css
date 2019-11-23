@@ -24,6 +24,10 @@ html {
   height: 100%;
 }
 
+.bordered {
+  border: 1px solid lightgray;
+}
+
 .flex {
   display: flex;
 }
@@ -40,4 +44,12 @@ html {
 
 .grid-dragable {
   background-color: slateblue;
+}
+
+.center {
+  text-align: center;
+}
+
+.padding-bottom-sm {
+  padding-bottom: 5px;
 }

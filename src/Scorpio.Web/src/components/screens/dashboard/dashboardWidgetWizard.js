@@ -37,7 +37,8 @@ class DashboardWidgetWizard extends React.Component {
 
   render() {
     const { onClose, initialValues } = this.props;
-    // const { form } = this.state;
+    const { form } = this.state;
+    const isAnalogGamepadWidget = form && form.values && form.values.widgetTtype === "GamepadAnalogs";
 
     const values = initialValues ? initialValues.props : null;
 
@@ -76,6 +77,22 @@ class DashboardWidgetWizard extends React.Component {
               />
             )}
           </Field>
+        </GenericWizard.Page>
+
+        <GenericWizard.Page title="Widget properties">
+          {isAnalogGamepadWidget && (
+            <Field name="gamepadIndex" validate={Validators.required}>
+              {({ input, meta }) => (
+                <SemanticForm.Input
+                  {...input}
+                  label="Gamepad index"
+                  placeholder="Input gamepad index"
+                  required
+                  error={meta.invalid && meta.touched && meta.error}
+                />
+              )}
+            </Field>
+          )}
         </GenericWizard.Page>
       </GenericWizard>
     );

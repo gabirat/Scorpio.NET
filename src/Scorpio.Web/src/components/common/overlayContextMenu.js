@@ -12,7 +12,7 @@ class OverlayContextMenu extends PureComponent {
   };
 
   render() {
-    const { showIcons } = this.props;
+    const { showIcons, widgetTitle } = this.props;
 
     if (showIcons) {
       return (
@@ -21,17 +21,21 @@ class OverlayContextMenu extends PureComponent {
             <Menu.Item icon="edit outline" onClick={this.onEditClick} />
             <Menu.Item icon="close" onClick={this.onRemoveClick} />
           </Menu>
-          <div
-            className="fullHeight fullWidth"
-            style={{ opacity: "0.25", position: "relative", top: "-56px", zIndex: "-1" }}
-          >
+          <div className="fullHeight fullWidth" style={{ opacity: "0.25", position: "relative", top: "-56px", zIndex: "-1" }}>
             {this.props.children}
           </div>
         </>
       );
     }
 
-    return this.props.children;
+    return (
+      <div className="fullWidth fullHeight bordered">
+        <div className="fullWidth center">
+          <h4 className="padding-bottom-sm">{widgetTitle}</h4>
+        </div>
+        <div className="center">{this.props.children}</div>
+      </div>
+    );
   }
 }
 
