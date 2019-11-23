@@ -15,6 +15,7 @@ import dashboardScreen from "./components/screens/dashboard/dashboardScreen";
 import streamScreen from "./components/screens/stream/streamScreen";
 import gamepadScreen from "./components/screens/gamepad/gamepadScreen";
 import aboutScreen from "./components/screens/about/aboutScreen";
+import sensorsScreen from "./components/screens/sensors/sensorsScreen";
 
 import GamepadService from "./services/GamepadService";
 
@@ -50,6 +51,7 @@ class MainComponent extends Component {
             <Route exact path="/stream" component={streamScreen} />
             <Route exact path="/gamepad" component={gamepadScreen} />
             <Route exact path="/about" component={aboutScreen} />
+            <Route exact path="/sensors" component={sensorsScreen} />
             <Route exact path="/not-found" component={NotFound} />
             <Redirect to="/not-found" />
           </Switch>

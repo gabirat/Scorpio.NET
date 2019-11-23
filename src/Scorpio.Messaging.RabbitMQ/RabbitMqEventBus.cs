@@ -45,7 +45,7 @@ namespace Scorpio.Messaging.RabbitMQ
                 var props = ConfigureChannel(channel);
                 var message = JsonConvert.SerializeObject(@event);
                 var body = Encoding.UTF8.GetBytes(message);
-                channel.BasicPublish(exchange: _exchangeName,
+                channel.BasicPublish(exchange: "scorpio.direct",
                     routingKey: routingKey,
                     basicProperties: props,
                     body: body);

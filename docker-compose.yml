@@ -1,22 +1,22 @@
 version: "3"
 services:
- api:
-    build:
-     context: ./
-     dockerfile: ./src/Scorpio.Api/Dockerfile
-    image: scorpio/webapi
-    container_name: "scorpio_webapi"
-    environment:
-      - RabbitMq__host=rabbitmq
-      - MongoDb__ConnectionString=mongodb://mongodbuser:mongodbpassword@mongodb:27017
-      - MongoDb__Database=scorpiodb
-      # TODO whis will not work when deployed on rover, we will need either rover ip here, or dns, or abadon cors
-      - WEBAPP_URL=localhost
-    ports:
-      - "8081:80"
-    depends_on:
-     - rabbitmq
-     - mongodb
+ #api:
+ #   build:
+ #    context: ./
+ #    dockerfile: ./src/Scorpio.Api/Dockerfile
+ #   image: scorpio/webapi
+ #   container_name: "scorpio_webapi"
+ #   environment:
+ #     - RabbitMq__host=rabbitmq
+ #     - MongoDb__ConnectionString=mongodb://mongodbuser:mongodbpassword@mongodb:27017
+ #     - MongoDb__Database=scorpiodb
+ #     # TODO whis will not work when deployed on rover, we will need either rover ip here, or dns, or abadon cors
+ #     - WEBAPP_URL=localhost
+ #   ports:
+ #     - "8081:80"
+ #   depends_on:
+ #    - rabbitmq
+ #    - mongodb
 
  rabbitmq:
     image: "rabbitmq:3-management"
@@ -27,46 +27,46 @@ services:
     volumes:
       - 'rabbitmq_data:/data'
 
- mongodb:
-    image: "mongo:latest"
-    container_name: "scorpio_mongodb"
-    command: mongod --auth
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: mongodbuser
-      MONGO_INITDB_ROOT_PASSWORD: mongodbpassword
-      MONGO_INITDB_DATABASE: scorpiodb
-      MONGODB_DATA_DIR: /data/db
-      MONDODB_LOG_DIR: /dev/null
-    volumes:
-      - mongodb_data:/data/db
-    ports:
-       - '27017:27017'
+# mongodb:
+#    image: "mongo:latest"
+#    container_name: "scorpio_mongodb"
+#    command: mongod --auth
+#    environment:
+#      MONGO_INITDB_ROOT_USERNAME: mongodbuser
+#      MONGO_INITDB_ROOT_PASSWORD: mongodbpassword
+#      MONGO_INITDB_DATABASE: scorpiodb
+#      MONGODB_DATA_DIR: /data/db
+#      MONDODB_LOG_DIR: /dev/null
+#    volumes:
+#      - mongodb_data:/data/db
+#    ports:
+#       - '27017:27017'
 
- portainer:
-    image: "portainer/portainer"
-    container_name: "scorpio_portainer"
-    ports:
-      - "8084:9000"
-    command: -H unix:///var/run/docker.sock
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - portainer_data:/data
+#portainer:
+#   image: "portainer/portainer"
+#   container_name: "scorpio_portainer"
+#   ports:
+#     - "8084:9000"
+#   command: -H unix:///var/run/docker.sock
+#   volumes:
+#     - /var/run/docker.sock:/var/run/docker.sock
+#     - portainer_data:/data
 
- web:
-    build:
-     context: ./src/Scorpio.Web
-     dockerfile: ./Dockerfile
-    image: "scorpio/webapp"
-    container_name: "scorpio_webapp"
-    ports:
-      - "8080:3000"
-    environment:
-      - REACT_APP_API_URL=api:8080
-    volumes:
-    # for frontend autoreload: TODO make production & development docker-compose.yml
-      - ./src/Scorpio.Web/src:/webapp/src
+# web:
+#    build:
+#     context: ./src/Scorpio.Web
+#     dockerfile: ./Dockerfile
+#    image: "scorpio/webapp"
+#    container_name: "scorpio_webapp"
+#    ports:
+#      - "8080:3000"
+#    environment:
+#      - REACT_APP_API_URL=api:8080
+#    volumes:
+#    # for frontend autoreload: TODO make production & development docker-compose.yml
+#      - ./src/Scorpio.Web/src:/webapp/src
 
 volumes:
   rabbitmq_data:
-  portainer_data:
-  mongodb_data:
+#  portainer_data:
+#  mongodb_data:

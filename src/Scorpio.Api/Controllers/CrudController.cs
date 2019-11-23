@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Scorpio.Api.DataAccess;
 using Scorpio.Api.Models;
 using System;
+using System.Collections.Generic;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using Scorpio.Api.Paging;
 
@@ -23,28 +25,35 @@ namespace Scorpio.Api.Controllers
         }
 
         [HttpGet]
-        public virtual async Task<IActionResult> GetAll()
+        public virtual async Task<IEnumerable<TEntity>> GetAll()
         {
             var result = await Repository.GetAllAsync();
-            return Ok(result);
+            return result;
         }
 
         [HttpGet("paged")]
-        public virtual async Task<IActionResult> GetPaged([FromQuery] PageParam pageParam)
+        public virtual async Task<PagedList<TEntity>> GetPaged([FromQuery] PageParam pageParam)
         {
             var result = await Repository.GetPaged(pageParam);
-            return Ok(result);
+            return result;
         }
 
         [HttpGet("{id}")]
-        public virtual async Task<IActionResult> GetById(string id)
+        public virtual async Task<TEntity> GetById(string id)
         {
             var result = await Repository.GetByIdAsync(id);
-            return Ok(result);
+
+            if (result is null)
+            {
+                NotFound();
+            }
+
+            return result;
         }
 
         [HttpPost]
-        public virtual async Task<IActionResult> Add(TEntity entity)
+        [Consumes(MediaTypeNames.Application.Json)]
+        public virtual async Task<ServiceResult<TEntity>> Add(TEntity entity)
         {
             var response = new ServiceResult<TEntity>(User);
 
@@ -52,77 +61,84 @@ namespace Scorpio.Api.Controllers
             {
                 response.Data = await Repository.CreateAsync(entity);
                 response.AddSuccessMessage($"Successfully created {entity}");
-                return CreatedAtAction(nameof(Add), response);
+                CreatedAtAction(nameof(Add), response);
             }
             catch (FormatException ex)
             {
                 var msg = $"Supplied invalid id: {ex.Message} Please don't use any ID here - it will be created automatically.";
                 response.AddErrorMessage(msg);
-                return BadRequest(response);
+                BadRequest(response);
             }
             catch (Exception ex)
             {
                 response.AddErrorMessage(ex.Message);
-                return BadRequest(response);
+                BadRequest(response);
             }
+
+            return response;
         }
 
         [HttpDelete("{id}")]
-        public virtual async Task<IActionResult> Delete(string id)
+        [Consumes(MediaTypeNames.Application.Json)]
+        public virtual async Task<ServiceResult<TEntity>> Delete(string id)
         {
+            var response = new ServiceResult<TEntity>(User);
             var existing = await Repository.GetByIdAsync(id);
             if (existing is null)
             {
-                return NotFound();
+                NotFound();
+                return response;
             }
-
-            var response = new ServiceResult<TEntity>(User);
-
+            
             try
             {
                 await Repository.DeleteAsync(existing);
                 response.AddSuccessMessage($"Successfully deleted {existing}");
-                return CreatedAtAction(nameof(Add), response);
+                CreatedAtAction(nameof(Add), response);
             }
             catch (FormatException ex)
             {
                 response.AddErrorMessage($"Supplied invalid id: {ex.Message}");
-                return BadRequest(response);
+                BadRequest(response);
             }
             catch (Exception ex)
             {
                 response.AddErrorMessage(ex.Message);
-                return BadRequest(response);
+                BadRequest(response);
             }
+
+            return response;
         }
 
         [HttpPut("{id}")]
-        public virtual async Task<IActionResult> Update(string id, TEntity entity)
+        [Consumes(MediaTypeNames.Application.Json)]
+        public virtual async Task<ServiceResult<TEntity>> Update(string id, TEntity entity)
         {
+            var response = new ServiceResult<TEntity>(User);
             var existing = await Repository.GetByIdAsync(id);
             if (existing is null)
             {
-                return NotFound();
+                NotFound();
             }
-
-            var response = new ServiceResult<TEntity>(User);
 
             try
             {
                 response.Data = await Repository.UpdateAsync(entity);
                 response.AddSuccessMessage($"Successfully updated config: {entity}");
-                return Ok(response);
+                Ok(response);
             }
             catch (FormatException ex)
             {
                 response.AddErrorMessage($"Supplied invalid id: {ex.Message}");
-                return BadRequest(response);
+                BadRequest(response);
             }
             catch (Exception ex)
             {
                 response.AddErrorMessage(ex.Message);
-                return BadRequest(response);
+                BadRequest(response);
             }
+
+            return response;
         }
     }
 }

@@ -8,5 +8,8 @@ export const API = {
     POST_NEW: baseUrl + "/api/configuration",
     UPDATE_BY_ID: baseUrl + "/api/configuration/{0}",
     DELETE_BY_ID: baseUrl + "/api/configuration/{0}"
+  },
+  SENSORS: {
+    GET_ALL: baseUrl + "/api/sensors"
   }
 };

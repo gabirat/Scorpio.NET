@@ -138,10 +138,10 @@ namespace Scorpio.Api
 
         private static void UseEventBus(IApplicationBuilder app)
         {
-            var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
-
-            eventBus.Subscribe<UpdateRoverPositionEvent, UpdateRoverPositionEventHandler>();
-            eventBus.Subscribe<Test, TestEventHandler>();
+//            var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
+//
+//            eventBus.Subscribe<UpdateRoverPositionEvent, UpdateRoverPositionEventHandler>();
+//            eventBus.Subscribe<Test, TestEventHandler>();
         }
     }
 }
