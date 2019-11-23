@@ -89,6 +89,7 @@ namespace Scorpio.Api
             services.AddTransient<IUiConfigurationRepository, UiConfigurationRepository>();
             services.AddTransient<ISensorRepository, SensorRepository>();
             services.AddTransient<ISensorDataRepository, SensorDataRepository>();
+            services.AddTransient<IStreamRepository, StreamRepository>();
 
             services.AddTransient<IGamepadProcessor, ExponentialGamepadProcessor>();
 
@@ -109,7 +110,11 @@ namespace Scorpio.Api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseExceptionHandlingMiddleware();
+            if (env.EnvironmentName.ToLower() == "development")
+            {
+                app.UseDeveloperExceptionPage();
+                app.UseCors("corsPolicy");
+            }
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
@@ -118,12 +123,9 @@ namespace Scorpio.Api
             // specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1"); });
 
-            if (env.EnvironmentName.ToLower() == "development")
-            {
-                app.UseDeveloperExceptionPage();
-                app.UseCors("corsPolicy");
-            }
             app.UseRouting();
+
+            app.UseExceptionHandlingMiddleware();
 
             app.UseEndpoints(endpoints =>
             {

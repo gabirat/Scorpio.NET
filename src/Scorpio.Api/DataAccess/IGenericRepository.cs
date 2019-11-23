@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Scorpio.Api.Paging;
 
 namespace Scorpio.Api.DataAccess
 {
@@ -13,6 +14,12 @@ namespace Scorpio.Api.DataAccess
         /// </summary>
         /// <returns>Collection of TEntity type</returns>
         Task<IEnumerable<TEntity>> GetAllAsync();
+
+        /// <summary>
+        /// Get paginated results
+        /// </summary>
+        /// <returns></returns>
+        Task<PagedList<TEntity>> GetPaged(PageParam pageParam);
 
         /// <summary>
         /// Gets entities filtered by predicate

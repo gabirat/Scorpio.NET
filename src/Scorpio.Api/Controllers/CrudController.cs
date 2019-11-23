@@ -4,6 +4,7 @@ using Scorpio.Api.DataAccess;
 using Scorpio.Api.Models;
 using System;
 using System.Threading.Tasks;
+using Scorpio.Api.Paging;
 
 namespace Scorpio.Api.Controllers
 {
@@ -25,6 +26,13 @@ namespace Scorpio.Api.Controllers
         public virtual async Task<IActionResult> GetAll()
         {
             var result = await Repository.GetAllAsync();
+            return Ok(result);
+        }
+
+        [HttpGet("paged")]
+        public virtual async Task<IActionResult> GetPaged([FromQuery] PageParam pageParam)
+        {
+            var result = await Repository.GetPaged(pageParam);
             return Ok(result);
         }
 
