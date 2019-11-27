@@ -29,7 +29,7 @@ namespace Scorpio.Api.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-//            _mainHub.Clients.All.SendAsync("data", "dataasdasd").Wait();
+            _mainHub.Clients.All.SendAsync("home", "dataasdasd").Wait();
             _eventBus.Publish(new UpdateRoverPositionEvent("posx", "posx"));
 
             var response = new

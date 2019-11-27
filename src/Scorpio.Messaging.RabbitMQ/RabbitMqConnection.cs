@@ -27,7 +27,7 @@ namespace Scorpio.Messaging.RabbitMQ
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("No RabbitMQ connections are available to perform this action");
+               throw new InvalidOperationException("No RabbitMQ connections are available to perform this action");
             }
 
             return _connection.CreateModel();

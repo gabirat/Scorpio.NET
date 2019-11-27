@@ -68,7 +68,7 @@ export default class GenericWizard extends Component {
   }
 
   render() {
-    const { children, onClose, title, size } = this.props;
+    let { children, onClose, title, size, showSteps } = this.props;
     const { page, values } = this.state;
     const currentPage = React.Children.toArray(children)[page];
     const isLastPage = page === React.Children.count(children) - 1;
@@ -77,6 +77,8 @@ export default class GenericWizard extends Component {
       .map((x, indx) =>
         x ? { title: x.title, onClick: _ => this.onStepperClicked(indx) } : { title: "", onClick: _ => this.onStepperClicked(indx) }
       );
+
+    if (showSteps === undefined) showSteps = true; //defaults to true
 
     return (
       <Modal
@@ -90,7 +92,7 @@ export default class GenericWizard extends Component {
           content={
             <>
               <Header as="h3" icon="add" content={title} />
-              <Stepper steps={steps} activeStep={page} />
+              {showSteps && <Stepper steps={steps} activeStep={page} />}
             </>
           }
         />

@@ -18,9 +18,9 @@ namespace Scorpio.Messaging.RabbitMQ
         private readonly ILogger<RabbitMqEventBus> _logger;
         private readonly ILifetimeScope _autofac;
         private readonly IConfiguration _config;
-        private IModel _consumerChannel;
         private readonly IRabbitMqConnection _persistentConnection;
         private readonly string _queueName;
+        private IModel _consumerChannel;
 
         public RabbitMqEventBus(IRabbitMqConnection persistentConnection, ILogger<RabbitMqEventBus> logger,
             ILifetimeScope autofac, IEventBusSubscriptionManager subsManager, IConfiguration config)
@@ -39,48 +39,28 @@ namespace Scorpio.Messaging.RabbitMQ
         {
             var routingKey = @event.GetType().Name;
 
-            using (var connection = GetFactory().CreateConnection())
-            using (var channel = connection.CreateModel())
+            using (var channel = _persistentConnection.CreateModel())
             {
                 var props = ConfigureChannel(channel);
                 var message = JsonConvert.SerializeObject(@event);
                 var body = Encoding.UTF8.GetBytes(message);
-                channel.BasicPublish(exchange: "scorpio.direct",
-                    routingKey: routingKey,
-                    basicProperties: props,
-                    body: body);
+                channel.BasicPublish(exchange: _exchangeName, routingKey: routingKey, basicProperties: props, body: body);
             }
-        }
-
-        private ConnectionFactory GetFactory()
-        {
-            var hostname = _config["RabbitMq:host"];
-            var port = _config["RabbitMq:port"];
-            var user = _config["RabbitMq:userName"];
-            var password = _config["RabbitMq:password"];
-            var virtualHost = _config["RabbitMq:virtualHost"];
-
-            return new ConnectionFactory
-            {
-                HostName = hostname,
-                Port = int.Parse(port),
-                UserName = user,
-                Password = password,
-                VirtualHost = virtualHost
-            };
         }
 
         private IBasicProperties ConfigureChannel(IModel channel)
         {
             var expiration = _config["RabbitMq:messageTTL"] ?? throw new ArgumentException("RabbitMq:messageTTL");
             var props = channel.CreateBasicProperties();
-            props.DeliveryMode = 2; // persistent
+            props.DeliveryMode = 1; // non persistent
             props.Expiration = expiration; // ms TTL
             props.ContentType = "application/json";
             return props;
         }
 
-        public void Subscribe<TEvent, THandler>() where TEvent : IIntegrationEvent where THandler : IIntegrationEventHandler<TEvent>
+        public void Subscribe<TEvent, THandler>() 
+            where TEvent : IIntegrationEvent 
+            where THandler : IIntegrationEventHandler<TEvent>
         {
             var eventName = _subsManager.GetEventKey<TEvent>();
 
@@ -93,15 +73,18 @@ namespace Scorpio.Messaging.RabbitMQ
 
                 using (var channel = _persistentConnection.CreateModel())
                 {
-                    channel.QueueBind(queue: _queueName,
-                        exchange: _exchangeName,
-                        routingKey: eventName);
+                    channel.QueueBind(queue: _queueName, exchange: _exchangeName, routingKey: eventName);
                 }
+
+                var log = $"RabbitMQ bound routingKey: {eventName} to queue: {_queueName} using exchange {_exchangeName}";
+                _logger.LogInformation(log);
             }
             _subsManager.AddSubscription<TEvent, THandler>();
         }
 
-        public void Unsubscribe<TEvent, THandler>() where TEvent : IIntegrationEvent where THandler : IIntegrationEventHandler<TEvent>
+        public void Unsubscribe<TEvent, THandler>() 
+            where TEvent : IIntegrationEvent 
+            where THandler : IIntegrationEventHandler<TEvent>
         {
             _subsManager.RemoveSubscription<TEvent, THandler>();
         }
@@ -109,18 +92,19 @@ namespace Scorpio.Messaging.RabbitMQ
         public void Dispose()
         {
             _consumerChannel?.Dispose();
-
             _subsManager.Clear();
         }
 
         private IModel CreateConsumerChannel()
         {
             if (!_persistentConnection.IsConnected)
+            {
                 _persistentConnection.TryConnect();
+            }
 
             var channel = _persistentConnection.CreateModel();
             channel.ExchangeDeclare(_exchangeName, ExchangeType.Direct);
-            channel.QueueDeclare(_queueName, true, false, false, null);
+            channel.QueueDeclare(_queueName, false, false, false, null);
 
             var consumer = new EventingBasicConsumer(channel);
 

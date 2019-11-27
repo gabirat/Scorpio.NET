@@ -39,7 +39,8 @@ function handleResponse(response, actionToDispatchOnSuccess) {
       };
     });
   } else {
-    throw new Error("Response is invalid");
+    LogService.info("Invalid response", response.url, response.status);
+    throw new Error("Invalid response");
   }
 }
 

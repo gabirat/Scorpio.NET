@@ -53,3 +53,7 @@ html {
 .padding-bottom-sm {
   padding-bottom: 5px;
 }
+
+.ui.pagination.menu .active.item {
+  background-color: rgba(242, 113, 26, 0.7) !important;
+}
