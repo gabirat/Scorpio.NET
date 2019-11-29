@@ -13,24 +13,13 @@ class MessagingService {
 
   // Subscribe for given topic. If any messages appear on it, the handler will be called with received data.
   subscribe(topic, handler) {
-    if (Array.isArray(this._observers[topic])) {
-      this._observers[topic].push(handler);
-    } else {
-      this._observers[topic] = [handler];
-    }
+    if (typeof handler !== "function" || typeof topic !== "string") return;
 
     if (this._connection) {
       LogService.info(`SignalR: subscribed to ${topic}`);
       this._connection.on(topic, data => {
-        this._notify(topic, data);
+        handler(data);
       });
-    }
-  }
-
-  // Unsubscribe given topic.
-  unsubscribe(topic, handler) {
-    if (Array.isArray(this._observers[topic])) {
-      this._observers = this._observers.filter(observer => observer !== handler);
     }
   }
 
@@ -96,23 +85,6 @@ class MessagingService {
       LogService.error("SignalR errored", err);
       this._errorHandler(err);
     });
-  }
-
-  _notify(topic, data) {
-    if (!topic || typeof topic !== "string" || !data) return;
-
-    // check if observers for given topic exists
-    if (this._observers[topic]) {
-      // Check if we got any subscription
-      const observers = this._observers[topic];
-      if (Array.isArray(observers) && observers.length > 0) {
-        for (const observer of observers) {
-          if (observer && typeof observer === "function") {
-            observer(data); // call the handler (observer)
-          }
-        }
-      }
-    }
   }
 
   _errorHandler = error => {

@@ -17,6 +17,14 @@ export const API = {
     ADD: baseUrl + "/api/sensor",
     DELETE: baseUrl + "/api/sensor/{0}"
   },
+  SENSOR_DATA: {
+    GET_ALL: baseUrl + "/api/sensorData",
+    GET_ALL_BY_KEY: baseUrl + "/api/sensorData/sensorKey/{0}",
+    GET_PAGED: baseUrl + "/api/sensorData/paged?pageNumber={0}&itemsPerPage={1}",
+    UPDATE: baseUrl + "/api/sensorData/{0}",
+    ADD: baseUrl + "/api/sensorData",
+    DELETE: baseUrl + "/api/sensorData/{0}"
+  },
   STREAMS: {
     GET_ALL: baseUrl + "/api/stream",
     GET_PAGED: baseUrl + "/api/stream/paged?pageNumber={0}&itemsPerPage={1}",

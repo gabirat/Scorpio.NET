@@ -56,7 +56,7 @@ class SensorEditorScreen extends Component {
   };
 
   handleAddClick = () => {
-    this.setState({ runWizard: true });
+    this.setState({ editingEntity: null, runWizard: true });
   };
 
   onWizardFinished = async data => {
@@ -67,6 +67,8 @@ class SensorEditorScreen extends Component {
     await this.fetchItems(currentPage, itemsPerPage);
     this.setState({ editingEntity: null });
   };
+
+  onCloseWizard = () => this.setState({ runWizard: false });
 
   render() {
     const { isFetched, entities, runWizard, itemsPerPage, currentPage, editingEntity } = this.state;

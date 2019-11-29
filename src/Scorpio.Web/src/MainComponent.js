@@ -11,12 +11,14 @@ import { genericApi } from "./api/genericApi";
 import { API } from "./constants/appConstants";
 import AlertDispatcher from "./services/AlertDispatcher";
 import LogService from "./services/LogService";
-import dashboardScreen from "./components/screens/dashboard/dashboardScreen";
-import streamScreen from "./components/screens/stream/streamScreen";
-import gamepadScreen from "./components/screens/gamepad/gamepadScreen";
-import aboutScreen from "./components/screens/about/aboutScreen";
-import sensorsEditorScreen from "./components/screens/sensor-editor/sensorEditorScreen";
-import streamEditorScreen from "./components/screens/stream-editor/streamEditorScreen";
+import DashboardScreen from "./components/screens/dashboard/dashboardScreen";
+import StreamScreen from "./components/screens/stream/streamScreen";
+import GamepadScreen from "./components/screens/gamepad/gamepadScreen";
+import AboutScreen from "./components/screens/about/aboutScreen";
+import SensorsEditorScreen from "./components/screens/sensor-editor/sensorEditorScreen";
+import StreamEditorScreen from "./components/screens/stream-editor/streamEditorScreen";
+import ConsoleScreen from "./components/screens/console/consoleScreen";
+import SensorDataEditorScreen from "./components/screens/sensorData-editor/sensorDataEditorScreen";
 import StatusOverlay from "./components/common/statusOverlay";
 
 import GamepadService from "./services/GamepadService";
@@ -49,6 +51,8 @@ class MainComponent extends Component {
     await MessagingService.connectAsync();
     console.log("subscribing..............");
     MessagingService.subscribe("home", data => console.log(`home: ${data}`));
+    MessagingService.subscribe("home", data => console.log(`home1111: ${data}`));
+
     MessagingService.subscribe("topic", data => console.log(`topic: ${data}`));
     MessagingService.subscribe("data", data => console.log(`data: ${data}`));
   }
@@ -64,19 +68,21 @@ class MainComponent extends Component {
         <NavBar className="fullWidth">
           <Switch>
             <Route exact path="/" render={_ => <Redirect to={"/dashboard"} />} />
-            <Route exact path="/dashboard" component={dashboardScreen} />
-            <Route exact path="/stream" component={streamScreen} />
-            <Route exact path="/gamepad" component={gamepadScreen} />
-            <Route exact path="/about" component={aboutScreen} />
-            <Route exact path="/edit/sensor" component={sensorsEditorScreen} />
-            <Route exact path="/edit/stream" component={streamEditorScreen} />
+            <Route exact path="/dashboard" component={DashboardScreen} />
+            <Route exact path="/stream" component={StreamScreen} />
+            <Route exact path="/gamepad" component={GamepadScreen} />
+            <Route exact path="/about" component={AboutScreen} />
+            <Route exact path="/edit/sensor" component={SensorsEditorScreen} />
+            <Route exact path="/edit/stream" component={StreamEditorScreen} />
+            <Route exact path="/edit/sensor-data" component={SensorDataEditorScreen} />
+            <Route exact path="/console" component={ConsoleScreen} />
             <Route exact path="/filu" component={FiluRacer} />
             <Route exact path="/not-found" component={NotFound} />
             <Redirect to="/not-found" />
           </Switch>
         </NavBar>
         <StatusOverlay />
-        <Alert stack={{ limit: 4 }} beep timeout={5000} />
+        <Alert stack={{ limit: 2 }} beep timeout={5000} />
       </>
     );
   }

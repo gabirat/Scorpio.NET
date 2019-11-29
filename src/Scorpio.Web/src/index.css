@@ -57,3 +57,7 @@ html {
 .ui.pagination.menu .active.item {
   background-color: rgba(242, 113, 26, 0.7) !important;
 }
+
+.react-datepicker-wrapper {
+  width: 100% !important;
+}

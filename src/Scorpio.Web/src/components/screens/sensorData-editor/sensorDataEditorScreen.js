@@ -1,22 +1,28 @@
 import React, { Component } from "react";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { bindActionCreators } from "redux";
 import { withRouter } from "react-router-dom";
-import { Segment, Message, Table, TableCell, Button } from "semantic-ui-react";
+import { Segment, Message, Table, TableCell, Button, Menu, Dropdown, Icon, Checkbox } from "semantic-ui-react";
 import * as actions from "../../../actions";
 import { genericApi } from "../../../api/genericApi";
 import { API } from "../../../constants/appConstants";
 import AddButtonMenuContainer from "../../common/addButtonMenuContainer";
 import Spinner from "../../common/spinner";
 import Pager from "../../common/pager";
-import StreamEditorWizard from "./streamEditorWizard";
+import SensorDataWizard from "./sensorDataEditorWizard";
 
-const entityName = "stream";
-
-class SensorEditorScreen extends Component {
+class SensorDataEditorScreen extends Component {
   constructor(props) {
     super(props);
-    this.state = { entities: [], isFetched: false, currentPage: 1, itemsPerPage: 25, editingEntity: null };
+    this.state = {
+      entities: [],
+      isFetched: false,
+      currentPage: 1,
+      itemsPerPage: 25,
+      editingEntity: null,
+      selectedSensor: "_all",
+      showId: false
+    };
   }
 
   async componentDidMount() {
@@ -26,11 +32,10 @@ class SensorEditorScreen extends Component {
 
   fetchItems = async (currentPage, itemsPerPage) => {
     this.setState({ isFetched: false });
-    const result = await genericApi(API.STREAMS.GET_PAGED.format(currentPage, itemsPerPage), "GET");
+    const result = await genericApi(API.SENSOR_DATA.GET_PAGED.format(currentPage, itemsPerPage), "GET");
     if (result.response.ok) {
       this.setState({ entities: result.body.values, isFetched: true, runWizard: false });
     }
-    this.props.actions.setStreams(result.body.values); // this will be limited by paging - its ok for now
   };
 
   onItemsPerPageChanged = async itemsPerPage => {
@@ -46,9 +51,9 @@ class SensorEditorScreen extends Component {
   };
 
   handleRemoveClick = async entity => {
-    if (window.confirm(`Are you sure you want to remove ${entityName} ${entity.name}?`)) {
+    if (window.confirm(`Are you sure you want to remove sensor data ${entity.name}?`)) {
       const { currentPage, itemsPerPage } = this.state;
-      await genericApi(API.STREAMS.DELETE.format(entity.id), "DELETE");
+      await genericApi(API.SENSOR_DATA.DELETE.format(entity.id), "DELETE");
       await this.fetchItems(currentPage, itemsPerPage);
     }
   };
@@ -64,30 +69,45 @@ class SensorEditorScreen extends Component {
   onWizardFinished = async data => {
     const { editingEntity, currentPage, itemsPerPage } = this.state;
     const isUpdate = editingEntity !== null;
-    const url = isUpdate ? API.STREAMS.UPDATE.format(data.id) : API.STREAMS.ADD;
+    const url = isUpdate ? API.SENSOR_DATA.UPDATE.format(data.id) : API.SENSOR_DATA.ADD;
     await genericApi(url, isUpdate ? "PUT" : "POST", data);
     await this.fetchItems(currentPage, itemsPerPage);
     this.setState({ editingEntity: null });
   };
 
+  onCloseWizard = () => this.setState({ runWizard: false });
+
   render() {
-    const { isFetched, entities, runWizard, itemsPerPage, currentPage, editingEntity } = this.state;
+    const { isFetched, entities, runWizard, itemsPerPage, currentPage, editingEntity, selectedSensor, showId } = this.state;
     const hasData = Array.isArray(entities) && entities.length > 0;
+    const renderSensorKeyCol = selectedSensor && selectedSensor === "_all";
+    const renderIdCol = !!showId;
 
     return (
       <>
-        {runWizard && <StreamEditorWizard initialValues={editingEntity} onClose={this.onCloseWizard} onSubmit={this.onWizardFinished} />}
+        {runWizard && <SensorDataWizard initialValues={editingEntity} onClose={this.onCloseWizard} onSubmit={this.onWizardFinished} />}
         <Segment attached="bottom" style={{ padding: "1em" }}>
-          <AddButtonMenuContainer addText={`Add new ${entityName}`} onAddClick={() => this.handleAddClick()}>
+          <AddButtonMenuContainer
+            addText={"Add new data point"}
+            onAddClick={() => this.handleAddClick()}
+            customLeftItem={
+              <FilterDropdown
+                onChange={selected => this.setState({ selectedSensor: selected })}
+                showId={showId}
+                onShowIdChanged={checked => this.setState({ showId: checked })}
+              />
+            }
+          >
             {isFetched ? (
               <>
                 {hasData ? (
                   <Table selectable celled color="orange">
                     <Table.Header>
                       <Table.Row>
-                        <Table.HeaderCell width="2">Id</Table.HeaderCell>
-                        <Table.HeaderCell>Name</Table.HeaderCell>
-                        <Table.HeaderCell>Uri</Table.HeaderCell>
+                        {renderIdCol && <Table.HeaderCell width="2">Id</Table.HeaderCell>}
+                        {renderSensorKeyCol && <Table.HeaderCell>Sensor Key</Table.HeaderCell>}
+                        <Table.HeaderCell>Time</Table.HeaderCell>
+                        <Table.HeaderCell>Value</Table.HeaderCell>
                         <Table.HeaderCell width="2">Actions</Table.HeaderCell>
                       </Table.Row>
                     </Table.Header>
@@ -95,9 +115,10 @@ class SensorEditorScreen extends Component {
                       {entities.map(x => {
                         return (
                           <Table.Row key={x.id}>
-                            <TableCell>{x.id}</TableCell>
-                            <TableCell>{x.name}</TableCell>
-                            <TableCell>{x.uri}</TableCell>
+                            {renderIdCol && <TableCell>{x.id}</TableCell>}
+                            {renderSensorKeyCol && <TableCell>{x.sensorKey}</TableCell>}
+                            <TableCell>{x.timeStamp ? new Date(x.timeStamp).toLocaleString() : ""}</TableCell>
+                            <TableCell>{x.value}</TableCell>
                             <TableCell>
                               <Button icon="edit" color="grey" onClick={() => this.handleEditClick(x)} />
                               <Button icon="remove" color="red" onClick={() => this.handleRemoveClick(x)} />
@@ -108,11 +129,7 @@ class SensorEditorScreen extends Component {
                     </Table.Body>
                   </Table>
                 ) : (
-                  <Message
-                    color="yellow"
-                    header={`There is no ${entityName} yet`}
-                    list={[`You must add new ${entityName} to see the list here.`]}
-                  />
+                  <Message color="yellow" header="There is no entities yet" list={["You must add new entities to see the list here."]} />
                 )}
               </>
             ) : (
@@ -131,6 +148,46 @@ class SensorEditorScreen extends Component {
   }
 }
 
+const FilterDropdown = ({ onChange, showId, onShowIdChanged }) => {
+  const sensors = useSelector(x => x.sensors);
+  let options = Array.isArray(sensors)
+    ? sensors.map(sensor => {
+        return {
+          key: sensor.sensorKey,
+          value: sensor.sensorKey,
+          text: sensor.name
+        };
+      })
+    : [];
+
+  options.unshift({ key: "_all", value: "_all", text: "All" });
+
+  const handleChange = (ev, d) => {
+    if (typeof onChange === "function") {
+      onChange(d.value);
+    }
+  };
+
+  const handleShowIdChange = (ev, d) => {
+    if (typeof onShowIdChanged === "function") {
+      onShowIdChanged(d.checked);
+    }
+  };
+
+  return (
+    <>
+      <Menu.Item style={{ paddingRight: "1rem" }}>
+        <Checkbox label="Show ID" style={{ paddingLeft: "1rem" }} onChange={handleShowIdChange} checked={!!showId} />
+      </Menu.Item>
+      <Menu.Item>
+        <Icon name="filter" />
+        Select sensor
+        <Dropdown style={{ paddingLeft: "1rem" }} options={options} defaultValue={"_all"} onChange={handleChange} />
+      </Menu.Item>
+    </>
+  );
+};
+
 function mapStateToProps(state) {
   return { state };
 }
@@ -141,4 +198,4 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(SensorEditorScreen));
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(SensorDataEditorScreen));

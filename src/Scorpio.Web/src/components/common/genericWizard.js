@@ -87,6 +87,7 @@ export default class GenericWizard extends Component {
         dimmer={"inverted"}
         open={true}
         onClose={onClose}
+        closeOnTriggerBlur
       >
         <Header
           content={
@@ -102,7 +103,7 @@ export default class GenericWizard extends Component {
               {({ handleSubmit, submitting, invalid }) => (
                 <>
                   <FormSpy subscription={{ values: true, valid: true, errors: true, dirtyFields: true }} onChange={this.onFormChanged} />
-                  <SemanticForm onSubmit={handleSubmit} autoComplete="true" noValidate>
+                  <SemanticForm onSubmit={handleSubmit} autoComplete="off" noValidate>
                     {currentPage}
                     <Divider />
                     <Segment basic style={{ marginBottom: "15px" }}>

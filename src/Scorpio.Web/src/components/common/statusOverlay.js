@@ -20,7 +20,7 @@ const Statusoverlay = () => {
         <Icon className={blink ? "scorpio-heartbeat-blink" : "scorpio-heartbeat-normal"} color="red" name="heartbeat"></Icon>API: connected
       </div>
       <div>
-        <Icon className={blink ? "scorpio-heartbeat-blink" : "scorpio-heartbeat-normal"} name="wheelchair"></Icon> Darek: cwel
+        <Icon className={blink ? "scorpio-heartbeat-blink" : "scorpio-heartbeat-normal"} name="wheelchair"></Icon> Lazik: rak
       </div>
     </Segment>
   );
