@@ -1,3 +1,5 @@
 export default {
-  configs: []
+  configs: [],
+  sensors: [],
+  streams: []
 };

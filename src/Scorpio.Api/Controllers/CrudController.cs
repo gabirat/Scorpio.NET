@@ -2,11 +2,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Scorpio.Api.DataAccess;
 using Scorpio.Api.Models;
+using Scorpio.Api.Paging;
 using System;
 using System.Collections.Generic;
 using System.Net.Mime;
 using System.Threading.Tasks;
-using Scorpio.Api.Paging;
 
 namespace Scorpio.Api.Controllers
 {

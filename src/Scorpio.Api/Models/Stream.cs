@@ -9,7 +9,7 @@ namespace Scorpio.Api.Models
         public string Name { get; set; }
 
         [Required]
-        [RegularExpression("://|localhost")]
+        [RegularExpression(".+://.*|localhost.*")]
         public string Uri { get; set; }
 
         public override string ToString() => $"Name: {Name} Uri: {Uri}";

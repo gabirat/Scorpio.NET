@@ -14,7 +14,7 @@ import SensorWizard from "./sensorEditorWizard";
 class SensorEditorScreen extends Component {
   constructor(props) {
     super(props);
-    this.state = { sensors: [], isFetched: false, currentPage: 1, itemsPerPage: 25, editingEntity: null };
+    this.state = { entities: [], isFetched: false, currentPage: 1, itemsPerPage: 25, editingEntity: null };
   }
 
   async componentDidMount() {
@@ -26,8 +26,9 @@ class SensorEditorScreen extends Component {
     this.setState({ isFetched: false });
     const result = await genericApi(API.SENSORS.GET_PAGED.format(currentPage, itemsPerPage), "GET");
     if (result.response.ok) {
-      this.setState({ sensors: result.body.values, isFetched: true, runWizard: false });
+      this.setState({ entities: result.body.values, isFetched: true, runWizard: false });
     }
+    this.props.actions.setSensors(result.body.values);
   };
 
   onItemsPerPageChanged = async itemsPerPage => {
@@ -68,8 +69,8 @@ class SensorEditorScreen extends Component {
   };
 
   render() {
-    const { isFetched, sensors, runWizard, itemsPerPage, currentPage, editingEntity } = this.state;
-    const hasData = Array.isArray(sensors) && sensors.length > 0;
+    const { isFetched, entities, runWizard, itemsPerPage, currentPage, editingEntity } = this.state;
+    const hasData = Array.isArray(entities) && entities.length > 0;
 
     return (
       <>
@@ -90,7 +91,7 @@ class SensorEditorScreen extends Component {
                       </Table.Row>
                     </Table.Header>
                     <Table.Body>
-                      {sensors.map(x => {
+                      {entities.map(x => {
                         return (
                           <Table.Row key={x.id}>
                             <TableCell>{x.id}</TableCell>

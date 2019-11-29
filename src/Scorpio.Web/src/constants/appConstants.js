@@ -16,5 +16,12 @@ export const API = {
     UPDATE: baseUrl + "/api/sensor/{0}",
     ADD: baseUrl + "/api/sensor",
     DELETE: baseUrl + "/api/sensor/{0}"
+  },
+  STREAMS: {
+    GET_ALL: baseUrl + "/api/stream",
+    GET_PAGED: baseUrl + "/api/stream/paged?pageNumber={0}&itemsPerPage={1}",
+    UPDATE: baseUrl + "/api/stream/{0}",
+    ADD: baseUrl + "/api/stream",
+    DELETE: baseUrl + "/api/stream/{0}"
   }
 };

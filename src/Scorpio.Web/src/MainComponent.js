@@ -36,12 +36,21 @@ class MainComponent extends Component {
     } else {
       AlertDispatcher.dispatch({ type: "error", text: "Could not fetch configs - check if API is running" });
     }
+
+    // TODO promise.all()
+    const sensorRes = await genericApi(API.SENSORS.GET_ALL, "GET");
+    this.props.actions.setSensors(sensorRes.body);
+    const streamRes = await genericApi(API.STREAMS.GET_ALL, "GET");
+    this.props.actions.setStreams(streamRes.body);
   }
 
   async initMessagingAsync() {
     window.scorpioMessaging = MessagingService;
     await MessagingService.connectAsync();
-    MessagingService.subscribe("home", data => console.log(data));
+    console.log("subscribing..............");
+    MessagingService.subscribe("home", data => console.log(`home: ${data}`));
+    MessagingService.subscribe("topic", data => console.log(`topic: ${data}`));
+    MessagingService.subscribe("data", data => console.log(`data: ${data}`));
   }
 
   initGamepad() {

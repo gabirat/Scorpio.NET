@@ -61,6 +61,8 @@ class MessagingService {
       .withAutomaticReconnect([0, 1000, 3000, 6000])
       .build();
 
+    window.scorpioMessaging.signalR = this._connection;
+
     this._setup();
 
     await this._connection.start();
@@ -75,6 +77,7 @@ class MessagingService {
   // Stops the connection with server.
   disconnect() {
     this._connection.stop();
+    window.scorpioMessaging.signalR = null;
     if (this._watchdogInterval) {
       clearInterval(this._watchdogInterval);
     }

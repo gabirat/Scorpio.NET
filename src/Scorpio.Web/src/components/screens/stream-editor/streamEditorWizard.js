@@ -1,8 +1,5 @@
 import React from "react";
-import { bindActionCreators } from "redux";
-import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
-import * as actions from "../../../actions";
 import { Form as SemanticForm } from "semantic-ui-react";
 import { Field } from "react-final-form";
 import GenericWizard from "../../common/genericWizard";
@@ -37,25 +34,13 @@ class StreamEditorWizard extends React.Component {
               />
             )}
           </Field>
-          <Field name="sensorKey" validate={Validators.required}>
+          <Field name="uri" validate={Validators.required}>
             {({ input, meta }) => (
               <SemanticForm.Input
                 {...input}
-                label="Sensor Key"
+                label="URI"
                 error={meta.invalid && meta.touched && meta.error}
-                placeholder="Sensor Key..."
-                required
-                onChange={(ev, data) => input.onChange(data.value)}
-              />
-            )}
-          </Field>
-          <Field name="unit" validate={Validators.required}>
-            {({ input, meta }) => (
-              <SemanticForm.Input
-                {...input}
-                label="Unit"
-                error={meta.invalid && meta.touched && meta.error}
-                placeholder="Unit..."
+                placeholder="Uri..."
                 required
                 onChange={(ev, data) => input.onChange(data.value)}
               />
@@ -67,14 +52,4 @@ class StreamEditorWizard extends React.Component {
   }
 }
 
-function mapStateToProps(state) {
-  return { state };
-}
-
-function mapDispatchToProps(dispatch) {
-  return {
-    actions: bindActionCreators(actions, dispatch)
-  };
-}
-
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(StreamEditorWizard));
+export default withRouter(StreamEditorWizard);

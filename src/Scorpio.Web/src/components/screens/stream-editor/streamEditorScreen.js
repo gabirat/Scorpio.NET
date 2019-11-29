@@ -26,10 +26,11 @@ class SensorEditorScreen extends Component {
 
   fetchItems = async (currentPage, itemsPerPage) => {
     this.setState({ isFetched: false });
-    const result = await genericApi(API.SENSORS.GET_PAGED.format(currentPage, itemsPerPage), "GET");
+    const result = await genericApi(API.STREAMS.GET_PAGED.format(currentPage, itemsPerPage), "GET");
     if (result.response.ok) {
       this.setState({ entities: result.body.values, isFetched: true, runWizard: false });
     }
+    this.props.actions.setStreams(result.body.values); // this will be limited by paging - its ok for now
   };
 
   onItemsPerPageChanged = async itemsPerPage => {
@@ -47,7 +48,7 @@ class SensorEditorScreen extends Component {
   handleRemoveClick = async entity => {
     if (window.confirm(`Are you sure you want to remove ${entityName} ${entity.name}?`)) {
       const { currentPage, itemsPerPage } = this.state;
-      await genericApi(API.SENSORS.DELETE.format(entity.id), "DELETE");
+      await genericApi(API.STREAMS.DELETE.format(entity.id), "DELETE");
       await this.fetchItems(currentPage, itemsPerPage);
     }
   };
@@ -63,15 +64,15 @@ class SensorEditorScreen extends Component {
   onWizardFinished = async data => {
     const { editingEntity, currentPage, itemsPerPage } = this.state;
     const isUpdate = editingEntity !== null;
-    const url = isUpdate ? API.SENSORS.UPDATE.format(data.id) : API.SENSORS.ADD;
+    const url = isUpdate ? API.STREAMS.UPDATE.format(data.id) : API.STREAMS.ADD;
     await genericApi(url, isUpdate ? "PUT" : "POST", data);
     await this.fetchItems(currentPage, itemsPerPage);
     this.setState({ editingEntity: null });
   };
 
   render() {
-    const { isFetched, streams, runWizard, itemsPerPage, currentPage, editingEntity } = this.state;
-    const hasData = Array.isArray(streams) && streams.length > 0;
+    const { isFetched, entities, runWizard, itemsPerPage, currentPage, editingEntity } = this.state;
+    const hasData = Array.isArray(entities) && entities.length > 0;
 
     return (
       <>
@@ -86,19 +87,17 @@ class SensorEditorScreen extends Component {
                       <Table.Row>
                         <Table.HeaderCell width="2">Id</Table.HeaderCell>
                         <Table.HeaderCell>Name</Table.HeaderCell>
-                        <Table.HeaderCell>Key</Table.HeaderCell>
-                        <Table.HeaderCell>Unit</Table.HeaderCell>
+                        <Table.HeaderCell>Uri</Table.HeaderCell>
                         <Table.HeaderCell width="2">Actions</Table.HeaderCell>
                       </Table.Row>
                     </Table.Header>
                     <Table.Body>
-                      {streams.map(x => {
+                      {entities.map(x => {
                         return (
                           <Table.Row key={x.id}>
                             <TableCell>{x.id}</TableCell>
                             <TableCell>{x.name}</TableCell>
-                            <TableCell>{x.sensorKey}</TableCell>
-                            <TableCell>{x.unit}</TableCell>
+                            <TableCell>{x.uri}</TableCell>
                             <TableCell>
                               <Button icon="edit" color="grey" onClick={() => this.handleEditClick(x)} />
                               <Button icon="remove" color="red" onClick={() => this.handleRemoveClick(x)} />
