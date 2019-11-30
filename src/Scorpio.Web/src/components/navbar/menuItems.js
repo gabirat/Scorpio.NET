@@ -24,8 +24,8 @@ const MenuItems = ({ onClick }) => {
         <Icon name="chart line" />
         <Dropdown text="Science" pointing="top" lazyLoad>
           <Dropdown.Menu>
-            <Dropdown.Item icon="database" label="Sensor data" name="/edit/sensor-data" as="a" onClick={onClick} />
-            <Dropdown.Item icon="chart area" label="Charts" name="/sensor-charts" as="a" onClick={onClick} />
+            <Dropdown.Item icon="database" label="Sensor data" name="/science/edit/sensor-data" as="a" onClick={onClick} />
+            <Dropdown.Item icon="chart area" label="Charts" name="/science/sensor-charts" as="a" onClick={onClick} />
           </Dropdown.Menu>
         </Dropdown>
       </Menu.Item>

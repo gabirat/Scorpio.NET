@@ -11,50 +11,81 @@ import Spinner from "../../common/spinner";
 import Pager from "../../common/pager";
 import SensorDataWizard from "./sensorDataEditorWizard";
 
+const FILTER_ALL_KEY = "__all";
+
 class SensorDataEditorScreen extends Component {
   constructor(props) {
     super(props);
+
+    // Retrieve sensorKey from url if present
+    const { sensorKey } = props.match.params;
+
     this.state = {
       entities: [],
+      runWizard: false,
       isFetched: false,
       currentPage: 1,
-      itemsPerPage: 25,
+      itemsPerPage: 200,
       editingEntity: null,
-      selectedSensor: "_all",
+      selectedSensor: sensorKey ? sensorKey : FILTER_ALL_KEY,
       showId: false
     };
   }
 
   async componentDidMount() {
-    const { currentPage, itemsPerPage } = this.state;
-    await this.fetchItems(currentPage, itemsPerPage);
+    const { currentPage, itemsPerPage, selectedSensor } = this.state;
+
+    const idFromUrl = this.props.match.params.id;
+    const areWeEditing = idFromUrl !== undefined;
+
+    if (areWeEditing) {
+      await this.fetchEditingItem(idFromUrl);
+    } else {
+      await this.fetchItems(currentPage, itemsPerPage, selectedSensor);
+    }
   }
 
-  fetchItems = async (currentPage, itemsPerPage) => {
-    this.setState({ isFetched: false });
-    const result = await genericApi(API.SENSOR_DATA.GET_PAGED.format(currentPage, itemsPerPage), "GET");
+  // runs only if there is ID specified in URL - we need this specific item, as it might not be at current page
+  fetchEditingItem = async id => {
+    const result = await genericApi(API.SENSOR_DATA.GET_BY_ID.format(id), "GET");
     if (result.response.ok) {
-      this.setState({ entities: result.body.values, isFetched: true, runWizard: false });
+      this.setState({ editingEntity: result.body, runWizard: true, isFetched: true });
+    }
+  };
+
+  fetchItems = async (currentPage, itemsPerPage, sensorKey) => {
+    this.setState({ isFetched: false });
+    let endpoint = API.SENSOR_DATA.GET_PAGED.format(currentPage, itemsPerPage);
+
+    // filtering is selected - get by selected sensorKey
+    if (sensorKey && sensorKey !== FILTER_ALL_KEY) {
+      endpoint = API.SENSOR_DATA.GET_PAGED_FILTERED.format(sensorKey, currentPage, itemsPerPage);
+    }
+
+    const result = await genericApi(endpoint, "GET");
+    if (result.response.ok) {
+      this.setState({ entities: result.body.values, isFetched: true });
     }
   };
 
   onItemsPerPageChanged = async itemsPerPage => {
-    const { currentPage } = this.state;
+    const { currentPage, selectedSensor } = this.state;
     this.setState({ isFetched: false, itemsPerPage: itemsPerPage });
-    await this.fetchItems(currentPage, itemsPerPage);
+    await this.fetchItems(currentPage, itemsPerPage, selectedSensor);
   };
 
   onPageChange = async pageNum => {
-    const { itemsPerPage } = this.state;
+    const { itemsPerPage, selectedSensor } = this.state;
     this.setState({ isFetched: false, currentPage: pageNum });
-    await this.fetchItems(pageNum, itemsPerPage);
+    await this.fetchItems(pageNum, itemsPerPage, selectedSensor);
   };
 
   handleRemoveClick = async entity => {
     if (window.confirm(`Are you sure you want to remove sensor data ${entity.name}?`)) {
-      const { currentPage, itemsPerPage } = this.state;
+      const { currentPage, itemsPerPage, selectedSensor } = this.state;
       await genericApi(API.SENSOR_DATA.DELETE.format(entity.id), "DELETE");
-      await this.fetchItems(currentPage, itemsPerPage);
+      await this.fetchItems(currentPage, itemsPerPage, selectedSensor);
+      this.setState({ runWizard: false });
     }
   };
 
@@ -67,20 +98,26 @@ class SensorDataEditorScreen extends Component {
   };
 
   onWizardFinished = async data => {
-    const { editingEntity, currentPage, itemsPerPage } = this.state;
+    const { editingEntity, currentPage, itemsPerPage, selectedSensor } = this.state;
     const isUpdate = editingEntity !== null;
     const url = isUpdate ? API.SENSOR_DATA.UPDATE.format(data.id) : API.SENSOR_DATA.ADD;
     await genericApi(url, isUpdate ? "PUT" : "POST", data);
-    await this.fetchItems(currentPage, itemsPerPage);
-    this.setState({ editingEntity: null });
+    await this.fetchItems(currentPage, itemsPerPage, selectedSensor);
+    this.setState({ editingEntity: null, runWizard: false });
   };
 
   onCloseWizard = () => this.setState({ runWizard: false });
 
+  onFilterChange = async sensorKey => {
+    const { itemsPerPage, currentPage } = this.state;
+    this.setState({ selectedSensor: sensorKey });
+    this.fetchItems(currentPage, itemsPerPage, sensorKey);
+  };
+
   render() {
     const { isFetched, entities, runWizard, itemsPerPage, currentPage, editingEntity, selectedSensor, showId } = this.state;
     const hasData = Array.isArray(entities) && entities.length > 0;
-    const renderSensorKeyCol = selectedSensor && selectedSensor === "_all";
+    const renderSensorKeyCol = selectedSensor && selectedSensor === FILTER_ALL_KEY;
     const renderIdCol = !!showId;
 
     return (
@@ -92,9 +129,10 @@ class SensorDataEditorScreen extends Component {
             onAddClick={() => this.handleAddClick()}
             customLeftItem={
               <FilterDropdown
-                onChange={selected => this.setState({ selectedSensor: selected })}
+                onChange={this.onFilterChange}
                 showId={showId}
                 onShowIdChanged={checked => this.setState({ showId: checked })}
+                defaultFilter={selectedSensor}
               />
             }
           >
@@ -148,7 +186,7 @@ class SensorDataEditorScreen extends Component {
   }
 }
 
-const FilterDropdown = ({ onChange, showId, onShowIdChanged }) => {
+const FilterDropdown = ({ defaultFilter, onChange, showId, onShowIdChanged }) => {
   const sensors = useSelector(x => x.sensors);
   let options = Array.isArray(sensors)
     ? sensors.map(sensor => {
@@ -160,7 +198,7 @@ const FilterDropdown = ({ onChange, showId, onShowIdChanged }) => {
       })
     : [];
 
-  options.unshift({ key: "_all", value: "_all", text: "All" });
+  options.unshift({ key: FILTER_ALL_KEY, value: FILTER_ALL_KEY, text: "All" });
 
   const handleChange = (ev, d) => {
     if (typeof onChange === "function") {
@@ -182,7 +220,7 @@ const FilterDropdown = ({ onChange, showId, onShowIdChanged }) => {
       <Menu.Item>
         <Icon name="filter" />
         Select sensor
-        <Dropdown style={{ paddingLeft: "1rem" }} options={options} defaultValue={"_all"} onChange={handleChange} />
+        <Dropdown style={{ paddingLeft: "1rem" }} options={options} defaultValue={defaultFilter} onChange={handleChange} />
       </Menu.Item>
     </>
   );

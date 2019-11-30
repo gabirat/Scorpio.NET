@@ -28,6 +28,14 @@ html {
   border: 1px solid lightgray;
 }
 
+.inline {
+  display: inline-block !important;
+}
+
+.absolute {
+  position: absolute;
+}
+
 .flex {
   display: flex;
 }

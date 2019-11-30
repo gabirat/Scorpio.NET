@@ -54,6 +54,17 @@ namespace Scorpio.Api.DataAccess
             return PagedList<TEntity>.Build(itemsTask.Result, totalTask.Result, pageParam.ItemsPerPage, pageParam.PageNumber);
         }
 
+        public async Task<PagedList<TEntity>> GetManyFilteredAndPaged(Expression<Func<TEntity, bool>> predicate, PageParam pageParam)
+        {
+            var toSkip = (pageParam.PageNumber - 1) * pageParam.ItemsPerPage;
+            var query = Collection.Find(predicate);
+            var totalTask = query.CountDocumentsAsync();
+            var itemsTask = query.Skip(toSkip).Limit(pageParam.ItemsPerPage).ToListAsync();
+            await Task.WhenAll(totalTask, itemsTask);
+
+            return PagedList<TEntity>.Build(itemsTask.Result, totalTask.Result, pageParam.ItemsPerPage, pageParam.PageNumber);
+        }
+
         public virtual async Task<TEntity> GetByIdAsync(string id)
         {
             return await Collection.Find(x => x.Id == id).FirstOrDefaultAsync();

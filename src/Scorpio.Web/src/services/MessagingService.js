@@ -6,7 +6,6 @@ import LogService from "./LogService";
 class MessagingService {
   constructor() {
     this._connection = null;
-    this._observers = {};
     this._watchdogInterval = null;
     // this._recoverConnection = this._recoverConnection.bind(this);
   }

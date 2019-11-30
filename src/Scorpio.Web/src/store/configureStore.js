@@ -10,6 +10,7 @@ import { deleteConfigSaga } from "../sagas/deleteConfigSaga";
 import { addUpdateConfigSaga } from "../sagas/addUpdateConfigSaga";
 
 export const history = historyBase.createBrowserHistory();
+window.reactHistory = history;
 const connectRouterHistory = connectRouter(history);
 const sagaMiddleware = createSagaMiddleware();
 

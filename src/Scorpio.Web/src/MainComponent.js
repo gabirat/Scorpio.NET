@@ -19,8 +19,8 @@ import SensorsEditorScreen from "./components/screens/sensor-editor/sensorEditor
 import StreamEditorScreen from "./components/screens/stream-editor/streamEditorScreen";
 import ConsoleScreen from "./components/screens/console/consoleScreen";
 import SensorDataEditorScreen from "./components/screens/sensorData-editor/sensorDataEditorScreen";
+import ScienceChartsScreen from "./components/screens/scienceCharts/scienceChartsScreen";
 import StatusOverlay from "./components/common/statusOverlay";
-
 import GamepadService from "./services/GamepadService";
 import MessagingService from "./services/MessagingService";
 import FiluRacer from "./components/common/filuRacer";
@@ -74,14 +74,15 @@ class MainComponent extends Component {
             <Route exact path="/about" component={AboutScreen} />
             <Route exact path="/edit/sensor" component={SensorsEditorScreen} />
             <Route exact path="/edit/stream" component={StreamEditorScreen} />
-            <Route exact path="/edit/sensor-data" component={SensorDataEditorScreen} />
+            <Route exact path="/science/edit/sensor-data/:sensorKey?/:id?" component={SensorDataEditorScreen} />
+            <Route exact path="/science/sensor-charts" component={ScienceChartsScreen} />
             <Route exact path="/console" component={ConsoleScreen} />
             <Route exact path="/filu" component={FiluRacer} />
             <Route exact path="/not-found" component={NotFound} />
             <Redirect to="/not-found" />
           </Switch>
         </NavBar>
-        <StatusOverlay />
+        {/* <StatusOverlay /> */}
         <Alert stack={{ limit: 2 }} beep timeout={5000} />
       </>
     );

@@ -19,8 +19,10 @@ export const API = {
   },
   SENSOR_DATA: {
     GET_ALL: baseUrl + "/api/sensorData",
-    GET_ALL_BY_KEY: baseUrl + "/api/sensorData/sensorKey/{0}",
+    GET_BY_ID: baseUrl + "/api/sensorData/{0}",
+    GET_ALL_FILTERED: baseUrl + "/api/sensorData/sensorKey/{0}",
     GET_PAGED: baseUrl + "/api/sensorData/paged?pageNumber={0}&itemsPerPage={1}",
+    GET_PAGED_FILTERED: baseUrl + "/api/sensorData/sensorKey/{0}/paged?pageNumber={1}&itemsPerPage={2}",
     UPDATE: baseUrl + "/api/sensorData/{0}",
     ADD: baseUrl + "/api/sensorData",
     DELETE: baseUrl + "/api/sensorData/{0}"

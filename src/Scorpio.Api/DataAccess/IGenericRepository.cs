@@ -29,6 +29,14 @@ namespace Scorpio.Api.DataAccess
         Task<IEnumerable<TEntity>> GetManyFiltered(Expression<Func<TEntity, bool>> predicate);
 
         /// <summary>
+        /// Gets entities filtered by predicate
+        /// </summary>
+        /// <param name="predicate">The predicate to evaluate.</param>
+        /// <param name="pageParam">Paging param</param>
+        /// <returns>Collection of TEntity matching predicate criteria</returns>
+        Task<PagedList<TEntity>> GetManyFilteredAndPaged(Expression<Func<TEntity, bool>> predicate, PageParam pageParam);
+
+        /// <summary>
         /// Gets single entity matching predicate
         /// </summary>
         /// <param name="predicate">The predicate to evaluate.</param>
