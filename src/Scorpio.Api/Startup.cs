@@ -81,9 +81,9 @@ namespace Scorpio.Api
             services.AddRabbitMqConnection(Configuration);
             services.AddRabbitMqEventBus(Configuration);
 
-            // TODO: automatically register via assembly scanning
             services.AddTransient<UpdateRoverPositionEventHandler>();
-            services.AddTransient<TestEventHandler>();
+            services.AddTransient<SaveSensorDataEventHandler>();
+            services.AddTransient<SaveManySensorDataEventHandler>();
 
             // Repositories
             services.AddTransient<IUiConfigurationRepository, UiConfigurationRepository>();
@@ -141,7 +141,8 @@ namespace Scorpio.Api
             var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
 
             eventBus.Subscribe<UpdateRoverPositionEvent, UpdateRoverPositionEventHandler>();
-            eventBus.Subscribe<Test, TestEventHandler>();
+            eventBus.Subscribe<SaveSensorDataEvent, SaveSensorDataEventHandler>();
+            eventBus.Subscribe<SaveManySensorDataEvent, SaveManySensorDataEventHandler>();
         }
     }
 }

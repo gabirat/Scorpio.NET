@@ -58,8 +58,8 @@ namespace Scorpio.Messaging.RabbitMQ
             return props;
         }
 
-        public void Subscribe<TEvent, THandler>() 
-            where TEvent : IIntegrationEvent 
+        public void Subscribe<TEvent, THandler>()
+            where TEvent : IIntegrationEvent
             where THandler : IIntegrationEventHandler<TEvent>
         {
             var eventName = _subsManager.GetEventKey<TEvent>();
@@ -82,8 +82,8 @@ namespace Scorpio.Messaging.RabbitMQ
             _subsManager.AddSubscription<TEvent, THandler>();
         }
 
-        public void Unsubscribe<TEvent, THandler>() 
-            where TEvent : IIntegrationEvent 
+        public void Unsubscribe<TEvent, THandler>()
+            where TEvent : IIntegrationEvent
             where THandler : IIntegrationEventHandler<TEvent>
         {
             _subsManager.RemoveSubscription<TEvent, THandler>();

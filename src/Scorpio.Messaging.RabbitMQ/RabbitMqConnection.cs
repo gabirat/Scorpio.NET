@@ -4,6 +4,8 @@ using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Exceptions;
 using System;
 using System.IO;
+using System.Net.Sockets;
+using Polly;
 
 namespace Scorpio.Messaging.RabbitMQ
 {
@@ -35,18 +37,22 @@ namespace Scorpio.Messaging.RabbitMQ
         
         public bool TryConnect()
         {
-            _logger.LogInformation("RabbitMQ Client is trying to connect");
+            if (_connectionFactory is ConnectionFactory cf)
+            {
+                _logger.LogInformation($"RabbitMQ connecting to: {cf.Endpoint}");
+            }
 
             lock (_syncLock)
             {
-                try
-                {
-                    _connection = _connectionFactory.CreateConnection();
-                }
-                catch(BrokerUnreachableException)
-                {
-                    //TryConnect();
-                }
+                Policy
+                    .Handle<BrokerUnreachableException>()
+                    .Or<SocketException>()
+                    .WaitAndRetryForever(retryNumber =>
+                    {
+                        _logger.LogCritical($"Reconnecting: {retryNumber}");
+                        return TimeSpan.FromSeconds(3);
+                    })
+                    .Execute(() => _connection = _connectionFactory.CreateConnection());
 
                 if (IsConnected)
                 {
