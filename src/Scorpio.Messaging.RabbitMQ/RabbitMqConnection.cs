@@ -1,8 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using RabbitMQ.Client.Exceptions;
 using System;
 using System.IO;
+using System.Net.Sockets;
+using Polly;
 
 namespace Scorpio.Messaging.RabbitMQ
 {
@@ -26,7 +29,7 @@ namespace Scorpio.Messaging.RabbitMQ
         {
             if (!IsConnected)
             {
-                throw new InvalidOperationException("No RabbitMQ connections are available to perform this action");
+               throw new InvalidOperationException("No RabbitMQ connections are available to perform this action");
             }
 
             return _connection.CreateModel();
@@ -34,11 +37,22 @@ namespace Scorpio.Messaging.RabbitMQ
         
         public bool TryConnect()
         {
-            _logger.LogInformation("RabbitMQ Client is trying to connect");
+            if (_connectionFactory is ConnectionFactory cf)
+            {
+                _logger.LogInformation($"RabbitMQ connecting to: {cf.Endpoint}");
+            }
 
             lock (_syncLock)
             {
-                _connection = _connectionFactory.CreateConnection();
+                Policy
+                    .Handle<BrokerUnreachableException>()
+                    .Or<SocketException>()
+                    .WaitAndRetryForever(retryNumber =>
+                    {
+                        _logger.LogCritical($"Reconnecting: {retryNumber}");
+                        return TimeSpan.FromSeconds(3);
+                    })
+                    .Execute(() => _connection = _connectionFactory.CreateConnection());
 
                 if (IsConnected)
                 {
@@ -92,7 +106,7 @@ namespace Scorpio.Messaging.RabbitMQ
 
             try
             {
-                _connection.Dispose();
+                _connection?.Dispose();
             }
             catch (IOException ex)
             {

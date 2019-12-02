@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Scorpio.Api.Events;
 using Scorpio.Messaging.Abstractions;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Scorpio.Api.Hubs
@@ -12,29 +11,36 @@ namespace Scorpio.Api.Hubs
     public class MainHub : Hub
     {
         private readonly IEventBus _eventBus;
-        public MainHub(IEventBus eventBus)
+        private readonly ILogger<MainHub> _logger;
+
+        #region Constructor
+        public MainHub(IEventBus eventBus, ILogger<MainHub> logger)
         {
             _eventBus = eventBus;
+            _logger = logger;
         }
+        #endregion
 
+        #region Basic configuration
         public override Task OnConnectedAsync()
         {
-            Console.WriteLine("OnConnectedAsync" + Context.ConnectionId);
-
+            _logger.LogInformation($"New SignalR connection: {Context?.ConnectionId}");
             return base.OnConnectedAsync();
         }
 
         public override Task OnDisconnectedAsync(Exception exception)
         {
+            _logger.LogInformation($"SignalR user disconnected: {exception?.ToString()}");
             return base.OnDisconnectedAsync(exception);
         }
+        #endregion
 
-        public void Data(IList<double> data)
+        #region Following methods are callable from the UI via SignalR
+        public void Data(object data)
         {
-            _eventBus.Publish(new UpdateRoverPositionEvent(data.FirstOrDefault().ToString(), data.FirstOrDefault().ToString()));
+            _eventBus.Publish(new UpdateRoverPositionEvent("dupa", "dupsko"));
             Console.WriteLine($"Received SignalR data: {JsonConvert.SerializeObject(data)}");
-            //await Clients.All.SendAsync("data", "pong");
-            //await Clients.All.SendAsync("data",  data);
         }
+        #endregion
     }
 }

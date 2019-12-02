@@ -3,25 +3,25 @@ using System;
 
 namespace Scorpio.Messaging.Abstractions
 {
-    public class IntegrationEvent : IIntegrationEvent
+    public abstract class IntegrationEvent : IIntegrationEvent
     {
-        public IntegrationEvent()
+        protected IntegrationEvent()
         {
             Id = Guid.NewGuid();
             CreationDate = DateTime.UtcNow;
         }
 
         [JsonConstructor]
-        public IntegrationEvent(Guid id, DateTime createDate)
+        protected IntegrationEvent(Guid id, DateTime createDate)
         {
             Id = id;
             CreationDate = createDate;
         }
 
-        [JsonProperty]
+        [JsonProperty("id")]
         public Guid Id { get; private set; }
 
-        [JsonProperty]
+        [JsonProperty("creationDate")]
         public DateTime CreationDate { get; private set; }
     }
 }

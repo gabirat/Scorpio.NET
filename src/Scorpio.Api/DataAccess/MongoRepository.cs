@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Scorpio.Api.Models;
+using Scorpio.Api.Paging;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -40,6 +41,28 @@ namespace Scorpio.Api.DataAccess
         public virtual async Task<IEnumerable<TEntity>> GetAllAsync()
         {
             return await Collection.Find(_ => true).ToListAsync();
+        }
+
+        public async Task<PagedList<TEntity>> GetPaged(PageParam pageParam)
+        {
+            var toSkip = (pageParam.PageNumber - 1) * pageParam.ItemsPerPage;
+            var query = Collection.Find(_ => true);
+            var totalTask = query.CountDocumentsAsync();
+            var itemsTask = query.Skip(toSkip).Limit(pageParam.ItemsPerPage).ToListAsync();
+            await Task.WhenAll(totalTask, itemsTask);
+
+            return PagedList<TEntity>.Build(itemsTask.Result, totalTask.Result, pageParam.ItemsPerPage, pageParam.PageNumber);
+        }
+
+        public async Task<PagedList<TEntity>> GetManyFilteredAndPaged(Expression<Func<TEntity, bool>> predicate, PageParam pageParam)
+        {
+            var toSkip = (pageParam.PageNumber - 1) * pageParam.ItemsPerPage;
+            var query = Collection.Find(predicate);
+            var totalTask = query.CountDocumentsAsync();
+            var itemsTask = query.Skip(toSkip).Limit(pageParam.ItemsPerPage).ToListAsync();
+            await Task.WhenAll(totalTask, itemsTask);
+
+            return PagedList<TEntity>.Build(itemsTask.Result, totalTask.Result, pageParam.ItemsPerPage, pageParam.PageNumber);
         }
 
         public virtual async Task<TEntity> GetByIdAsync(string id)
