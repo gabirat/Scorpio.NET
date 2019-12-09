@@ -22,6 +22,15 @@ class MessagingService {
     }
   }
 
+  unsubscribe(topic, handler) {
+    if (typeof handler !== "function" || typeof topic !== "string") return;
+
+    if (this._connection) {
+      LogService.info(`SignalR: ubsubscribed ${topic}`);
+      this._connection.off(topic, handler);
+    }
+  }
+
   // Send message to given topic.
   send(topic, message) {
     if (!this._connection || this._connection.connectionState !== "Connected") {

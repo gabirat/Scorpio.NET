@@ -1,6 +1,6 @@
-import SingleChart from "./singleChart";
-import NumericStatistic from "./numericStatistic";
+import StatisticWidget from "./statisticWidget";
 import GamepadAnalogs from "./gamepadAnalogs";
+import ChartWidget from "./chartWidget";
 
 export const widgets = [
   {
@@ -14,22 +14,22 @@ export const widgets = [
     }
   },
   {
-    component: SingleChart,
-    type: "SingleChart",
+    component: ChartWidget,
+    type: "Chart",
     dropdown: {
-      key: "SingleChart",
-      value: "SingleChart",
+      key: "Chart",
+      value: "Chart",
       text: "Line chart",
       description: "Plot a chart"
     }
   },
   {
-    component: NumericStatistic,
-    type: "NumericStatistic",
+    component: StatisticWidget,
+    type: "StatisticWidget",
     dropdown: {
-      key: "NumericStatistic",
-      value: "NumericStatistic",
-      text: "Single value panel",
+      key: "StatisticWidget",
+      value: "StatisticWidget",
+      text: "Single value",
       description: "Display last seen value"
     }
   }

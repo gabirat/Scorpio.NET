@@ -30,7 +30,8 @@ const Chart = ({ sensor, data }) => {
             id: d.id,
             key: sensor.sensorKey,
             t: new Date(d.timeStamp),
-            v: d.value
+            v: d.value,
+            c: d.comment
           };
         })
       : [];
@@ -45,7 +46,7 @@ const Chart = ({ sensor, data }) => {
     };
 
     // Y axis
-    let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+    chart.yAxes.push(new am4charts.ValueAxis());
 
     // Y series
     let series = chart.series.push(new am4charts.LineSeries());
@@ -58,7 +59,9 @@ const Chart = ({ sensor, data }) => {
     series.tooltip.pointerOrientation = "vertical";
     series.tooltipHTML = `<center><strong>{valueY}</strong></center>
     <hr />
-    <center><input type="button" value="Edit" onclick="window.reactHistory.push('/science/edit/sensor-data/{key}/{id}')" /></center>`;
+    <center><strong>Comment: {c}</strong></center>
+    <hr />
+    <center><input type="button" class="ui button" value="Edit" onclick="window.reactHistory.push('/science/edit/sensor-data/{key}/{id}')" /></center>`;
 
     series.tooltip.pointerOrientation = "vertical";
     series.tooltip.background.fillOpacity = 0.5;
@@ -78,7 +81,7 @@ const Chart = ({ sensor, data }) => {
     });
   };
 
-  return <div id={`chart-container-${sensor.sensorKey}`} style={{ width: "100%", height: "100%" }}></div>;
+  return <div id={`chart-container-${sensor.sensorKey}`} className="fullWidth fullHeight"></div>;
 };
 
 Chart.propTypes = {

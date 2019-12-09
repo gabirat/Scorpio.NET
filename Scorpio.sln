@@ -25,7 +25,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scorpio.Gamepad.Processors"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scorpio.Gamepad.Models", "src\Scorpio.Gamepad.Models\Scorpio.Gamepad.Models.csproj", "{4F4CE1B6-FA09-4901-9E84-157B820B16A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scorpio.Messaging.Stub", "src\Scorpio.Messaging.Stub\Scorpio.Messaging.Stub.csproj", "{52D69C50-EE75-4554-A035-04EB3191B43E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scorpio.Messaging.Stub", "src\Scorpio.Messaging.Stub\Scorpio.Messaging.Stub.csproj", "{52D69C50-EE75-4554-A035-04EB3191B43E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scorpio.ProcessRunner", "src\Scorpio.ProcessRunner\Scorpio.ProcessRunner.csproj", "{0860F25E-3C51-4438-A746-85927CCF48B1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,6 +63,10 @@ Global
 		{52D69C50-EE75-4554-A035-04EB3191B43E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{52D69C50-EE75-4554-A035-04EB3191B43E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{52D69C50-EE75-4554-A035-04EB3191B43E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0860F25E-3C51-4438-A746-85927CCF48B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0860F25E-3C51-4438-A746-85927CCF48B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0860F25E-3C51-4438-A746-85927CCF48B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0860F25E-3C51-4438-A746-85927CCF48B1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

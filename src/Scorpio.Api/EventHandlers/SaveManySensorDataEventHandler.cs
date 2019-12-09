@@ -7,6 +7,7 @@ using Scorpio.Messaging.Abstractions;
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace Scorpio.Api.EventHandlers
 {
@@ -41,8 +42,10 @@ namespace Scorpio.Api.EventHandlers
 
                 var created = await _sensorDataRepository.CreateAsync(entity);
 
+                var data = JsonConvert.SerializeObject(created);
+
                 // Notify UI via SignalR (uses 'sensor' topic)
-                await _hubContext.Clients.All.SendAsync("sensor", created);
+                await _hubContext.Clients.All.SendAsync("sensor", data);
             }
         }
     }

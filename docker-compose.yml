@@ -42,31 +42,6 @@ services:
 #    ports:
 #       - '27017:27017'
 
-#portainer:
-#   image: "portainer/portainer"
-#   container_name: "scorpio_portainer"
-#   ports:
-#     - "8084:9000"
-#   command: -H unix:///var/run/docker.sock
-#   volumes:
-#     - /var/run/docker.sock:/var/run/docker.sock
-#     - portainer_data:/data
-
-# web:
-#    build:
-#     context: ./src/Scorpio.Web
-#     dockerfile: ./Dockerfile
-#    image: "scorpio/webapp"
-#    container_name: "scorpio_webapp"
-#    ports:
-#      - "8080:3000"
-#    environment:
-#      - REACT_APP_API_URL=api:8080
-#    volumes:
-#    # for frontend autoreload: TODO make production & development docker-compose.yml
-#      - ./src/Scorpio.Web/src:/webapp/src
-
 volumes:
   rabbitmq_data:
-#  portainer_data:
 #  mongodb_data:

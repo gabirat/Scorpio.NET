@@ -33,7 +33,7 @@ class OverlayContextMenu extends PureComponent {
         <div className="fullWidth center">
           <h4 className="padding-bottom-sm">{widgetTitle}</h4>
         </div>
-        <div className="center">{this.props.children}</div>
+        <div className="center fullWidth fullHeight">{this.props.children}</div>
       </div>
     );
   }

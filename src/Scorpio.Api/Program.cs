@@ -22,7 +22,6 @@ namespace Scorpio.Api
                     .Build();
 
                 host.Run();
-
             }
             catch (Exception ex)
             {

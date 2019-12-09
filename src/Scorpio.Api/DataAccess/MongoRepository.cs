@@ -37,7 +37,7 @@ namespace Scorpio.Api.DataAccess
         {
             await Collection.DeleteOneAsync(x => x.Id == entity.Id);
         }
-        
+
         public virtual async Task<IEnumerable<TEntity>> GetAllAsync()
         {
             return await Collection.Find(_ => true).ToListAsync();
@@ -63,6 +63,14 @@ namespace Scorpio.Api.DataAccess
             await Task.WhenAll(totalTask, itemsTask);
 
             return PagedList<TEntity>.Build(itemsTask.Result, totalTask.Result, pageParam.ItemsPerPage, pageParam.PageNumber);
+        }
+
+        public async Task<TEntity> GetLatestFiltered(Expression<Func<TEntity, bool>> predicate)
+        {
+            return await Collection
+                .Find(predicate)
+                .SortByDescending(x => x.Id)
+                .FirstOrDefaultAsync();
         }
 
         public virtual async Task<TEntity> GetByIdAsync(string id)
@@ -98,7 +106,7 @@ namespace Scorpio.Api.DataAccess
                     _database = null;
                     Collection = null;
                 }
-                
+
                 _disposedValue = true;
             }
         }

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
 
 namespace Scorpio.Api.Models
 {
@@ -6,10 +7,12 @@ namespace Scorpio.Api.Models
     {
         [Required]
         [MinLength(2)]
+        [JsonProperty("name")]
         public string Name { get; set; }
 
         [Required]
         [RegularExpression(".+://.*|localhost.*")]
+        [JsonProperty("uri")]
         public string Uri { get; set; }
 
         public override string ToString() => $"Name: {Name} Uri: {Uri}";

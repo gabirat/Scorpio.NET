@@ -15,6 +15,7 @@ using Scorpio.Api.Hubs;
 using Scorpio.Gamepad.Processors;
 using Scorpio.Messaging.Abstractions;
 using Scorpio.Messaging.RabbitMQ;
+using Scorpio.ProcessRunner;
 using System.Linq;
 
 namespace Scorpio.Api
@@ -81,7 +82,9 @@ namespace Scorpio.Api
             services.AddRabbitMqConnection(Configuration);
             services.AddRabbitMqEventBus(Configuration);
 
-            services.AddTransient<UpdateRoverPositionEventHandler>();
+            services.AddTransient<IGenericProcessRunner, GenericProcessRunner>();
+
+            // Event-bus event handlers
             services.AddTransient<SaveSensorDataEventHandler>();
             services.AddTransient<SaveManySensorDataEventHandler>();
 
@@ -140,7 +143,6 @@ namespace Scorpio.Api
         {
             var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
 
-            eventBus.Subscribe<UpdateRoverPositionEvent, UpdateRoverPositionEventHandler>();
             eventBus.Subscribe<SaveSensorDataEvent, SaveSensorDataEventHandler>();
             eventBus.Subscribe<SaveManySensorDataEvent, SaveManySensorDataEventHandler>();
         }

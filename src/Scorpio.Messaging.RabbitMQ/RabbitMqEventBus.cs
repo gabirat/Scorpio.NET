@@ -55,6 +55,7 @@ namespace Scorpio.Messaging.RabbitMQ
             props.DeliveryMode = 1; // non persistent
             props.Expiration = expiration; // ms TTL
             props.ContentType = "application/json";
+            props.ContentEncoding = "UTF8";
             return props;
         }
 

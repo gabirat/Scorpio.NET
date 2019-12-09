@@ -36,6 +36,7 @@
     <ProjectReference Include="..\Scorpio.Gamepad.Processors\Scorpio.Gamepad.Processors.csproj" />
     <ProjectReference Include="..\Scorpio.Messaging.Abstractions\Scorpio.Messaging.Abstractions.csproj" />
     <ProjectReference Include="..\Scorpio.Messaging.RabbitMQ\Scorpio.Messaging.RabbitMQ.csproj" />
+    <ProjectReference Include="..\Scorpio.ProcessRunner\Scorpio.ProcessRunner.csproj" />
   </ItemGroup>
 
 </Project>

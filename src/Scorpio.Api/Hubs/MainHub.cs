@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Scorpio.Api.Events;
 using Scorpio.Messaging.Abstractions;
 using System;
 using System.Threading.Tasks;
@@ -38,7 +37,6 @@ namespace Scorpio.Api.Hubs
         #region Following methods are callable from the UI via SignalR
         public void Data(object data)
         {
-            _eventBus.Publish(new UpdateRoverPositionEvent("dupa", "dupsko"));
             Console.WriteLine($"Received SignalR data: {JsonConvert.SerializeObject(data)}");
         }
         #endregion
