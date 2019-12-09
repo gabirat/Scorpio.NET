@@ -4,4 +4,9 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\lib\J2i.Net.XInputWrapper\J2i.Net.XInputWrapper.csproj" />
+    <ProjectReference Include="..\Scorpio.Gamepad.Models\Scorpio.Gamepad.Models.csproj" />
+  </ItemGroup>
+
 </Project>

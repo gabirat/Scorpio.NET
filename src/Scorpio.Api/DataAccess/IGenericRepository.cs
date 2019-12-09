@@ -44,6 +44,13 @@ namespace Scorpio.Api.DataAccess
         Task<TEntity> GetFiltered(Expression<Func<TEntity, bool>> predicate);
 
         /// <summary>
+        /// Return latest value filtered by predicate.
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        Task<TEntity> GetLatestFiltered(Expression<Func<TEntity, bool>> predicate);
+
+        /// <summary>
         /// Gets entity by it's primary key
         /// </summary>
         /// <param name="id">Key of entity</param>

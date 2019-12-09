@@ -15,7 +15,10 @@ using Scorpio.Api.Hubs;
 using Scorpio.Gamepad.Processors;
 using Scorpio.Messaging.Abstractions;
 using Scorpio.Messaging.RabbitMQ;
+using Scorpio.ProcessRunner;
 using System.Linq;
+using Scorpio.Gamepad.Processors.Mixing;
+using Scorpio.Messaging.Messages;
 
 namespace Scorpio.Api
 {
@@ -81,9 +84,12 @@ namespace Scorpio.Api
             services.AddRabbitMqConnection(Configuration);
             services.AddRabbitMqEventBus(Configuration);
 
-            services.AddTransient<UpdateRoverPositionEventHandler>();
+            services.AddTransient<IGenericProcessRunner, GenericProcessRunner>();
+
+            // Event-bus event handlers
             services.AddTransient<SaveSensorDataEventHandler>();
             services.AddTransient<SaveManySensorDataEventHandler>();
+            services.AddTransient<RoverControlEventHandler>();
 
             // Repositories
             services.AddTransient<IUiConfigurationRepository, UiConfigurationRepository>();
@@ -91,7 +97,7 @@ namespace Scorpio.Api
             services.AddTransient<ISensorDataRepository, SensorDataRepository>();
             services.AddTransient<IStreamRepository, StreamRepository>();
 
-            services.AddTransient<IGamepadProcessor, ExponentialGamepadProcessor>();
+            services.AddTransient<IGamepadProcessor<RoverMixer, RoverProcessorResult>, ExponentialGamepadProcessor>();
 
             var corsOrigins = "http://" + (Configuration["BACKEND_ORIGIN"] ?? "localhost:3000");
             services.AddCors(settings =>
@@ -140,9 +146,9 @@ namespace Scorpio.Api
         {
             var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
 
-            eventBus.Subscribe<UpdateRoverPositionEvent, UpdateRoverPositionEventHandler>();
             eventBus.Subscribe<SaveSensorDataEvent, SaveSensorDataEventHandler>();
             eventBus.Subscribe<SaveManySensorDataEvent, SaveManySensorDataEventHandler>();
+            eventBus.Subscribe<RoverControlEvent, RoverControlEventHandler>();
         }
     }
 }

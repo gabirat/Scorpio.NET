@@ -25,7 +25,7 @@ class SensorDataEditorScreen extends Component {
       runWizard: false,
       isFetched: false,
       currentPage: 1,
-      itemsPerPage: 200,
+      itemsPerPage: 50,
       editingEntity: null,
       selectedSensor: sensorKey ? sensorKey : FILTER_ALL_KEY,
       showId: false
@@ -128,7 +128,7 @@ class SensorDataEditorScreen extends Component {
             addText={"Add new data point"}
             onAddClick={() => this.handleAddClick()}
             customLeftItem={
-              <FilterDropdown
+              <AdditionalMenuItems
                 onChange={this.onFilterChange}
                 showId={showId}
                 onShowIdChanged={checked => this.setState({ showId: checked })}
@@ -186,7 +186,7 @@ class SensorDataEditorScreen extends Component {
   }
 }
 
-const FilterDropdown = ({ defaultFilter, onChange, showId, onShowIdChanged }) => {
+const AdditionalMenuItems = ({ defaultFilter, onChange, showId, onShowIdChanged, onWipeDataClick }) => {
   const sensors = useSelector(x => x.sensors);
   let options = Array.isArray(sensors)
     ? sensors.map(sensor => {
@@ -212,6 +212,12 @@ const FilterDropdown = ({ defaultFilter, onChange, showId, onShowIdChanged }) =>
     }
   };
 
+  const handleWipeDataClick = (ev, d) => {
+    if (typeof onWipeDataClick === "function") {
+      onWipeDataClick(ev, d);
+    }
+  };
+
   return (
     <>
       <Menu.Item style={{ paddingRight: "1rem" }}>
@@ -221,6 +227,10 @@ const FilterDropdown = ({ defaultFilter, onChange, showId, onShowIdChanged }) =>
         <Icon name="filter" />
         Select sensor
         <Dropdown style={{ paddingLeft: "1rem" }} options={options} defaultValue={defaultFilter} onChange={handleChange} />
+      </Menu.Item>
+      <Menu.Item position="right" onClick={handleWipeDataClick}>
+        <Icon name="eraser" color="red" />
+        Wipe data
       </Menu.Item>
     </>
   );

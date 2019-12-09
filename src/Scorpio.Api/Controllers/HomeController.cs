@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using Scorpio.Api.Hubs;
 using System.Reflection;
+using System.Threading.Tasks;
 using Scorpio.Api.Events;
 using Scorpio.Messaging.Abstractions;
 
@@ -30,7 +32,7 @@ namespace Scorpio.Api.Controllers
         public IActionResult Index()
         {
             _mainHub.Clients.All.SendAsync("home", "dataasdasd").Wait();
-            _eventBus.Publish(new UpdateRoverPositionEvent("posx", "posx"));
+            _eventBus.Publish(new FiluToSzmata("I KURWA"));
 
             var response = new
             {
@@ -41,6 +43,25 @@ namespace Scorpio.Api.Controllers
             };
 
             return Ok(response);
+        }
+
+        public class FiluToSzmata : IntegrationEvent
+        {
+            public string Filu { get; set; }
+
+            public FiluToSzmata(string filu)
+            {
+                Filu = filu;
+            }
+        }
+
+        public class FiluToSzmataHandler : IIntegrationEventHandler<IntegrationEvent>
+        {
+            public Task Handle(IntegrationEvent @event)
+            {
+                Console.WriteLine(@event);
+                return Task.FromResult(0);
+            }
         }
     }
 }

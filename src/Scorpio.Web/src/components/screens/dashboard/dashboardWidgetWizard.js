@@ -16,6 +16,18 @@ class DashboardWidgetWizard extends React.Component {
   }
 
   getWidgetsOptions = () => widgets.map(x => x.dropdown) || [];
+  getSensorOptions = () => {
+    const { sensors } = this.props.state;
+    return Array.isArray(sensors)
+      ? sensors.map(sensor => {
+          return {
+            key: sensor.sensorKey,
+            value: sensor.sensorKey,
+            text: sensor.name
+          };
+        })
+      : [];
+  };
 
   onFormChanged(data) {
     this.setState({ form: data });
@@ -39,6 +51,8 @@ class DashboardWidgetWizard extends React.Component {
     const { onClose, initialValues } = this.props;
     const { form } = this.state;
     const isAnalogGamepadWidget = form && form.values && form.values.widgetTtype === "GamepadAnalogs";
+    const isChartWidget = form && form.values && form.values.widgetTtype === "Chart";
+    const isStatisticWidget = form && form.values && form.values.widgetTtype === "StatisticWidget";
 
     const values = initialValues ? initialValues.props : null;
 
@@ -79,7 +93,9 @@ class DashboardWidgetWizard extends React.Component {
           </Field>
         </GenericWizard.Page>
 
+        {/* SECOND PAGE */}
         <GenericWizard.Page title="Widget properties">
+          {/* GAMEPAD WIDGET SPECIFIC FIELDS */}
           {isAnalogGamepadWidget && (
             <Field name="gamepadIndex" validate={Validators.required}>
               {({ input, meta }) => (
@@ -89,6 +105,24 @@ class DashboardWidgetWizard extends React.Component {
                   placeholder="Input gamepad index"
                   required
                   error={meta.invalid && meta.touched && meta.error}
+                />
+              )}
+            </Field>
+          )}
+
+          {/* CHART WIDGET SPECIFIC FIELDS */}
+          {(isChartWidget || isStatisticWidget) && (
+            <Field name="sensorKey" validate={Validators.required}>
+              {({ input, meta }) => (
+                <SemanticForm.Select
+                  {...input}
+                  label="Select sensor"
+                  error={meta.invalid && meta.touched && meta.error}
+                  placeholder="Select sensor..."
+                  required
+                  search
+                  onChange={(ev, data) => input.onChange(data.value)}
+                  options={this.getSensorOptions()}
                 />
               )}
             </Field>

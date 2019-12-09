@@ -5,7 +5,7 @@ import { genericApi } from "../../../api/genericApi";
 import { API } from "../../../constants/appConstants";
 import Chart from "./chart";
 
-const SensorContainer = ({ title, sensor, onEditClicked }) => {
+const SensorContainer = ({ sensor, onEditClicked }) => {
   const [visible, setVisible] = useState(false);
   const [data, setData] = useState([]);
 
@@ -37,7 +37,7 @@ const SensorContainer = ({ title, sensor, onEditClicked }) => {
         </Accordion.Title>
         <Accordion.Content active={visible} style={{ height: data.length === 0 ? "inherit" : "75vh" }}>
           {data.length === 0 ? (
-            <Message color="red">No data associated with sensor {sensor.name}</Message>
+            <Message color="orange">No data associated with sensor {sensor.name}</Message>
           ) : (
             <Chart data={data} sensor={sensor} />
           )}
