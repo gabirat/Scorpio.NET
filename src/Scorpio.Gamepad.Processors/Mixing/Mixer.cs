@@ -3,11 +3,16 @@ using Scorpio.Gamepad.Models;
 
 namespace Scorpio.Gamepad.Processors.Mixing
 {
-    public class Mixer
+    public interface IMixer<TResult> where TResult: class, new()
+    {
+        TResult Mix(GamepadModel model);
+    }
+
+    public class RoverMixer : IMixer<RoverProcessorResult>
     {
         private readonly List<IFilteringStrategy> _filteringStrategies;
 
-        public Mixer()
+        public RoverMixer()
         {
             _filteringStrategies = new List<IFilteringStrategy>();
         }
@@ -17,7 +22,7 @@ namespace Scorpio.Gamepad.Processors.Mixing
             _filteringStrategies.Add(strategy);
         }
 
-        public ProcessorResult Mix(GamepadModel model)
+        public RoverProcessorResult Mix(GamepadModel model)
         {
             GamepadModel filteringResult = model;
 
@@ -29,13 +34,12 @@ namespace Scorpio.Gamepad.Processors.Mixing
             return DoMix(filteringResult);
         }
 
-        //TODO
-        protected virtual ProcessorResult DoMix(GamepadModel model)
+        protected virtual RoverProcessorResult DoMix(GamepadModel model)
         {
-            return new ProcessorResult
+            return new RoverProcessorResult
             {
-                FrontLeftSpeed = (int) model.LeftTrigger.Value,
-                RearRightSpeed = (int) model.LeftTrigger.Value
+                Acceleration = (int) model.LeftTrigger,
+                Direction = (int) model.LeftTrigger
             };
         }
     }

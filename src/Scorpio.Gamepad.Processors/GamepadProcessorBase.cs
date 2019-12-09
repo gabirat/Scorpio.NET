@@ -3,18 +3,20 @@ using Scorpio.Gamepad.Processors.Mixing;
 
 namespace Scorpio.Gamepad.Processors
 {
-    public abstract class GamepadProcessorBase : IGamepadProcessor
+    public abstract class GamepadProcessorBase<TMixer, TResult> : IGamepadProcessor<TMixer, TResult>
+        where TMixer: IMixer<TResult>, new()
+        where TResult: class, new()
     {
-        public ProcessorResult Process(ControllerType type, GamepadModel input)
+
+        public TResult Process(GamepadModel input)
         {
-            var mixer = new Mixer();
+            var mixer = new TMixer();
 
             ConfigurePipeline(mixer);
 
-            // TODO include type somewhere
             return mixer.Mix(input);
         }
 
-        protected abstract void ConfigurePipeline(Mixer mixer);
+        protected abstract void ConfigurePipeline(TMixer mixer);
     }
 }

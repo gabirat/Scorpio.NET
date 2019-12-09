@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Scorpio.Messaging.Abstractions;
 
-namespace Scorpio.Api.Events
+namespace Scorpio.Messaging.Messages
 {
     public class RoverControlEvent : IntegrationEvent
     {

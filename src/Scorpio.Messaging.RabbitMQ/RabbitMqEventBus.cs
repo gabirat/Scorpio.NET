@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
@@ -11,22 +10,29 @@ using System.Threading.Tasks;
 
 namespace Scorpio.Messaging.RabbitMQ
 {
+    public class RabbitConfig
+    {
+        public string MyQueueName { get; set; }
+        public string ExchangeName { get; set; }
+        public string MessageTimeToLive { get; set; }
+    }
+
     public class RabbitMqEventBus : IEventBus, IDisposable
     {
         private readonly string _exchangeName;
         private readonly IEventBusSubscriptionManager _subsManager;
         private readonly ILogger<RabbitMqEventBus> _logger;
         private readonly ILifetimeScope _autofac;
-        private readonly IConfiguration _config;
+        private readonly RabbitConfig _config;
         private readonly IRabbitMqConnection _persistentConnection;
         private readonly string _queueName;
         private IModel _consumerChannel;
 
         public RabbitMqEventBus(IRabbitMqConnection persistentConnection, ILogger<RabbitMqEventBus> logger,
-            ILifetimeScope autofac, IEventBusSubscriptionManager subsManager, IConfiguration config)
+            ILifetimeScope autofac, IEventBusSubscriptionManager subsManager, RabbitConfig config)
         {
-            _queueName = config["RabbitMq:myQueueName"] ?? throw new ArgumentNullException(nameof(_queueName));
-            _exchangeName = config["RabbitMq:exchangeName"] ?? throw new ArgumentNullException(nameof(_exchangeName));
+            _queueName = config.MyQueueName ?? throw new ArgumentNullException(nameof(_queueName));
+            _exchangeName = config.ExchangeName ?? throw new ArgumentNullException(nameof(_exchangeName));
             _persistentConnection = persistentConnection ?? throw new ArgumentNullException(nameof(persistentConnection));
             _config = config;
             _autofac = autofac;
@@ -50,7 +56,7 @@ namespace Scorpio.Messaging.RabbitMQ
 
         private IBasicProperties ConfigureChannel(IModel channel)
         {
-            var expiration = _config["RabbitMq:messageTTL"] ?? throw new ArgumentException("RabbitMq:messageTTL");
+            var expiration = _config.MessageTimeToLive ?? throw new ArgumentException("RabbitMq:messageTTL");
             var props = channel.CreateBasicProperties();
             props.DeliveryMode = 1; // non persistent
             props.Expiration = expiration; // ms TTL

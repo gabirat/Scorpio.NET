@@ -49,7 +49,14 @@ namespace Scorpio.Messaging.RabbitMQ
                 var scope = provider.GetRequiredService<ILifetimeScope>();
                 var subsManager = provider.GetRequiredService<IEventBusSubscriptionManager>();
 
-                return new RabbitMqEventBus(conn, logger, scope, subsManager, config);
+                var rabbitConfig = new RabbitConfig
+                {
+                    ExchangeName = config["RabbitMq:exchangeName"],
+                    MyQueueName = config["RabbitMq:myQueueName"],
+                    MessageTimeToLive = config["RabbitMq:messageTTL"]
+                };
+
+                return new RabbitMqEventBus(conn, logger, scope, subsManager, rabbitConfig);
             });
 
             return services;
