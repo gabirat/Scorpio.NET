@@ -11,6 +11,9 @@ namespace Scorpio.Messaging.RabbitMQ
 {
     public class RabbitMqConnection : IRabbitMqConnection
     {
+        public event EventHandler<EventArgs> OnConnected;
+        public event EventHandler<EventArgs> OnDisconnected;
+
         private readonly IConnectionFactory _connectionFactory;
         private readonly ILogger<RabbitMqConnection> _logger;
         private IConnection _connection;
@@ -59,6 +62,7 @@ namespace Scorpio.Messaging.RabbitMQ
                     _connection.ConnectionShutdown += OnConnectionShutdown;
                     _connection.CallbackException += OnCallbackException;
                     _connection.ConnectionBlocked += OnConnectionBlocked;
+                    OnConnected?.Invoke(this, EventArgs.Empty);
 
                     _logger.LogInformation($"RabbitMQ persistent connection acquired a connection {_connection.Endpoint.HostName} and is subscribed to failure events");
 
@@ -92,6 +96,8 @@ namespace Scorpio.Messaging.RabbitMQ
         protected void OnConnectionShutdown(object sender, ShutdownEventArgs reason)
         {
             if (_disposed) return;
+
+            OnDisconnected?.Invoke(this, EventArgs.Empty);
 
             _logger.LogWarning("A RabbitMQ connection is on shutdown. Trying to re-connect...");
 
