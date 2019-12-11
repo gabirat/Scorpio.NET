@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Microsoft.Extensions.Logging;
+using NLog.Windows.Forms;
 using RabbitMQ.Client;
 using Scorpio.Gamepad.IO;
 using Scorpio.Gamepad.IO.Args;
@@ -7,56 +8,63 @@ using Scorpio.Gamepad.Processors;
 using Scorpio.Gamepad.Processors.Mixing;
 using Scorpio.GUI.Configuration;
 using Scorpio.Messaging.Abstractions;
+using Scorpio.Messaging.Messages;
 using Scorpio.Messaging.RabbitMQ;
-using Serilog;
-using Serilog.Extensions.Autofac.DependencyInjection;
 using System;
 using System.Configuration;
 using System.Windows.Forms;
-using Scorpio.Messaging.Messages;
 
 namespace Scorpio.GUI
 {
     public partial class MainForm : Form
     {
-        private IContainer _autofac;
+        private readonly ILifetimeScope _iocFactory;
+        private readonly ILogger<MainForm> _logger;
         private IEventBus _eventBus;
         private IGamepadProcessor<RoverMixer, RoverProcessorResult> _roverGamepadProcessor;
+        private IGamepadProcessor<ManipulatorMixer, ManipulatorProcessorResult> _maniGamepadProcessor;
         private IGamepadPoller _roverGamepad;
+        private IGamepadPoller _maniGamepad;
 
-        public MainForm()
+        public MainForm(ILifetimeScope iocFactory)
         {
             InitializeComponent();
+
+            _iocFactory = iocFactory;
+            _logger = _iocFactory.Resolve<ILogger<MainForm>>();
+
             var cfg = ConfigurationManager.GetSection("cameraConfig") as CameraConfigSection;
-            var gamepadUpdateFrequency = int.Parse(ConfigurationManager.AppSettings["gamepadUpdateFrequency"]);
-            SetupDepedencyInjection();
-            SetupGamepads(gamepadUpdateFrequency);
+            SetupGamepads();
             SetupMessageBus();
+
+            var sender = _iocFactory.Resolve<CyclicTimer>();
+            sender.Start(100);
+            sender.ElapsedAction = () =>
+            {
+                Console.WriteLine("ELAPSED");
+            };
+
+            base.Load += (_, __) => RichTextBoxTarget.ReInitializeAllTextboxes(this); // Refresh NLog RichTextBox
         }
 
-        private void SetupDepedencyInjection()
+        private void SetupGamepads()
         {
-            var builder = new ContainerBuilder();
-            builder.RegisterSerilog(new LoggerConfiguration());
-            builder.RegisterType<GenericEventBusSubscriptionManager>()
-                .As<IEventBusSubscriptionManager>()
-                .SingleInstance();
+            var pollerThreadSleepTime = int.Parse(ConfigurationManager.AppSettings["gamepadUpdateFrequency"]);
 
-            _autofac = builder.Build();
-        }
-
-        private void SetupGamepads(int gamepadUpdateFrequency)
-        {
-            _roverGamepad = new GamepadPoller(0, gamepadUpdateFrequency);
+            // TODO gamepadIndex from UI
+            _roverGamepad = new GamepadPoller(0, pollerThreadSleepTime);
             _roverGamepad.GamepadStateChanged += roverGamepad_GamepadStateChanged;
             _roverGamepad.StartPolling();
-            _roverGamepadProcessor = new ExponentialGamepadProcessor();
+            _roverGamepadProcessor = _iocFactory.Resolve<IGamepadProcessor<RoverMixer, RoverProcessorResult>>();
+
+            // TODO mani gamepad
         }
 
         private void roverGamepad_GamepadStateChanged(object sender, GamepadEventArgs e)
         {
             var processed = _roverGamepadProcessor.Process(e.Gamepad);
-            Console.WriteLine(processed.Direction);
+            _logger.LogInformation(processed.Direction.ToString());
+            // todo timer to send data periodically
             _eventBus?.Publish(new RoverControlEvent(processed.Acceleration, processed.Direction));
         }
 
@@ -71,9 +79,9 @@ namespace Scorpio.GUI
                 VirtualHost = ConfigurationManager.AppSettings["rabbitVhost"]
             };
 
-            var connLogger = _autofac.Resolve<ILogger<RabbitMqConnection>>();
-            var busLogger = _autofac.Resolve<ILogger<RabbitMqEventBus>>();
-            var subsManager = _autofac.Resolve<IEventBusSubscriptionManager>();
+            var connLogger = _iocFactory.Resolve<ILogger<RabbitMqConnection>>();
+            var busLogger = _iocFactory.Resolve<ILogger<RabbitMqEventBus>>();
+            var subsManager = _iocFactory.Resolve<IEventBusSubscriptionManager>();
             var config = new RabbitConfig
             {
                 ExchangeName = ConfigurationManager.AppSettings["rabbitExchange"],
@@ -82,7 +90,19 @@ namespace Scorpio.GUI
             };
 
             var conn = new RabbitMqConnection(factory, connLogger);
-            _eventBus = new RabbitMqEventBus(conn, busLogger, _autofac, subsManager, config);
+            conn.OnConnected += Conn_OnConnected;
+            conn.OnDisconnected += Conn_OnDisconnected;
+            _eventBus = new RabbitMqEventBus(conn, busLogger, _iocFactory, subsManager, config);
+        }
+
+        private void Conn_OnDisconnected(object sender, EventArgs e)
+        {
+            _logger.LogInformation("disc");
+        }
+
+        private void Conn_OnConnected(object sender, EventArgs e)
+        {
+            _logger.LogInformation("connected");
         }
     }
 }

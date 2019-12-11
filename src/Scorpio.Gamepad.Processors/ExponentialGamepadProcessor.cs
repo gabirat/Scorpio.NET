@@ -2,9 +2,11 @@
 
 namespace Scorpio.Gamepad.Processors
 {
-    public class ExponentialGamepadProcessor : GamepadProcessorBase<RoverMixer, RoverProcessorResult>
+    public class ExponentialGamepadProcessor<TMixer, TResult> : GamepadProcessorBase<TMixer, TResult>
+        where TMixer: class, IMixer<TResult>, new()
+        where TResult: class, new()
     {
-        protected override void ConfigurePipeline(RoverMixer mixer)
+        protected override void ConfigurePipeline(TMixer mixer)
         {
             mixer.AddFilteringStrategy(new ExponentialCurveFilteringStrategy());
         }

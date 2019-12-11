@@ -97,7 +97,7 @@ namespace Scorpio.Api
             services.AddTransient<ISensorDataRepository, SensorDataRepository>();
             services.AddTransient<IStreamRepository, StreamRepository>();
 
-            services.AddTransient<IGamepadProcessor<RoverMixer, RoverProcessorResult>, ExponentialGamepadProcessor>();
+            services.AddTransient<IGamepadProcessor<RoverMixer, RoverProcessorResult>, ExponentialGamepadProcessor<RoverMixer, RoverProcessorResult>>();
 
             var corsOrigins = "http://" + (Configuration["BACKEND_ORIGIN"] ?? "localhost:3000");
             services.AddCors(settings =>
