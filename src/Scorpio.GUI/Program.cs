@@ -53,7 +53,7 @@ namespace Scorpio.GUI
                 .As(typeof(IGamepadProcessor<,>))
                 .InstancePerDependency();
 
-            builder.RegisterType<Sender>()
+            builder.RegisterType<CyclicTimer>()
                 .InstancePerDependency();
 
             return builder;

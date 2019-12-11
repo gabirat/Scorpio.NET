@@ -22,7 +22,9 @@ namespace Scorpio.GUI
         private readonly ILogger<MainForm> _logger;
         private IEventBus _eventBus;
         private IGamepadProcessor<RoverMixer, RoverProcessorResult> _roverGamepadProcessor;
+        private IGamepadProcessor<ManipulatorMixer, ManipulatorProcessorResult> _maniGamepadProcessor;
         private IGamepadPoller _roverGamepad;
+        private IGamepadPoller _maniGamepad;
 
         public MainForm(ILifetimeScope iocFactory)
         {
@@ -35,8 +37,12 @@ namespace Scorpio.GUI
             SetupGamepads();
             SetupMessageBus();
 
-            var sender = _iocFactory.Resolve<Sender>();
-            sender.Start(40);
+            var sender = _iocFactory.Resolve<CyclicTimer>();
+            sender.Start(100);
+            sender.ElapsedAction = () =>
+            {
+                Console.WriteLine("ELAPSED");
+            };
 
             base.Load += (_, __) => RichTextBoxTarget.ReInitializeAllTextboxes(this); // Refresh NLog RichTextBox
         }
@@ -44,10 +50,14 @@ namespace Scorpio.GUI
         private void SetupGamepads()
         {
             var pollerThreadSleepTime = int.Parse(ConfigurationManager.AppSettings["gamepadUpdateFrequency"]);
+
+            // TODO gamepadIndex from UI
             _roverGamepad = new GamepadPoller(0, pollerThreadSleepTime);
             _roverGamepad.GamepadStateChanged += roverGamepad_GamepadStateChanged;
             _roverGamepad.StartPolling();
             _roverGamepadProcessor = _iocFactory.Resolve<IGamepadProcessor<RoverMixer, RoverProcessorResult>>();
+
+            // TODO mani gamepad
         }
 
         private void roverGamepad_GamepadStateChanged(object sender, GamepadEventArgs e)
