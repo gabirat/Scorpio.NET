@@ -1,8 +1,11 @@
 ﻿using Autofac;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using Scorpio.Gamepad.Processors;
+using Scorpio.GUI.Streaming;
 using Scorpio.Messaging.Abstractions;
+using Scorpio.Vivotek;
 using System;
 using System.Threading;
 using System.Windows.Forms;
@@ -11,7 +14,8 @@ namespace Scorpio.GUI
 {
     static class Program
     {
-        private static readonly ILogger<MainForm> logger;
+        private static ILogger<MainForm> logger;
+        private static IContainer container;
 
         /// <summary>
         /// The main entry point for the application.
@@ -19,23 +23,50 @@ namespace Scorpio.GUI
         [STAThread]
         static void Main()
         {
-            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-            Application.ThreadException += Application_ThreadException;
+            try
+            {
+                AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+                Application.ThreadException += Application_ThreadException;
 
-            var builder = new ContainerBuilder();
-            var services = PopulateServices(builder);
-            var container = services.Build();
+                var builder = new ContainerBuilder();
+                var services = PopulateServices(builder);
+                container = services.Build();
 
-            SetupLogger(container);
+                SetupLogger(container);
 
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(container.Resolve<MainForm>());
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+
+                logger = container.Resolve<ILogger<MainForm>>();
+
+                Application.Run(container.Resolve<MainForm>());
+            }
+            catch(Exception ex)
+            {
+                HandleException(ex);
+            }
         }
 
         static ContainerBuilder PopulateServices(ContainerBuilder builder)
         {
             builder.RegisterType<MainForm>().SingleInstance();
+
+            IConfigurationRoot configuration = new ConfigurationBuilder()
+              .AddJsonFile("appsettings.json", optional: false)
+              .Build();
+
+            builder.RegisterInstance(configuration)
+                .As<IConfiguration>()
+                .SingleInstance()
+                .ExternallyOwned();
+
+            var vivotekConfig = new CameraConfigModel();
+            configuration.GetSection("cameras").Bind(vivotekConfig);
+
+            builder.RegisterInstance(vivotekConfig)
+                .As<CameraConfigModel>()
+                .SingleInstance()
+                .ExternallyOwned();
 
             builder.RegisterType<LoggerFactory>()
                 .As<ILoggerFactory>()
@@ -56,6 +87,12 @@ namespace Scorpio.GUI
             builder.RegisterType<CyclicTimer>()
                 .InstancePerDependency();
 
+            builder.RegisterType<GStreamerLauncher>()
+                .SingleInstance();
+
+            builder.RegisterType<VivotekDomeCameraController>()
+                .InstancePerDependency();
+                
             return builder;
         }
 
