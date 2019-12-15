@@ -1,17 +1,8 @@
 ﻿using Autofac;
 using Microsoft.Extensions.Logging;
 using NLog.Windows.Forms;
-using RabbitMQ.Client;
-using Scorpio.Gamepad.IO;
-using Scorpio.Gamepad.IO.Args;
-using Scorpio.Gamepad.Processors;
-using Scorpio.Gamepad.Processors.Mixing;
-using Scorpio.GUI.Configuration;
 using Scorpio.Messaging.Abstractions;
-using Scorpio.Messaging.Messages;
 using Scorpio.Messaging.RabbitMQ;
-using System;
-using System.Configuration;
 using System.Windows.Forms;
 
 namespace Scorpio.GUI
@@ -20,89 +11,51 @@ namespace Scorpio.GUI
     {
         private readonly ILifetimeScope _iocFactory;
         private readonly ILogger<MainForm> _logger;
-        private IEventBus _eventBus;
-        private IGamepadProcessor<RoverMixer, RoverProcessorResult> _roverGamepadProcessor;
-        private IGamepadProcessor<ManipulatorMixer, ManipulatorProcessorResult> _maniGamepadProcessor;
-        private IGamepadPoller _roverGamepad;
-        private IGamepadPoller _maniGamepad;
+        private readonly IEventBus _eventBus;
 
-        public MainForm(ILifetimeScope iocFactory)
+        public MainForm(ILifetimeScope iocFactory, ILogger<MainForm> logger)
         {
             InitializeComponent();
 
             _iocFactory = iocFactory;
-            _logger = _iocFactory.Resolve<ILogger<MainForm>>();
+            _eventBus = _iocFactory.Resolve<IEventBus>();
+            _logger = logger;
 
-            var cfg = ConfigurationManager.GetSection("cameraConfig") as CameraConfigSection;
-            SetupGamepads();
-            SetupMessageBus();
+            SetupStreamControl();
+            SetupGamepadControls();
+            SetupMessaging();
 
-            var sender = _iocFactory.Resolve<CyclicTimer>();
-            sender.Start(100);
-            sender.ElapsedAction = () =>
-            {
-                Console.WriteLine("ELAPSED");
-            };
-
+            this.AutoScaleMode = AutoScaleMode.Dpi;
             base.Load += (_, __) => RichTextBoxTarget.ReInitializeAllTextboxes(this); // Refresh NLog RichTextBox
         }
 
-        private void SetupGamepads()
+        private void SetupStreamControl()
         {
-            var pollerThreadSleepTime = int.Parse(ConfigurationManager.AppSettings["gamepadUpdateFrequency"]);
+            // Maybe build this dynamically basing on config?
+            ucStreamControl1.Autofac = _iocFactory.Resolve<ILifetimeScope>();
+            ucStreamControl2.Autofac = _iocFactory.Resolve<ILifetimeScope>();
+            ucStreamControl3.Autofac = _iocFactory.Resolve<ILifetimeScope>();
+            ucStreamControl4.Autofac = _iocFactory.Resolve<ILifetimeScope>();
+            ucStreamControl1.CameraId = "cam1";
+            ucStreamControl2.CameraId = "cam2";
+            ucStreamControl3.CameraId = "cam3";
+            ucStreamControl4.CameraId = "cam4";
 
-            // TODO gamepadIndex from UI
-            _roverGamepad = new GamepadPoller(0, pollerThreadSleepTime);
-            _roverGamepad.GamepadStateChanged += roverGamepad_GamepadStateChanged;
-            _roverGamepad.StartPolling();
-            _roverGamepadProcessor = _iocFactory.Resolve<IGamepadProcessor<RoverMixer, RoverProcessorResult>>();
-
-            // TODO mani gamepad
+            ucVivotekController1.Autofac = _iocFactory.Resolve<ILifetimeScope>();
+            ucVivotekController1.VivotekId = "vivotek1";
         }
 
-        private void roverGamepad_GamepadStateChanged(object sender, GamepadEventArgs e)
+        private void SetupGamepadControls()
         {
-            var processed = _roverGamepadProcessor.Process(e.Gamepad);
-            _logger.LogInformation(processed.Direction.ToString());
-            // todo timer to send data periodically
-            _eventBus?.Publish(new RoverControlEvent(processed.Acceleration, processed.Direction));
+            ucRoverGamepad1.Setup(_iocFactory.Resolve<ILifetimeScope>());
         }
 
-        private void SetupMessageBus()
-        {
-            var factory = new ConnectionFactory
-            {
-                HostName = ConfigurationManager.AppSettings["rabbitHost"],
-                Port = int.Parse(ConfigurationManager.AppSettings["rabbitPort"]),
-                UserName = ConfigurationManager.AppSettings["rabbitUser"],
-                Password = ConfigurationManager.AppSettings["rabbitPassword"],
-                VirtualHost = ConfigurationManager.AppSettings["rabbitVhost"]
-            };
+        private void SetupMessaging()
+        { 
+            var conn = (RabbitMqConnection)_iocFactory.Resolve<IRabbitMqConnection>();
 
-            var connLogger = _iocFactory.Resolve<ILogger<RabbitMqConnection>>();
-            var busLogger = _iocFactory.Resolve<ILogger<RabbitMqEventBus>>();
-            var subsManager = _iocFactory.Resolve<IEventBusSubscriptionManager>();
-            var config = new RabbitConfig
-            {
-                ExchangeName = ConfigurationManager.AppSettings["rabbitExchange"],
-                MyQueueName = ConfigurationManager.AppSettings["rabbitMyQueue"],
-                MessageTimeToLive = ConfigurationManager.AppSettings["rabbitMessageTTL"],
-            };
-
-            var conn = new RabbitMqConnection(factory, connLogger);
-            conn.OnConnected += Conn_OnConnected;
-            conn.OnDisconnected += Conn_OnDisconnected;
-            _eventBus = new RabbitMqEventBus(conn, busLogger, _iocFactory, subsManager, config);
-        }
-
-        private void Conn_OnDisconnected(object sender, EventArgs e)
-        {
-            _logger.LogInformation("disc");
-        }
-
-        private void Conn_OnConnected(object sender, EventArgs e)
-        {
-            _logger.LogInformation("connected");
+            conn.OnConnected += (_, __) => _logger.LogInformation("RabbitMQ connected!");
+            conn.OnDisconnected += (_, __) => _logger.LogError("RabbitMQ disconnected");
         }
     }
 }
