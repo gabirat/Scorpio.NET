@@ -21,23 +21,19 @@ namespace Scorpio.GUI
         private readonly ILifetimeScope _iocFactory;
         private readonly ILogger<MainForm> _logger;
         private IEventBus _eventBus;
-        private IGamepadProcessor<RoverMixer, RoverProcessorResult> _roverGamepadProcessor;
-        private IGamepadProcessor<ManipulatorMixer, ManipulatorProcessorResult> _maniGamepadProcessor;
-        private IGamepadPoller _roverGamepad;
-        private IGamepadPoller _maniGamepad;
 
         public MainForm(ILifetimeScope iocFactory, IConfiguration config, ILogger<MainForm> logger)
         {
             InitializeComponent();
             base.Load += (_, __) => RichTextBoxTarget.ReInitializeAllTextboxes(this); // Refresh NLog RichTextBox
 
+            ucRoverGamepad1.Setup(iocFactory.Resolve<ILifetimeScope>());
             _config = config;
             _iocFactory = iocFactory;
             _logger = logger;
 
             SetupStreamControl();
-            
-            SetupGamepads();
+
             //SetupMessageBus();
 
             var sender = _iocFactory.Resolve<CyclicTimer>();
@@ -47,11 +43,6 @@ namespace Scorpio.GUI
                 Console.WriteLine("ELAPSED");
             };
 
-            base.FormClosing += (_, __) =>
-            {
-                _roverGamepad?.Dispose();
-                _maniGamepad?.Dispose();
-            };
 
             this.AutoScaleMode = AutoScaleMode.Dpi;
         }
@@ -72,26 +63,6 @@ namespace Scorpio.GUI
             ucVivotekController1.VivotekId = "vivotek1";
         }
 
-        private void SetupGamepads()
-        {
-            var pollerThreadSleepTime = _config.GetValue<int>("gamepadUpdateFrequency");
-
-            // TODO gamepadIndex from UI
-            _roverGamepad = new GamepadPoller(0, pollerThreadSleepTime);
-            _roverGamepad.GamepadStateChanged += roverGamepad_GamepadStateChanged;
-            _roverGamepad.StartPolling();
-            _roverGamepadProcessor = _iocFactory.Resolve<IGamepadProcessor<RoverMixer, RoverProcessorResult>>();
-
-            // TODO mani gamepad
-        }
-
-        private void roverGamepad_GamepadStateChanged(object sender, GamepadEventArgs e)
-        {
-            var processed = _roverGamepadProcessor.Process(e.Gamepad);
-            _logger.LogInformation(processed.Direction.ToString());
-            // todo timer to send data periodically
-            _eventBus?.Publish(new RoverControlEvent(processed.Acceleration, processed.Direction));
-        }
 
         private void SetupMessageBus()
         {

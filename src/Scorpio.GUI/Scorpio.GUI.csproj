@@ -151,6 +151,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CameraConfigModel.cs" />
+    <Compile Include="Controls\ucRoverGamepad.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\ucRoverGamepad.Designer.cs">
+      <DependentUpon>ucRoverGamepad.cs</DependentUpon>
+    </Compile>
     <Compile Include="Controls\ucStreamControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -174,6 +180,9 @@
     <Compile Include="CyclicTimer.cs" />
     <Compile Include="Streaming\GStreamerLauncher.cs" />
     <Compile Include="Utils\Extensions.cs" />
+    <EmbeddedResource Include="Controls\ucRoverGamepad.resx">
+      <DependentUpon>ucRoverGamepad.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\ucStreamControl.resx">
       <DependentUpon>ucStreamControl.cs</DependentUpon>
     </EmbeddedResource>

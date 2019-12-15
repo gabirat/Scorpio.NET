@@ -30,6 +30,7 @@
         {
             this.logbox = new System.Windows.Forms.RichTextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.ucRoverGamepad1 = new Scorpio.GUI.Controls.ucRoverGamepad();
             this.ucVivotekController1 = new Scorpio.GUI.Controls.ucVivotekController();
             this.ucStreamControl4 = new Scorpio.GUI.Controls.ucStreamControl();
             this.ucStreamControl3 = new Scorpio.GUI.Controls.ucStreamControl();
@@ -59,6 +60,15 @@
             this.groupBox1.TabIndex = 3;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Events";
+            // 
+            // ucRoverGamepad1
+            // 
+            this.ucRoverGamepad1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.ucRoverGamepad1.Font = new System.Drawing.Font("Arial", 9F);
+            this.ucRoverGamepad1.Location = new System.Drawing.Point(12, 12);
+            this.ucRoverGamepad1.Name = "ucRoverGamepad1";
+            this.ucRoverGamepad1.Size = new System.Drawing.Size(457, 245);
+            this.ucRoverGamepad1.TabIndex = 9;
             // 
             // ucVivotekController1
             // 
@@ -118,6 +128,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1160, 777);
+            this.Controls.Add(this.ucRoverGamepad1);
             this.Controls.Add(this.ucVivotekController1);
             this.Controls.Add(this.ucStreamControl4);
             this.Controls.Add(this.ucStreamControl3);
@@ -140,6 +151,7 @@
         private Controls.ucStreamControl ucStreamControl3;
         private Controls.ucStreamControl ucStreamControl4;
         private Controls.ucVivotekController ucVivotekController1;
+        private Controls.ucRoverGamepad ucRoverGamepad1;
     }
 }
 
