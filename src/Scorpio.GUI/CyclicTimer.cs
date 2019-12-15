@@ -21,13 +21,13 @@ namespace Scorpio.GUI
             _timer = new Timer(interval);
             _timer.Elapsed += (_, __) => ElapsedAction?.Invoke();
             _timer.Start();
-            _logger.LogInformation($"Sender has been started with inverval: ${interval} [ms]");
+            _logger.LogInformation($"Sender has been started with inverval: {interval} [ms]");
         }
 
         public void Stop()
         {
             _timer?.Stop();
-            _logger.LogInformation($"Sender has been stopped");
+            _logger.LogInformation("Sender has been stopped");
         }
 
         public void Dispose() => _timer?.Dispose();

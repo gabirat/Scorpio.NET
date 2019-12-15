@@ -14,7 +14,7 @@ using Scorpio.Messaging.RabbitMQ;
 
 namespace Scorpio.GUI
 {
-    static class Program
+    internal static class Program
     {
         private static ILogger<MainForm> _logger;
         private static IContainer _container;
@@ -23,7 +23,7 @@ namespace Scorpio.GUI
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        private static void Main()
         {
             try
             {
@@ -34,7 +34,9 @@ namespace Scorpio.GUI
                 var services = PopulateServices(builder);
                 _container = services.Build();
 
-                SetupLogger(_container);
+#pragma warning disable 618
+                SetupLogger();
+#pragma warning restore 618
 
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
@@ -49,7 +51,7 @@ namespace Scorpio.GUI
             }
         }
 
-        static ContainerBuilder PopulateServices(ContainerBuilder builder)
+        private static ContainerBuilder PopulateServices(ContainerBuilder builder)
         {
             builder.RegisterType<MainForm>().SingleInstance();
 
@@ -148,9 +150,9 @@ namespace Scorpio.GUI
         }
 
         [Obsolete("YES I KNOW ITS OBSOLETE", false)]
-        private static void SetupLogger(IContainer container)
+        private static void SetupLogger()
         {
-            var loggerFactory = container.Resolve<ILoggerFactory>();
+            var loggerFactory = _container.Resolve<ILoggerFactory>();
             loggerFactory.AddNLog(new NLogProviderOptions
             {
                 CaptureMessageProperties = true,
