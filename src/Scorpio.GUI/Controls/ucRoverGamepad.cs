@@ -10,6 +10,8 @@ using System;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using Scorpio.Messaging.Abstractions;
+using Scorpio.Messaging.Messages;
 
 namespace Scorpio.GUI.Controls
 {
@@ -33,6 +35,9 @@ namespace Scorpio.GUI.Controls
         private int _pollerThreadSleepTime = 50; // default
         private ILogger<ucRoverGamepad> _logger;
         private int _gamepadIndex;
+        private RoverProcessorResult _latestResult;
+        private CyclicTimer _timer;
+        private IEventBus _eventBus;
 
         public ucRoverGamepad()
         {
@@ -62,6 +67,9 @@ namespace Scorpio.GUI.Controls
             _pollerThreadSleepTime = Autofac.Resolve<IConfiguration>().GetValue<int>("gamepadUpdateFrequency");
             _gamepadProcessor = Autofac.Resolve<IGamepadProcessor<RoverMixer, RoverProcessorResult>>();
             _logger = Autofac.Resolve<ILogger<ucRoverGamepad>>();
+            _timer = Autofac.Resolve<CyclicTimer>();
+            _eventBus = Autofac.Resolve<IEventBus>();
+            _timer.ElapsedAction = TimerElapsedAction;
             lblAcc.Text = string.Empty;
             lblDir.Text = string.Empty;
             pbAcc.Minimum = 0;
@@ -72,9 +80,8 @@ namespace Scorpio.GUI.Controls
 
         private void _poller_GamepadStateChanged(object sender, GamepadEventArgs e)
         {
-            var processed = _gamepadProcessor.Process(e.Gamepad);
-            // TODO eventBus publish
-            UpdateResultWidgets(processed);
+            _latestResult = _gamepadProcessor.Process(e.Gamepad);
+            UpdateResultWidgets(_latestResult);
         }
 
         private void UpdateResultWidgets(RoverProcessorResult result)
@@ -96,21 +103,37 @@ namespace Scorpio.GUI.Controls
                 return;
             }
             
+            // Start gamepad poller
             _poller = new GamepadPoller(_gamepadIndex, _pollerThreadSleepTime);
             _poller.GamepadStateChanged += _poller_GamepadStateChanged;
             _poller.StartPolling();
 
+            // Start publishing messages
+            _timer.Start(100); // send message every 100 ms
+
             _logger.LogInformation($"Rover gamepad started with index: {_gamepadIndex}");
             SetStateStarted();
+        }
+
+        private void TimerElapsedAction()
+        {
+            if (_latestResult is null) return;
+
+            var msg = new RoverControlCommand(_latestResult.Direction, _latestResult.Acceleration);
+            _eventBus?.Publish(msg);
         }
 
         private void btnStop_Click(object sender, EventArgs e)
         {
             if (_isStarted == false) return;
 
+            // Stop publishing to rabbit mq
+            _timer.Stop();
+
+            // Stop gamepad polling
             _poller.StopPolling();
             _poller.GamepadStateChanged -= _poller_GamepadStateChanged;
-
+            
             _logger.LogInformation("Rover gamepad stopped");
             SetStateStopped();
         }

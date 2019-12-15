@@ -63,6 +63,7 @@
             // 
             // ucRoverGamepad1
             // 
+            this.ucRoverGamepad1.Autofac = null;
             this.ucRoverGamepad1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.ucRoverGamepad1.Font = new System.Drawing.Font("Arial", 9F);
             this.ucRoverGamepad1.Location = new System.Drawing.Point(12, 12);
@@ -80,7 +81,6 @@
             this.ucVivotekController1.Size = new System.Drawing.Size(396, 522);
             this.ucVivotekController1.TabIndex = 8;
             this.ucVivotekController1.VivotekId = null;
-            this.ucVivotekController1.Load += new System.EventHandler(this.ucVivotekController1_Load);
             // 
             // ucStreamControl4
             // 
@@ -91,7 +91,6 @@
             this.ucStreamControl4.Name = "ucStreamControl4";
             this.ucStreamControl4.Size = new System.Drawing.Size(271, 126);
             this.ucStreamControl4.TabIndex = 4;
-            this.ucStreamControl4.Load += new System.EventHandler(this.ucStreamControl4_Load);
             // 
             // ucStreamControl3
             // 

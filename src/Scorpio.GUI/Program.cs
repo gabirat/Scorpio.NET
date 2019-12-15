@@ -9,13 +9,15 @@ using Scorpio.Vivotek;
 using System;
 using System.Threading;
 using System.Windows.Forms;
+using RabbitMQ.Client;
+using Scorpio.Messaging.RabbitMQ;
 
 namespace Scorpio.GUI
 {
     static class Program
     {
-        private static ILogger<MainForm> logger;
-        private static IContainer container;
+        private static ILogger<MainForm> _logger;
+        private static IContainer _container;
 
         /// <summary>
         /// The main entry point for the application.
@@ -30,18 +32,18 @@ namespace Scorpio.GUI
 
                 var builder = new ContainerBuilder();
                 var services = PopulateServices(builder);
-                container = services.Build();
+                _container = services.Build();
 
-                SetupLogger(container);
+                SetupLogger(_container);
 
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
 
-                logger = container.Resolve<ILogger<MainForm>>();
+                _logger = _container.Resolve<ILogger<MainForm>>();
 
-                Application.Run(container.Resolve<MainForm>());
+                Application.Run(_container.Resolve<MainForm>());
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 HandleException(ex);
             }
@@ -51,17 +53,17 @@ namespace Scorpio.GUI
         {
             builder.RegisterType<MainForm>().SingleInstance();
 
-            IConfigurationRoot configuration = new ConfigurationBuilder()
+            var config = new ConfigurationBuilder()
               .AddJsonFile("appsettings.json", optional: false)
               .Build();
 
-            builder.RegisterInstance(configuration)
+            builder.RegisterInstance(config)
                 .As<IConfiguration>()
                 .SingleInstance()
                 .ExternallyOwned();
 
             var vivotekConfig = new CameraConfigModel();
-            configuration.GetSection("cameras").Bind(vivotekConfig);
+            config.GetSection("cameras").Bind(vivotekConfig);
 
             builder.RegisterInstance(vivotekConfig)
                 .As<CameraConfigModel>()
@@ -76,9 +78,8 @@ namespace Scorpio.GUI
                 .As(typeof(ILogger<>))
                 .SingleInstance();
 
-            builder.RegisterType<GenericEventBusSubscriptionManager>()
-                .As<IEventBusSubscriptionManager>()
-                .SingleInstance();
+            SetupRabbitMqConnection(builder, config);
+            SetupRabbitMqEventBus(builder, config);
 
             builder.RegisterGeneric(typeof(ExponentialGamepadProcessor<,>))
                 .As(typeof(IGamepadProcessor<,>))
@@ -92,8 +93,58 @@ namespace Scorpio.GUI
 
             builder.RegisterType<VivotekDomeCameraController>()
                 .InstancePerDependency();
-                
+
             return builder;
+        }
+
+        private static void SetupRabbitMqConnection(ContainerBuilder builder, IConfiguration config)
+        {
+            builder.Register<IRabbitMqConnection>(ctx =>
+                {
+                    var logger = ctx.Resolve<ILogger<RabbitMqConnection>>();
+
+                    var factory = new ConnectionFactory
+                    {
+                        HostName = config["rabbitMq:host"],
+                        Port = config.GetValue<int>("rabbitMq:port"),
+                        UserName = config["rabbitMq:userName"],
+                        Password = config["rabbitMq:password"],
+                        VirtualHost = config["rabbitMq:virtualHost"]
+                    };
+
+                    logger.LogInformation("************************************");
+                    logger.LogInformation($"RabbitMQ factory created: {factory.UserName}:{factory.Password}@{factory.HostName}:{factory.Port}{factory.VirtualHost}");
+                    logger.LogInformation("************************************");
+
+                    return new RabbitMqConnection(factory, logger);
+                })
+                .SingleInstance();
+        }
+
+        private static void SetupRabbitMqEventBus(ContainerBuilder builder, IConfiguration config)
+        {
+            builder.RegisterType<GenericEventBusSubscriptionManager>()
+                .As<IEventBusSubscriptionManager>()
+                .SingleInstance();
+
+            builder.Register<RabbitMqEventBus>(ctx =>
+            {
+                var conn = ctx.Resolve<IRabbitMqConnection>();
+                var logger = ctx.Resolve<ILogger<RabbitMqEventBus>>();
+                var scope = ctx.Resolve<ILifetimeScope>();
+                var subsManager = ctx.Resolve<IEventBusSubscriptionManager>();
+
+                var rabbitConfig = new RabbitConfig
+                {
+                    ExchangeName = config["rabbitMq:exchangeName"],
+                    MyQueueName = config["rabbitMq:myQueueName"],
+                    MessageTimeToLive = config["rabbitMq:messageTTL"],
+                };
+
+                return new RabbitMqEventBus(conn, logger, scope, subsManager, rabbitConfig);
+            })
+            .As<IEventBus>()
+            .SingleInstance();
         }
 
         [Obsolete("YES I KNOW ITS OBSOLETE", false)]
@@ -115,7 +166,7 @@ namespace Scorpio.GUI
 
         private static void HandleException(Exception ex)
         {
-            logger.LogError(ex?.Message, ex?.ToString());
+            _logger.LogError(ex?.Message, ex?.ToString());
         }
     }
 }

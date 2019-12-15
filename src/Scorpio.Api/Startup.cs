@@ -148,7 +148,7 @@ namespace Scorpio.Api
 
             eventBus.Subscribe<SaveSensorDataEvent, SaveSensorDataEventHandler>();
             eventBus.Subscribe<SaveManySensorDataEvent, SaveManySensorDataEventHandler>();
-            eventBus.Subscribe<RoverControlEvent, RoverControlEventHandler>();
+            eventBus.Subscribe<RoverControlCommand, RoverControlEventHandler>();
         }
     }
 }

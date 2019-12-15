@@ -3,7 +3,7 @@ using Scorpio.Messaging.Abstractions;
 
 namespace Scorpio.Messaging.Messages
 {
-    public class RoverControlEvent : IntegrationEvent
+    public class RoverControlCommand : IntegrationEvent
     {
         [JsonProperty("dir")]
         public double Dir { get; }
@@ -11,7 +11,7 @@ namespace Scorpio.Messaging.Messages
         [JsonProperty("acc")]
         public double Acc { get; }
 
-        public RoverControlEvent(double dir, double acc)
+        public RoverControlCommand(double dir, double acc)
         {
             Dir = dir;
             Acc = acc;

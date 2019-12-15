@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace Scorpio.Api.EventHandlers
 {
-    public class RoverControlEventHandler : IIntegrationEventHandler<RoverControlEvent>
+    public class RoverControlEventHandler : IIntegrationEventHandler<RoverControlCommand>
     {
-        public Task Handle(RoverControlEvent @event)
+        public Task Handle(RoverControlCommand @event)
         {
             Console.WriteLine($"ACC {@event.Acc}  DIR {@event.Dir}");
             return Task.CompletedTask;
