@@ -11,14 +11,24 @@ namespace Scorpio.GUI.Controls
         private ILifetimeScope _autofac;
         public ILifetimeScope Autofac
         {
-            get => _autofac ?? throw new ArgumentNullException("Autofac was not initialized in this control.");
+            get
+            {
+                if (_autofac is null && !DesignMode)
+                    throw new ArgumentNullException("Autofac was not initialized in this control.");
+                return _autofac;
+            }
             set => _autofac = value;
         }
 
         private string _cameraId;
         public string CameraId
         {
-            get => _cameraId ?? throw new ArgumentNullException("CameraId was not provided.");
+            get
+            {
+                if (_cameraId is null && !DesignMode) 
+                    throw new ArgumentNullException("CameraId was not provided.");
+                return _cameraId;
+            }
             set => _cameraId = value;
         }
 

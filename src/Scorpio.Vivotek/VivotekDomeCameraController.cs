@@ -17,20 +17,25 @@ namespace Scorpio.Vivotek
         {
             var queryParam = CommandsDictionary.Commands[command];
             var endpoint = ApiUrl + queryParam;
-            SetBasicAuthHeaders();
-            Logger.LogInformation($"Sending camera command: {command}, constructed url: {endpoint}");
-            await GetRawAsync(endpoint);
+
+            await GetRawWithBasicAuthAsync(endpoint);
         }
 
         public async Task SetSpeed(CameraSpeedCommand command, sbyte speed)
         {
             if (speed > 5 || speed < -5)
-                throw new ArgumentException($"Speed value should be between -5 and 5");
+                throw new ArgumentException("Speed value should be between -5 and 5");
 
             var queryParam = CommandsDictionary.SpeedCommands[command];
             var endpoint = ApiUrl + queryParam + speed;
+
+            await GetRawWithBasicAuthAsync(endpoint);
+        }
+
+        private async Task GetRawWithBasicAuthAsync(string endpoint)
+        {
             SetBasicAuthHeaders();
-            Logger.LogInformation($"Sending camera command: {command}, constructed url: {endpoint}");
+            Logger.LogInformation($"Sending camera command, constructed url: {endpoint}");
             await GetRawAsync(endpoint);
         }
     }

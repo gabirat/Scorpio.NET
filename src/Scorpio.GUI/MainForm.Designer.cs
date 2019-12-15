@@ -62,18 +62,21 @@
             // 
             // ucVivotekController1
             // 
+            this.ucVivotekController1.Autofac = null;
             this.ucVivotekController1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.ucVivotekController1.Font = new System.Drawing.Font("Arial", 9F);
-            this.ucVivotekController1.Location = new System.Drawing.Point(475, 66);
+            this.ucVivotekController1.Location = new System.Drawing.Point(475, 12);
             this.ucVivotekController1.Name = "ucVivotekController1";
-            this.ucVivotekController1.Size = new System.Drawing.Size(396, 468);
+            this.ucVivotekController1.Size = new System.Drawing.Size(396, 522);
             this.ucVivotekController1.TabIndex = 8;
             this.ucVivotekController1.VivotekId = null;
             this.ucVivotekController1.Load += new System.EventHandler(this.ucVivotekController1_Load);
             // 
             // ucStreamControl4
             // 
+            this.ucStreamControl4.Autofac = null;
             this.ucStreamControl4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.ucStreamControl4.CameraId = null;
             this.ucStreamControl4.Location = new System.Drawing.Point(877, 408);
             this.ucStreamControl4.Name = "ucStreamControl4";
             this.ucStreamControl4.Size = new System.Drawing.Size(271, 126);
@@ -82,7 +85,9 @@
             // 
             // ucStreamControl3
             // 
+            this.ucStreamControl3.Autofac = null;
             this.ucStreamControl3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.ucStreamControl3.CameraId = null;
             this.ucStreamControl3.Location = new System.Drawing.Point(877, 276);
             this.ucStreamControl3.Name = "ucStreamControl3";
             this.ucStreamControl3.Size = new System.Drawing.Size(271, 126);
@@ -90,7 +95,9 @@
             // 
             // ucStreamControl2
             // 
+            this.ucStreamControl2.Autofac = null;
             this.ucStreamControl2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.ucStreamControl2.CameraId = null;
             this.ucStreamControl2.Location = new System.Drawing.Point(877, 144);
             this.ucStreamControl2.Name = "ucStreamControl2";
             this.ucStreamControl2.Size = new System.Drawing.Size(271, 126);
@@ -98,7 +105,9 @@
             // 
             // ucStreamControl1
             // 
+            this.ucStreamControl1.Autofac = null;
             this.ucStreamControl1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.ucStreamControl1.CameraId = null;
             this.ucStreamControl1.Location = new System.Drawing.Point(877, 12);
             this.ucStreamControl1.Name = "ucStreamControl1";
             this.ucStreamControl1.Size = new System.Drawing.Size(271, 126);

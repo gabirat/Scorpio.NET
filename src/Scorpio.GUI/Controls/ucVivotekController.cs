@@ -13,7 +13,12 @@ namespace Scorpio.GUI.Controls
         private ILifetimeScope _autofac;
         public ILifetimeScope Autofac
         {
-            get => _autofac ?? throw new ArgumentNullException("Autofac was not initialized in this control.");
+            get
+            {
+                if (_autofac is null && !DesignMode)
+                    throw new ArgumentNullException("Autofac was not initialized in this control.");
+                return _autofac;
+            }
             set => _autofac = value;
         }
 
@@ -24,7 +29,6 @@ namespace Scorpio.GUI.Controls
             {
                 if (_vivotekId is null && !DesignMode)
                     throw new ArgumentNullException("VivotekId was not provided.");
-
                 return _vivotekId;
             }
             set => _vivotekId = value;
