@@ -11,14 +11,16 @@ using Newtonsoft.Json.Converters;
 using Scorpio.Api.DataAccess;
 using Scorpio.Api.EventHandlers;
 using Scorpio.Api.Events;
+using Scorpio.Api.HostedServices;
 using Scorpio.Api.Hubs;
 using Scorpio.Gamepad.Processors;
+using Scorpio.Gamepad.Processors.Mixing;
+using Scorpio.Instrumentation.Ubiquiti;
 using Scorpio.Messaging.Abstractions;
+using Scorpio.Messaging.Messages;
 using Scorpio.Messaging.RabbitMQ;
 using Scorpio.ProcessRunner;
 using System.Linq;
-using Scorpio.Gamepad.Processors.Mixing;
-using Scorpio.Messaging.Messages;
 
 namespace Scorpio.Api
 {
@@ -90,6 +92,7 @@ namespace Scorpio.Api
             services.AddTransient<SaveSensorDataEventHandler>();
             services.AddTransient<SaveManySensorDataEventHandler>();
             services.AddTransient<RoverControlEventHandler>();
+            services.AddTransient<UbiquitiDataReceivedEventHandler>();
 
             // Repositories
             services.AddTransient<IUiConfigurationRepository, UiConfigurationRepository>();
@@ -97,7 +100,13 @@ namespace Scorpio.Api
             services.AddTransient<ISensorDataRepository, SensorDataRepository>();
             services.AddTransient<IStreamRepository, StreamRepository>();
 
+            services.AddTransient<UbiquitiStatsProvider>();
+
             services.AddTransient<IGamepadProcessor<RoverMixer, RoverProcessorResult>, ExponentialGamepadProcessor<RoverMixer, RoverProcessorResult>>();
+
+            // Long running (hosted) services
+            services.AddHostedService<UbiquitiPollerHostedService>();
+
 
             var corsOrigins = "http://" + (Configuration["BACKEND_ORIGIN"] ?? "localhost:3000");
             services.AddCors(settings =>
@@ -148,7 +157,8 @@ namespace Scorpio.Api
 
             eventBus.Subscribe<SaveSensorDataEvent, SaveSensorDataEventHandler>();
             eventBus.Subscribe<SaveManySensorDataEvent, SaveManySensorDataEventHandler>();
-            eventBus.Subscribe<RoverControlCommand, RoverControlEventHandler>();
+            eventBus.Subscribe<UbiquitiDataReceivedEvent, UbiquitiDataReceivedEventHandler>();
+            //eventBus.Subscribe<RoverControlCommand, RoverControlEventHandler>();
         }
     }
 }

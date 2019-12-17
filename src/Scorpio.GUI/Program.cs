@@ -2,15 +2,15 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
+using RabbitMQ.Client;
 using Scorpio.Gamepad.Processors;
 using Scorpio.GUI.Streaming;
 using Scorpio.Messaging.Abstractions;
-using Scorpio.Vivotek;
+using Scorpio.Messaging.RabbitMQ;
 using System;
 using System.Threading;
 using System.Windows.Forms;
-using RabbitMQ.Client;
-using Scorpio.Messaging.RabbitMQ;
+using Scorpio.Instrumentation.Vivotek;
 
 namespace Scorpio.GUI
 {

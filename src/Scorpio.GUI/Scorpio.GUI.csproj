@@ -239,6 +239,10 @@
       <Project>{7e82c03c-dc99-4149-ae1e-7cbd2b1dac08}</Project>
       <Name>Scorpio.Gamepad.Processors</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Scorpio.Instrumentation.Vivotek\Scorpio.Instrumentation.Vivotek.csproj">
+      <Project>{bb4897ab-ae17-4a15-a6fa-96d44c7c7989}</Project>
+      <Name>Scorpio.Instrumentation.Vivotek</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Scorpio.Messaging.Abstractions\Scorpio.Messaging.Abstractions.csproj">
       <Project>{f3f11583-4012-4f61-b34f-8209bd52a0dd}</Project>
       <Name>Scorpio.Messaging.Abstractions</Name>
@@ -250,10 +254,6 @@
     <ProjectReference Include="..\Scorpio.Messaging.RabbitMQ\Scorpio.Messaging.RabbitMQ.csproj">
       <Project>{5635a59a-68ee-46c8-8df7-3ae1355b441c}</Project>
       <Name>Scorpio.Messaging.RabbitMQ</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Scorpio.Vivotek\Scorpio.Vivotek.csproj">
-      <Project>{bb4897ab-ae17-4a15-a6fa-96d44c7c7989}</Project>
-      <Name>Scorpio.Vivotek</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

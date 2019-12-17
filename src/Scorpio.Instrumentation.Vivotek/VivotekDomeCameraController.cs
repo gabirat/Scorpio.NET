@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
-using Scorpio.Vivotek.DomeCamera;
-using System.Threading.Tasks;
 using System;
+using System.Threading.Tasks;
+using Scorpio.Instrumentation.Vivotek.DomeCamera;
 
-namespace Scorpio.Vivotek
+namespace Scorpio.Instrumentation.Vivotek
 {
     public class VivotekDomeCameraController : HttpClientBase
     {

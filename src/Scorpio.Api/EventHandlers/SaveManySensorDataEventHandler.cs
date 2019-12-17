@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using Newtonsoft.Json;
 using Scorpio.Api.DataAccess;
 using Scorpio.Api.Events;
 using Scorpio.Api.Hubs;
@@ -7,7 +8,6 @@ using Scorpio.Messaging.Abstractions;
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace Scorpio.Api.EventHandlers
 {
@@ -45,7 +45,7 @@ namespace Scorpio.Api.EventHandlers
                 var data = JsonConvert.SerializeObject(created);
 
                 // Notify UI via SignalR (uses 'sensor' topic)
-                await _hubContext.Clients.All.SendAsync("sensor", data);
+                await _hubContext.Clients.All.SendAsync(Constants.Topics.Sensor, data);
             }
         }
     }

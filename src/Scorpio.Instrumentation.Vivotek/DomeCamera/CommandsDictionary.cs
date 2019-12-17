@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Scorpio.Vivotek.DomeCamera
+namespace Scorpio.Instrumentation.Vivotek.DomeCamera
 {
     public static class CommandsDictionary
     {

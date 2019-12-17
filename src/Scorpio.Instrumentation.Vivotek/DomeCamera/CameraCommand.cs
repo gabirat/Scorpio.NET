@@ -1,4 +1,4 @@
-﻿namespace Scorpio.Vivotek.DomeCamera
+﻿namespace Scorpio.Instrumentation.Vivotek.DomeCamera
 {
     public enum CameraCommand : byte
     {
