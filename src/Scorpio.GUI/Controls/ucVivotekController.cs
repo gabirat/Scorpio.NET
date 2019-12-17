@@ -1,6 +1,6 @@
 ﻿using Autofac;
-using Scorpio.Vivotek;
-using Scorpio.Vivotek.DomeCamera;
+using Scorpio.Instrumentation.Vivotek;
+using Scorpio.Instrumentation.Vivotek.DomeCamera;
 using System;
 using System.Linq;
 using System.Net;

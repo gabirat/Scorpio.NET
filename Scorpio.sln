@@ -42,13 +42,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{3EBF
 		scripts\deploy_web.ps1 = scripts\deploy_web.ps1
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scorpio.Instrumentation.Vivotek", "src\Scorpio.Vivotek\Scorpio.Instrumentation.Vivotek.csproj", "{BB4897AB-AE17-4A15-A6FA-96D44C7C7989}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scorpio.Instrumentation.Vivotek", "src\Scorpio.Instrumentation.Vivotek\Scorpio.Instrumentation.Vivotek.csproj", "{BB4897AB-AE17-4A15-A6FA-96D44C7C7989}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scorpio.Instrumentation.Uniquiti", "src\Scorpio.Instrumentation.Uniquiti\Scorpio.Instrumentation.Uniquiti.csproj", "{094481E8-73FD-4D54-A450-C7BF0ADF9B7A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scorpio.Instrumentation.Ubiquiti", "src\Scorpio.Instrumentation.Ubiquiti\Scorpio.Instrumentation.Ubiquiti.csproj", "{094481E8-73FD-4D54-A450-C7BF0ADF9B7A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{B2627FFB-FC23-4564-AE64-E7B87AAD8C4B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scorpio.Instrumentation.Ubiquiti.Tests", "tests\Scorpio.Instrumentation.Ubiquiti.Tests\Scorpio.Instrumentation.Ubiquiti.Tests.csproj", "{1D78E1E1-1AB6-423E-A4E5-2FBD5663E0BA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scorpio.Instrumentation.Ubiquiti.Tests", "tests\Scorpio.Instrumentation.Ubiquiti.Tests\Scorpio.Instrumentation.Ubiquiti.Tests.csproj", "{1D78E1E1-1AB6-423E-A4E5-2FBD5663E0BA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

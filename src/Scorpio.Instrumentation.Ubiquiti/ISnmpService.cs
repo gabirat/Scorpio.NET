@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using SnmpSharpNet;
 
-namespace Scorpio.Instrumentation.Uniquiti
+namespace Scorpio.Instrumentation.Ubiquiti
 {
     public interface ISnmpService
     {

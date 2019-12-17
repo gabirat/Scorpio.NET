@@ -1,4 +1,4 @@
-﻿namespace Scorpio.Instrumentation.Uniquiti
+﻿namespace Scorpio.Instrumentation.Ubiquiti
 {
     public class PhysicalProperty
     {

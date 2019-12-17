@@ -1,15 +1,14 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
 using SnmpSharpNet;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Scorpio.Instrumentation.Uniquiti
+namespace Scorpio.Instrumentation.Ubiquiti
 {
     public class UbiquitiStatsProvider
     {
-        public virtual string SnmpAgentIp { get; set; } = "10.0.10.255";
-        public virtual string SnmpCommunity { get; set; } = "scorpio";
         public virtual string RootOip { get; set; } = "1.3.6.1.4.1.41112.1";
 
         public virtual Dictionary<string, PhysicalProperty> ResponseFilter { get; set; } = new Dictionary<string, PhysicalProperty>
@@ -20,9 +19,12 @@ namespace Scorpio.Instrumentation.Uniquiti
 
         private readonly ISnmpService _snmpService;
 
-        public UbiquitiStatsProvider()
+        // Constructor for autofac
+        public UbiquitiStatsProvider(IConfiguration config)
         {
-            _snmpService = new SnmpAdapter(SnmpAgentIp, SnmpCommunity);
+            var agentIp = config["Ubiquiti:SnmpAgentIp"];
+            var community = config["Ubiquiti:SnmpCommunity"];
+            _snmpService = new SnmpAdapter(agentIp, community);
         }
 
         // Constructor for unit testing purposes
@@ -35,7 +37,7 @@ namespace Scorpio.Instrumentation.Uniquiti
         {
             return Task.Factory.StartNew(() =>
             {
-                Dictionary<Oid, AsnType> response = _snmpService.Walk(SnmpVersion.Ver1, RootOip);
+                var response = _snmpService.Walk(SnmpVersion.Ver1, RootOip);
 
                 return ProcessResponse(response);
             });

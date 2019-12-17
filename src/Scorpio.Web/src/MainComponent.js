@@ -49,11 +49,8 @@ class MainComponent extends Component {
   async initMessagingAsync() {
     window.scorpioMessaging = MessagingService;
     await MessagingService.connectAsync();
-    MessagingService.subscribe("home", data => console.log(`home: ${data}`));
-    MessagingService.subscribe("home", data => console.log(`home1111: ${data}`));
 
-    MessagingService.subscribe("topic", data => console.log(`topic: ${data}`));
-    MessagingService.subscribe("data", data => console.log(`data: ${data}`));
+    MessagingService.subscribe("ubiquiti", data => console.log(`ubiquiti: ${data}`));
   }
 
   initGamepad() {

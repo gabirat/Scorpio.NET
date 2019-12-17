@@ -1,5 +1,4 @@
 using Moq;
-using Scorpio.Instrumentation.Uniquiti;
 using SnmpSharpNet;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +10,7 @@ namespace Scorpio.Instrumentation.Ubiquiti.Tests
     public class UbiquitiSnmpTests
     {
         [Fact]
-        public async Task Ub()
+        public async Task UbiquitiResponseFilteringTest()
         {
             // Arrange
             var sntpServiceMock = new Mock<ISnmpService>();
