@@ -251,9 +251,9 @@
       <Project>{5635a59a-68ee-46c8-8df7-3ae1355b441c}</Project>
       <Name>Scorpio.Messaging.RabbitMQ</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Scorpio.Vivotek\Scorpio.Vivotek.csproj">
+    <ProjectReference Include="..\Scorpio.Vivotek\Scorpio.Instrumentation.Vivotek.csproj">
       <Project>{bb4897ab-ae17-4a15-a6fa-96d44c7c7989}</Project>
-      <Name>Scorpio.Vivotek</Name>
+      <Name>Scorpio.Instrumentation.Vivotek</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

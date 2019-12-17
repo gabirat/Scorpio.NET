@@ -42,7 +42,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{3EBF
 		scripts\deploy_web.ps1 = scripts\deploy_web.ps1
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scorpio.Vivotek", "src\Scorpio.Vivotek\Scorpio.Vivotek.csproj", "{BB4897AB-AE17-4A15-A6FA-96D44C7C7989}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scorpio.Instrumentation.Vivotek", "src\Scorpio.Vivotek\Scorpio.Instrumentation.Vivotek.csproj", "{BB4897AB-AE17-4A15-A6FA-96D44C7C7989}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scorpio.Instrumentation.Uniquiti", "src\Scorpio.Instrumentation.Uniquiti\Scorpio.Instrumentation.Uniquiti.csproj", "{094481E8-73FD-4D54-A450-C7BF0ADF9B7A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{B2627FFB-FC23-4564-AE64-E7B87AAD8C4B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scorpio.Instrumentation.Ubiquiti.Tests", "tests\Scorpio.Instrumentation.Ubiquiti.Tests\Scorpio.Instrumentation.Ubiquiti.Tests.csproj", "{1D78E1E1-1AB6-423E-A4E5-2FBD5663E0BA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -98,6 +104,14 @@ Global
 		{BB4897AB-AE17-4A15-A6FA-96D44C7C7989}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BB4897AB-AE17-4A15-A6FA-96D44C7C7989}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BB4897AB-AE17-4A15-A6FA-96D44C7C7989}.Release|Any CPU.Build.0 = Release|Any CPU
+		{094481E8-73FD-4D54-A450-C7BF0ADF9B7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{094481E8-73FD-4D54-A450-C7BF0ADF9B7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{094481E8-73FD-4D54-A450-C7BF0ADF9B7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{094481E8-73FD-4D54-A450-C7BF0ADF9B7A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D78E1E1-1AB6-423E-A4E5-2FBD5663E0BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D78E1E1-1AB6-423E-A4E5-2FBD5663E0BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D78E1E1-1AB6-423E-A4E5-2FBD5663E0BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D78E1E1-1AB6-423E-A4E5-2FBD5663E0BA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -105,6 +119,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{FDCE29D6-4470-418E-AB6F-1C60F5BFA0B9} = {36D1A7DA-DB49-4469-85CA-C1C743C1B6AE}
 		{146BCDF6-0354-4401-BBDD-57A52D2598A6} = {CBD1421E-6E95-4799-A726-63B2F97383A8}
+		{1D78E1E1-1AB6-423E-A4E5-2FBD5663E0BA} = {B2627FFB-FC23-4564-AE64-E7B87AAD8C4B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2DC344A6-6D2E-421B-8AB8-0D8D50BE54A1}
