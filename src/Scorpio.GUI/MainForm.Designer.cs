@@ -68,7 +68,7 @@
             this.ucRoverGamepad1.Font = new System.Drawing.Font("Arial", 9F);
             this.ucRoverGamepad1.Location = new System.Drawing.Point(12, 12);
             this.ucRoverGamepad1.Name = "ucRoverGamepad1";
-            this.ucRoverGamepad1.Size = new System.Drawing.Size(457, 245);
+            this.ucRoverGamepad1.Size = new System.Drawing.Size(457, 277);
             this.ucRoverGamepad1.TabIndex = 9;
             // 
             // ucVivotekController1

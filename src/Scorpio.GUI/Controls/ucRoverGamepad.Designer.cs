@@ -42,6 +42,9 @@
             this.lblAcc = new System.Windows.Forms.Label();
             this.cbGamepadIndex = new System.Windows.Forms.ComboBox();
             this.label5 = new System.Windows.Forms.Label();
+            this.pbRot = new System.Windows.Forms.ProgressBar();
+            this.label6 = new System.Windows.Forms.Label();
+            this.lblRot = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // label1
@@ -142,7 +145,7 @@
             // 
             this.lblDir.AutoSize = true;
             this.lblDir.Font = new System.Drawing.Font("Arial", 9F);
-            this.lblDir.Location = new System.Drawing.Point(284, 131);
+            this.lblDir.Location = new System.Drawing.Point(283, 156);
             this.lblDir.Name = "lblDir";
             this.lblDir.Size = new System.Drawing.Size(37, 17);
             this.lblDir.TabIndex = 0;
@@ -152,7 +155,7 @@
             // 
             this.lblAcc.AutoSize = true;
             this.lblAcc.Font = new System.Drawing.Font("Arial", 9F);
-            this.lblAcc.Location = new System.Drawing.Point(283, 160);
+            this.lblAcc.Location = new System.Drawing.Point(283, 127);
             this.lblAcc.Name = "lblAcc";
             this.lblAcc.Size = new System.Drawing.Size(37, 17);
             this.lblAcc.TabIndex = 0;
@@ -175,12 +178,40 @@
             this.label5.TabIndex = 0;
             this.label5.Text = "Index:";
             // 
+            // pbRot
+            // 
+            this.pbRot.Location = new System.Drawing.Point(106, 185);
+            this.pbRot.Name = "pbRot";
+            this.pbRot.Size = new System.Drawing.Size(165, 23);
+            this.pbRot.TabIndex = 2;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Font = new System.Drawing.Font("Arial", 9F);
+            this.label6.Location = new System.Drawing.Point(14, 185);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(35, 17);
+            this.label6.TabIndex = 0;
+            this.label6.Text = "Rot:";
+            // 
+            // lblRot
+            // 
+            this.lblRot.AutoSize = true;
+            this.lblRot.Font = new System.Drawing.Font("Arial", 9F);
+            this.lblRot.Location = new System.Drawing.Point(283, 185);
+            this.lblRot.Name = "lblRot";
+            this.lblRot.Size = new System.Drawing.Size(37, 17);
+            this.lblRot.TabIndex = 0;
+            this.lblRot.Text = "Acc:";
+            // 
             // ucRoverGamepad
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Controls.Add(this.cbGamepadIndex);
+            this.Controls.Add(this.pbRot);
             this.Controls.Add(this.pbDir);
             this.Controls.Add(this.pbAcc);
             this.Controls.Add(this.btnStop);
@@ -188,7 +219,9 @@
             this.Controls.Add(this.lblState);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label2);
+            this.Controls.Add(this.label6);
             this.Controls.Add(this.label4);
+            this.Controls.Add(this.lblRot);
             this.Controls.Add(this.lblAcc);
             this.Controls.Add(this.lblDir);
             this.Controls.Add(this.label3);
@@ -196,7 +229,7 @@
             this.Controls.Add(this.label1);
             this.Font = new System.Drawing.Font("Arial", 9F);
             this.Name = "ucRoverGamepad";
-            this.Size = new System.Drawing.Size(339, 210);
+            this.Size = new System.Drawing.Size(339, 235);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -218,5 +251,8 @@
         private System.Windows.Forms.Label lblAcc;
         private System.Windows.Forms.ComboBox cbGamepadIndex;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.ProgressBar pbRot;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label lblRot;
     }
 }

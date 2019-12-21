@@ -1,8 +1,10 @@
 ﻿namespace Scorpio.Gamepad.Processors
 {
     public class RoverProcessorResult
-    {
-        public double Acceleration { get; set; }
-        public double Direction { get; set; }
+    { 
+        public float Acceleration { get; set; }
+        public float Direction { get; set; }
+        public bool DoRotation { get; set; } = false;
+        public float Rotation { get; set; }
     }
 }

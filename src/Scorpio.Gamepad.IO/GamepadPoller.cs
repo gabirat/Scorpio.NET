@@ -18,7 +18,7 @@ namespace Scorpio.Gamepad.IO
     public class GamepadPoller : IGamepadPoller
     {
         public event EventHandler<GamepadEventArgs> GamepadStateChanged;
-        public bool IsConnected { get => _controller?.IsConnected ?? false; }
+        public bool IsConnected => _controller?.IsConnected ?? false;
 
         private readonly XboxController _controller;
         private GamepadModel _gamepadState;
@@ -60,7 +60,7 @@ namespace Scorpio.Gamepad.IO
             GamepadStateChanged?.Invoke(this, args);
         }
 
-        private GamepadModel Map(XInputState state)
+        private static GamepadModel Map(XInputState state)
         {
             return new GamepadModel
             {
@@ -75,7 +75,9 @@ namespace Scorpio.Gamepad.IO
                     Vertical = state.Gamepad.sThumbRY
                 },
                 LeftTrigger = state.Gamepad.bLeftTrigger,
-                RightTrigger = state.Gamepad.bRightTrigger
+                RightTrigger = state.Gamepad.bRightTrigger,
+                IsLeftTriggerButtonPressed = state.Gamepad.IsButtonPressed((int)ButtonFlags.XINPUT_GAMEPAD_LEFT_SHOULDER),
+                IsRightTriggerButtonPressed = state.Gamepad.IsButtonPressed((int)ButtonFlags.XINPUT_GAMEPAD_RIGHT_SHOULDER)
             };
         }
 
