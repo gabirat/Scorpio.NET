@@ -73,9 +73,11 @@ namespace Scorpio.GUI.Controls
             lblAcc.Text = string.Empty;
             lblDir.Text = string.Empty;
             pbAcc.Minimum = 0;
-            pbAcc.Maximum = 100;
+            pbAcc.Maximum = 200;
             pbDir.Minimum = 0;
-            pbDir.Maximum = 100;
+            pbDir.Maximum = 200;
+            pbRot.Minimum = 0;
+            pbRot.Maximum = 200;
         }
 
         private void _poller_GamepadStateChanged(object sender, GamepadEventArgs e)
@@ -90,8 +92,10 @@ namespace Scorpio.GUI.Controls
             {
                 lblAcc.Text = result.Acceleration.ToString("0.##");
                 lblDir.Text = result.Direction.ToString("0.##");
-                pbAcc.SetProgressNoAnimation((int)(result.Acceleration / 2.55d)); // TODO fix range after implementing gamepad mixer
-                pbDir.SetProgressNoAnimation((int)(result.Direction / 2.55d));
+                lblRot.Text = result.Rotation.ToString("0.##");
+                pbAcc.SetProgressNoAnimation((int)(result.Acceleration  * 100) + 100); // Progress bar has range 0-200
+                pbDir.SetProgressNoAnimation((int)(result.Direction * 100) + 100);
+                pbRot.SetProgressNoAnimation((int)(result.Rotation * 100) + 100);
             }));
         }
 
@@ -153,8 +157,10 @@ namespace Scorpio.GUI.Controls
 
             lblAcc.Text = string.Empty;
             lblDir.Text = string.Empty;
+            lblRot.Text = string.Empty;
             pbAcc.SetProgressNoAnimation(0);
             pbDir.SetProgressNoAnimation(0);
+            pbRot.SetProgressNoAnimation(0);
 
             _isStarted = false;
         }

@@ -5,23 +5,23 @@ namespace Scorpio.Gamepad.Processors.Mixing
 {
     public abstract class MixerBase<TResult> : IMixer<TResult> where TResult : class, new()
     {
-        protected readonly List<IFilteringStrategy> filteringStrategies;
+        protected readonly List<IGamepadFilter> FilteringStrategies;
 
-        public MixerBase()
+        protected MixerBase()
         {
-            filteringStrategies = new List<IFilteringStrategy>();
+            FilteringStrategies = new List<IGamepadFilter>();
         }
 
-        public void AddFilteringStrategy(IFilteringStrategy strategy)
+        public void AddFilter(IGamepadFilter strategy)
         {
-            filteringStrategies.Add(strategy);
+            FilteringStrategies.Add(strategy);
         }
 
         public virtual TResult Mix(GamepadModel model)
         {
-            GamepadModel filteringResult = model;
+            var filteringResult = model;
 
-            foreach (var strategy in filteringStrategies)
+            foreach (var strategy in FilteringStrategies)
             {
                 filteringResult = strategy.Filter(filteringResult);
             }

@@ -2,7 +2,7 @@
 
 namespace Scorpio.Gamepad.Processors.Mixing
 {
-    public interface IFilteringStrategy
+    public interface IGamepadFilter
     {
         GamepadModel Filter(GamepadModel input);
     }

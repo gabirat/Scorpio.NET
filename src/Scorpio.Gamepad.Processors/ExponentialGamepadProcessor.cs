@@ -6,9 +6,10 @@ namespace Scorpio.Gamepad.Processors
         where TMixer: class, IMixer<TResult>, new()
         where TResult: class, new()
     {
+
         protected override void ConfigurePipeline(TMixer mixer)
         {
-            mixer.AddFilteringStrategy(new ExponentialCurveFilteringStrategy());
+            mixer.AddFilter(new ExponentialCurveOnTriggersFilter());
         }
     }
 }

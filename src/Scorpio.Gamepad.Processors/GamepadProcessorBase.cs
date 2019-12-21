@@ -7,14 +7,19 @@ namespace Scorpio.Gamepad.Processors
         where TMixer: IMixer<TResult>, new()
         where TResult: class, new()
     {
+        private readonly TMixer _mixer;
+
+        protected GamepadProcessorBase()
+        {
+            _mixer = new TMixer();
+
+            // ReSharper disable once VirtualMemberCallInConstructor
+            ConfigurePipeline(_mixer);
+        }
 
         public TResult Process(GamepadModel input)
         {
-            var mixer = new TMixer();
-
-            ConfigurePipeline(mixer);
-
-            return mixer.Mix(input);
+            return _mixer.Mix(input);
         }
 
         protected abstract void ConfigurePipeline(TMixer mixer);
