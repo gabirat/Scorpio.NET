@@ -12,7 +12,7 @@ namespace Scorpio.Gamepad.Processors.Mixing
             FilteringStrategies = new List<IGamepadFilter>();
         }
 
-        public void AddFilteringStrategy(IGamepadFilter strategy)
+        public void AddFilter(IGamepadFilter strategy)
         {
             FilteringStrategies.Add(strategy);
         }

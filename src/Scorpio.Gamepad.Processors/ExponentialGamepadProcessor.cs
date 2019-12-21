@@ -9,7 +9,7 @@ namespace Scorpio.Gamepad.Processors
 
         protected override void ConfigurePipeline(TMixer mixer)
         {
-            mixer.AddFilteringStrategy(new ExponentialCurveOnTriggersFilter());
+            mixer.AddFilter(new ExponentialCurveOnTriggersFilter());
         }
     }
 }

@@ -5,6 +5,6 @@ namespace Scorpio.Gamepad.Processors.Mixing
     public interface IMixer<out TResult> where TResult: class, new()
     {
         TResult Mix(GamepadModel model);
-        void AddFilteringStrategy(IGamepadFilter strategy);
+        void AddFilter(IGamepadFilter strategy);
     }
 }
