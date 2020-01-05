@@ -1,22 +1,10 @@
-﻿using Newtonsoft.Json;
-using System;
-
-namespace Scorpio.Messaging.Abstractions
+﻿namespace Scorpio.Messaging.Abstractions
 {
+    /// <summary>
+    /// Base class for creating bus messages (both events and commands).
+    /// If needed, some common concepts might be introduced here (correlationId, creationTime and so on).
+    /// </summary>
     public abstract class IntegrationEvent : IIntegrationEvent
     {
-        protected IntegrationEvent()
-        {
-            CreationDate = DateTime.UtcNow;
-        }
-
-        [JsonConstructor]
-        protected IntegrationEvent(Guid id, DateTime createDate)
-        {
-            CreationDate = createDate;
-        }
-
-        [JsonProperty("creationDate")]
-        public DateTime? CreationDate { get; private set; }
     }
 }

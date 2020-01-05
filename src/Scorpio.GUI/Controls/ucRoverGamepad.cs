@@ -113,7 +113,7 @@ namespace Scorpio.GUI.Controls
             _poller.StartPolling();
 
             // Start publishing messages
-            _timer.Start(100); // send message every 100 ms
+            _timer.Start(50); // send message every 50 ms
 
             _logger.LogInformation($"Rover gamepad started with index: {_gamepadIndex}");
             SetStateStarted();
@@ -123,7 +123,7 @@ namespace Scorpio.GUI.Controls
         {
             if (_latestResult is null) return;
 
-            var msg = new RoverControlCommand(_latestResult.Direction, _latestResult.Acceleration);
+            var msg = new RoverControlCommand(_latestResult.Direction, _latestResult.Acceleration, _latestResult.Rotation, _latestResult.DoRotation);
             _eventBus?.Publish(msg);
         }
 

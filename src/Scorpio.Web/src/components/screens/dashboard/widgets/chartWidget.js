@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import Chart from "../../scienceCharts/chart";
 import { API, TOPICS } from "../../../../constants/appConstants";

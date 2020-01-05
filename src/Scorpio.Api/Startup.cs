@@ -104,21 +104,9 @@ namespace Scorpio.Api
 
             services.AddTransient<IGamepadProcessor<RoverMixer, RoverProcessorResult>, ExponentialGamepadProcessor<RoverMixer, RoverProcessorResult>>();
 
-            // Long running (hosted) services
-            services.AddHostedService<UbiquitiPollerHostedService>();
+            services.AddUbiquitiPoller(Configuration);
 
-
-            var corsOrigins = "http://" + (Configuration["BACKEND_ORIGIN"] ?? "localhost:3000");
-            services.AddCors(settings =>
-            {
-                settings.AddPolicy("corsPolicy", builder =>
-                {
-                    builder.WithOrigins(corsOrigins)
-                        .AllowAnyMethod()
-                        .AllowAnyHeader()
-                        .AllowCredentials();
-                });
-            });
+            services.AddCorsSetup(Configuration);
         }
 
 
@@ -159,6 +147,35 @@ namespace Scorpio.Api
             eventBus.Subscribe<SaveManySensorDataEvent, SaveManySensorDataEventHandler>();
             eventBus.Subscribe<UbiquitiDataReceivedEvent, UbiquitiDataReceivedEventHandler>();
             //eventBus.Subscribe<RoverControlCommand, RoverControlEventHandler>();
+        }
+    }
+
+    public static class StartupExtensions
+    {
+        public static void AddUbiquitiPoller(this IServiceCollection services, IConfiguration config)
+        {
+            var enabled = config.GetValue<bool>("Ubiquiti:EnablePoller");
+
+            if (enabled)
+            {
+                services.AddHostedService<UbiquitiPollerHostedService>();
+            }
+        }
+
+        public static void AddCorsSetup(this IServiceCollection services, IConfiguration config)
+        {
+
+            var corsOrigins = "http://" + (config["BACKEND_ORIGIN"] ?? "localhost:3000");
+            services.AddCors(settings =>
+            {
+                settings.AddPolicy("corsPolicy", builder =>
+                {
+                    builder.WithOrigins(corsOrigins)
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials();
+                });
+            });
         }
     }
 }

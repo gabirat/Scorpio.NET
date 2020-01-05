@@ -38,5 +38,6 @@ export const API = {
 };
 
 export const TOPICS = {
-  SENSOR_DATA: "sensor"
+  SENSOR_DATA: "sensor",
+  BATTERY_DATA: "battery"
 };

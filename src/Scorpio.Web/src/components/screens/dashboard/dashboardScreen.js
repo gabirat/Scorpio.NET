@@ -33,6 +33,8 @@ class DashboardScreen extends Component {
       runNewConfigModal: false,
       editableConfig: null
     };
+
+    this.widgetContainerRefs = [];
   }
 
   getRequestedLayout = configs => {
@@ -248,7 +250,7 @@ class DashboardScreen extends Component {
                       {...obj.data.props}
                     >
                       <WidgetErrorBoundary key={indx}>
-                        <DashboardWidget {...obj.data.props} key={indx} />
+                        <DashboardWidget containerRef={this.widgetContainerRefs[obj.type]} {...obj.data.props} key={indx} />
                       </WidgetErrorBoundary>
                     </OverlayContextMenu>
                   </div>

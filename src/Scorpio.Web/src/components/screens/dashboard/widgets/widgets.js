@@ -1,6 +1,7 @@
 import StatisticWidget from "./statisticWidget";
 import GamepadAnalogs from "./gamepadAnalogs";
 import ChartWidget from "./chartWidget";
+import BatteryWidget from "./batteryWidget";
 
 export const widgets = [
   {
@@ -31,6 +32,16 @@ export const widgets = [
       value: "StatisticWidget",
       text: "Single value",
       description: "Display last seen value"
+    }
+  },
+  {
+    component: BatteryWidget,
+    type: "BatteryWidget",
+    dropdown: {
+      key: "BatteryWidget",
+      value: "BatteryWidget",
+      text: "Battery",
+      description: "Display battery value"
     }
   }
 ];

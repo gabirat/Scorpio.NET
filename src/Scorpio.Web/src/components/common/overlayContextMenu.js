@@ -21,8 +21,11 @@ class OverlayContextMenu extends PureComponent {
             <Menu.Item icon="edit outline" onClick={this.onEditClick} />
             <Menu.Item icon="close" onClick={this.onRemoveClick} />
           </Menu>
-          <div className="fullHeight fullWidth" style={{ opacity: "0.25", position: "relative", top: "-56px", zIndex: "-1" }}>
-            {this.props.children}
+          <div
+            className="fullHeight fullWidth center"
+            style={{ display: "table", opacity: "0.25", position: "relative", top: "-56px", zIndex: "-1" }}
+          >
+            <div style={{ display: "table-cell", verticalAlign: "middle" }}>{this.props.children}</div>
           </div>
         </>
       );
@@ -33,7 +36,9 @@ class OverlayContextMenu extends PureComponent {
         <div className="fullWidth center">
           <h4 className="padding-bottom-sm">{widgetTitle}</h4>
         </div>
-        <div className="center fullWidth fullHeight">{this.props.children}</div>
+        <div className="center fullWidth fullHeight" style={{ display: "table" }}>
+          <div style={{ display: "table-cell", verticalAlign: "middle" }}>{this.props.children}</div>
+        </div>
       </div>
     );
   }
