@@ -11,26 +11,24 @@ namespace Scorpio.Messaging.Stub
     {
         static void Main(string[] args)
         {
-            var host = "80.68.231.116";
-            var factory = new ConnectionFactory() { HostName = host, UserName = "guest", Password = "jebacdarka", VirtualHost = "/" };
+            var host = "localhost";
+            var factory = new ConnectionFactory() { HostName = host, UserName = "guest", Password = "guest", VirtualHost = "/" };
             var connection = factory.CreateConnection();
             var channel = connection.CreateModel();
 
             channel.ExchangeDeclare("scorpio.direct", ExchangeType.Direct);
 
             // my queue
-            channel.QueueDeclare("scorpio.mati", true, false, false, null);
-            //channel.QueueDeclare(queue: "scorpiox.mati", durable: false, exclusive: false, autoDelete: false, arguments: null);
-            channel.QueueBind("scorpio.mati", "scorpio.direct", "UpdateRoverPositionEvent");
+            channel.QueueDeclare("scorpio.stub", true, false, false, null);
+            channel.QueueBind("scorpio.stub", "scorpio.direct", "RoverControlCommand");
             var consumer = new EventingBasicConsumer(channel);
-            channel.BasicConsume(queue: "scorpio.mati", autoAck: true, consumer: consumer);
+            channel.BasicConsume(queue: "scorpio.stub", autoAck: true, consumer: consumer);
             consumer.Received += (model, ea) =>
             {
                 var body = ea.Body;
                 var msgType = ea.RoutingKey;
                 var message = Encoding.UTF8.GetString(body);
                 Console.WriteLine("{0}   Received {1} {2}", DateTime.UtcNow, msgType, message);
-                Thread.Sleep(2500);
                 //channel.BasicAck(ea.DeliveryTag, false);
             };
 

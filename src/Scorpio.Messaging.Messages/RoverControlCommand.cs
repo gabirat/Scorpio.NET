@@ -6,15 +6,23 @@ namespace Scorpio.Messaging.Messages
     public class RoverControlCommand : IntegrationEvent
     {
         [JsonProperty("dir")]
-        public double Dir { get; }
+        public float Dir { get; }
 
         [JsonProperty("acc")]
-        public double Acc { get; }
+        public float Acc { get; }
 
-        public RoverControlCommand(double dir, double acc)
+        [JsonProperty("rot")]
+        public float Rot { get; set; }
+
+        [JsonProperty("doRot")]
+        public bool DoRot { get; set; }
+
+        public RoverControlCommand(float dir, float acc, float rot, bool doRotation)
         {
             Dir = dir;
             Acc = acc;
+            Rot = rot;
+            DoRot = doRotation;
         }
     }
 }

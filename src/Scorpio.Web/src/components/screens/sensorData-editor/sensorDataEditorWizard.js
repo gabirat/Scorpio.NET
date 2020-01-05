@@ -90,14 +90,13 @@ class SensorDataEditorWizard extends React.Component {
               />
             )}
           </Field>
-          <Field name="comment" validate={Validators.required}>
+          <Field name="comment">
             {({ input, meta }) => (
               <SemanticForm.Input
                 {...input}
                 label="Comment"
                 error={meta.invalid && meta.touched && meta.error}
                 placeholder="Comment..."
-                required
                 onChange={(ev, data) => input.onChange(data.value)}
               />
             )}

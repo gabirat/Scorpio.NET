@@ -20,7 +20,7 @@ import StreamEditorScreen from "./components/screens/stream-editor/streamEditorS
 import ConsoleScreen from "./components/screens/console/consoleScreen";
 import SensorDataEditorScreen from "./components/screens/sensorData-editor/sensorDataEditorScreen";
 import ScienceChartsScreen from "./components/screens/scienceCharts/scienceChartsScreen";
-//import StatusOverlay from "./components/common/statusOverlay";
+import StatusOverlay from "./components/common/statusOverlay";
 import GamepadService from "./services/GamepadService";
 import MessagingService from "./services/MessagingService";
 import FiluRacer from "./components/common/filuRacer";
@@ -49,8 +49,6 @@ class MainComponent extends Component {
   async initMessagingAsync() {
     window.scorpioMessaging = MessagingService;
     await MessagingService.connectAsync();
-
-    MessagingService.subscribe("ubiquiti", data => console.log(`ubiquiti: ${data}`));
   }
 
   initGamepad() {
@@ -78,7 +76,7 @@ class MainComponent extends Component {
             <Redirect to="/not-found" />
           </Switch>
         </NavBar>
-        {/* <StatusOverlay /> */}
+        <StatusOverlay />
         <Alert stack={{ limit: 2 }} beep timeout={5000} />
       </>
     );

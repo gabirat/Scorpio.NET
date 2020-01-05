@@ -26,7 +26,7 @@ class MessagingService {
     if (typeof handler !== "function" || typeof topic !== "string") return;
 
     if (this._connection) {
-      LogService.info(`SignalR: ubsubscribed ${topic}`);
+      LogService.info(`SignalR: unsubscribed ${topic}`);
       this._connection.off(topic, handler);
     }
   }
