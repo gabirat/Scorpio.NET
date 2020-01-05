@@ -50,12 +50,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{B2627FFB
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scorpio.Instrumentation.Ubiquiti.Tests", "tests\Scorpio.Instrumentation.Ubiquiti.Tests\Scorpio.Instrumentation.Ubiquiti.Tests.csproj", "{1D78E1E1-1AB6-423E-A4E5-2FBD5663E0BA}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CI", "CI", "{C80ECB9C-8561-4879-BA4A-8F840F79FB17}"
-	ProjectSection(SolutionItems) = preProject
-		.github\workflows\api-ci.yml = .github\workflows\api-ci.yml
-		.github\workflows\gui-ci.yml = .github\workflows\gui-ci.yml
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
