@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using Newtonsoft.Json.Linq;
 using Scorpio.Api.Hubs;
 using Scorpio.Messaging.Abstractions;
 using Scorpio.Messaging.Messages;
@@ -17,8 +18,10 @@ namespace Scorpio.Api.EventHandlers
 
         public async Task Handle(UbiquitiDataReceivedEvent @event)
         {
+            var data = @event.Data as JObject;
+
             // Notify web page via SignalR
-            await _hubContext.Clients.All.SendAsync(Constants.Topics.Ubiquiti, @event.Data);
+            await _hubContext.Clients.All.SendAsync(Constants.Topics.Ubiquiti, data?.ToString());
         }
     }
 }

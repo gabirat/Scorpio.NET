@@ -12,8 +12,10 @@ class MessagingService {
 
   // Subscribe for given topic. If any messages appear on it, the handler will be called with received data.
   subscribe(topic, handler) {
+    //debugger;
     if (typeof handler !== "function" || typeof topic !== "string") return;
 
+    // con might be null here
     if (this._connection) {
       LogService.info(`SignalR: subscribed to ${topic}`);
       this._connection.on(topic, data => {
@@ -48,7 +50,7 @@ class MessagingService {
       return;
     }
 
-    this._watchdogInterval = setInterval(this._recoverConnection, 2000);
+    //this._watchdogInterval = setInterval(this._recoverConnection, 2000);
 
     const endpoint = API.SIGNALR;
     this._connection = new SignalR.HubConnectionBuilder()

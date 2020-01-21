@@ -14,6 +14,8 @@ namespace Scorpio.Instrumentation.Ubiquiti
         public virtual Dictionary<string, PhysicalProperty> ResponseFilter { get; set; } = new Dictionary<string, PhysicalProperty>
         {
             { "1.3.6.1.4.1.41112.1.4.1.1.6.1", new PhysicalProperty { Magnitude = "signalPower", Unit = "dBm" }},
+            { "1.3.6.1.4.1.41112.1.4.5.1.5.1", new PhysicalProperty { Magnitude = "signalPower2", Unit = "dBm" }},
+            { "1.3.6.1.4.1.41112.1.4.7.1.3.1", new PhysicalProperty { Magnitude = "signalPower3", Unit = "dBm" }},
             { "1.3.6.1.4.1.41112.1.4.1.1.4.1", new PhysicalProperty { Magnitude = "frequency", Unit = "MHz" } },
         };
 
@@ -35,6 +37,7 @@ namespace Scorpio.Instrumentation.Ubiquiti
 
         public Task<Dictionary<string, string>> GetStatsAsync()
         {
+            // TODO task timeout
             return Task.Factory.StartNew(() =>
             {
                 var response = _snmpService.Walk(SnmpVersion.Ver1, RootOip);
@@ -45,6 +48,9 @@ namespace Scorpio.Instrumentation.Ubiquiti
 
         public Dictionary<string, string> ProcessResponse(Dictionary<Oid, AsnType> response)
         {
+            if (response is null) 
+                return new Dictionary<string, string>();
+
             var filtered = response
                 .Where(r => ResponseFilter.Keys.Contains(r.Key.ToString()))
                 .ToDictionary(x => x.Key.ToString(), x => x.Value.ToString());

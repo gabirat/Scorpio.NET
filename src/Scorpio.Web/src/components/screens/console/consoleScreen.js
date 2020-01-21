@@ -12,6 +12,9 @@ class ConsoleScreen extends Component {
     MessagingService.subscribe("home", data => {
       this.writeLog(data);
     });
+    MessagingService.subscribe("ubiquiti", data => {
+      this.writeLog(data);
+    });
   }
 
   clearLog = () => this.setState({ logs: [] });
@@ -39,6 +42,7 @@ class ConsoleScreen extends Component {
             compact
             defaultValue={rows}
             options={[
+              { key: 1, value: 1, text: 1 },
               { key: 10, value: 10, text: 10 },
               { key: 25, value: 25, text: 25 },
               { key: 50, value: 50, text: 50 },
