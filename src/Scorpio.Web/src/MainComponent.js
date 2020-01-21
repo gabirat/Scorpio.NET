@@ -33,7 +33,6 @@ class MainComponent extends Component {
     const result = await genericApi(API.CONFIG.GET_ALL, "GET");
     if (result && result.response && result.response.ok && result.body && Array.isArray(result.body)) {
       const configs = result.body || [];
-      LogService.debug("Fetched configs", configs);
       this.props.actions.setConfigs(configs);
     } else {
       AlertDispatcher.dispatch({ type: "error", text: "Could not fetch configs - check if API is running" });
