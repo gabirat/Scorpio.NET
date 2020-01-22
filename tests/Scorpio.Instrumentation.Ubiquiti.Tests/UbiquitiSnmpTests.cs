@@ -2,6 +2,7 @@ using Moq;
 using SnmpSharpNet;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -34,7 +35,7 @@ namespace Scorpio.Instrumentation.Ubiquiti.Tests
 
 
             // Act
-            var stats = await ubi.GetStatsAsync();
+            var stats = await ubi.GetStatsAsync(CancellationToken.None);
 
 
             // Assert
