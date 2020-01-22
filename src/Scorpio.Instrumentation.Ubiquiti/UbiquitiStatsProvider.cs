@@ -3,6 +3,7 @@ using SnmpSharpNet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Scorpio.Instrumentation.Ubiquiti
@@ -35,15 +36,14 @@ namespace Scorpio.Instrumentation.Ubiquiti
             _snmpService = snmp;
         }
 
-        public Task<Dictionary<string, string>> GetStatsAsync()
+        public Task<Dictionary<string, string>> GetStatsAsync(CancellationToken cancellationToken)
         {
-            // TODO task timeout
             return Task.Factory.StartNew(() =>
             {
                 var response = _snmpService.Walk(SnmpVersion.Ver1, RootOip);
 
                 return ProcessResponse(response);
-            });
+            }, cancellationToken);
         }
 
         public Dictionary<string, string> ProcessResponse(Dictionary<Oid, AsnType> response)
