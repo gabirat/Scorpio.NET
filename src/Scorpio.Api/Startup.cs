@@ -81,6 +81,7 @@ namespace Scorpio.Api
             // Register strongly typed config mapping
             services.Configure<RabbitMqConfiguration>(Configuration.GetSection("RabbitMq"));
             services.Configure<MongoDbConfiguration>(Configuration.GetSection("MongoDb"));
+            services.Configure<UbiquitiPollerConfiguration>(Configuration.GetSection("Ubiquiti"));
 
             // Register event bus
             services.AddRabbitMqConnection(Configuration);
@@ -164,7 +165,6 @@ namespace Scorpio.Api
 
         public static void AddCorsSetup(this IServiceCollection services, IConfiguration config)
         {
-
             var corsOrigins = "http://" + (config["BACKEND_ORIGIN"] ?? "localhost:3000");
             services.AddCors(settings =>
             {

@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Options;
 using SnmpSharpNet;
 using System;
 using System.Collections.Generic;
@@ -10,24 +10,18 @@ namespace Scorpio.Instrumentation.Ubiquiti
 {
     public class UbiquitiStatsProvider
     {
-        public virtual string RootOip { get; set; } = "1.3.6.1.4.1.41112.1";
-
-        public virtual Dictionary<string, PhysicalProperty> ResponseFilter { get; set; } = new Dictionary<string, PhysicalProperty>
-        {
-            { "1.3.6.1.4.1.41112.1.4.1.1.6.1", new PhysicalProperty { Magnitude = "signalPower", Unit = "dBm" }},
-            { "1.3.6.1.4.1.41112.1.4.5.1.5.1", new PhysicalProperty { Magnitude = "signalPower2", Unit = "dBm" }},
-            { "1.3.6.1.4.1.41112.1.4.7.1.3.1", new PhysicalProperty { Magnitude = "signalPower3", Unit = "dBm" }},
-            { "1.3.6.1.4.1.41112.1.4.1.1.4.1", new PhysicalProperty { Magnitude = "frequency", Unit = "MHz" } },
-        };
-
+        private readonly string _rootOip;
+        private Dictionary<string, PhysicalProperty> _responseFilterOids;
         private readonly ISnmpService _snmpService;
 
         // Constructor for autofac
-        public UbiquitiStatsProvider(IConfiguration config)
+        public UbiquitiStatsProvider(IOptions<UbiquitiPollerConfiguration> config)
         {
-            var agentIp = config["Ubiquiti:SnmpAgentIp"];
-            var community = config["Ubiquiti:SnmpCommunity"];
-            _snmpService = new SnmpAdapter(agentIp, community);
+            config.Value.EnsureValidConfig();
+            _responseFilterOids = config.Value.Oids.ToDictionary(x => x.Oid, x => x.PhysicalProperty);
+
+            _rootOip = config.Value.RootOid;
+            _snmpService = new SnmpAdapter(config.Value.SnmpAgentIp, config.Value.SnmpCommunity);
         }
 
         // Constructor for unit testing purposes
@@ -40,7 +34,7 @@ namespace Scorpio.Instrumentation.Ubiquiti
         {
             return Task.Factory.StartNew(() =>
             {
-                var response = _snmpService.Walk(SnmpVersion.Ver1, RootOip);
+                var response = _snmpService.Walk(SnmpVersion.Ver1, _rootOip);
 
                 return ProcessResponse(response);
             }, cancellationToken);
@@ -52,10 +46,10 @@ namespace Scorpio.Instrumentation.Ubiquiti
                 return new Dictionary<string, string>();
 
             var filtered = response
-                .Where(r => ResponseFilter.Keys.Contains(r.Key.ToString()))
+                .Where(r => _responseFilterOids.Keys.Contains(r.Key.ToString()))
                 .ToDictionary(x => x.Key.ToString(), x => x.Value.ToString());
 
-            return filtered.ToDictionary(x => ResponseFilter[x.Key].Magnitude, FormatUnit(ResponseFilter));
+            return filtered.ToDictionary(x => _responseFilterOids[x.Key].Magnitude, FormatUnit(_responseFilterOids));
         }
 
         private static Func<KeyValuePair<string, string>, string> FormatUnit(Dictionary<string, PhysicalProperty> filterDict)
