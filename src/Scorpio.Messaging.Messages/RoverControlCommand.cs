@@ -11,18 +11,10 @@ namespace Scorpio.Messaging.Messages
         [JsonProperty("acc")]
         public float Acc { get; }
 
-        [JsonProperty("rot")]
-        public float Rot { get; set; }
-
-        [JsonProperty("doRot")]
-        public bool DoRot { get; set; }
-
-        public RoverControlCommand(float dir, float acc, float rot, bool doRotation)
+        public RoverControlCommand(float dir, float acc)
         {
             Dir = dir;
             Acc = acc;
-            Rot = rot;
-            DoRot = doRotation;
         }
     }
 }

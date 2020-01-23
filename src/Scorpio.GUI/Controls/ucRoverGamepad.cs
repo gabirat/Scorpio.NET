@@ -76,8 +76,6 @@ namespace Scorpio.GUI.Controls
             pbAcc.Maximum = 200;
             pbDir.Minimum = 0;
             pbDir.Maximum = 200;
-            pbRot.Minimum = 0;
-            pbRot.Maximum = 200;
         }
 
         private void _poller_GamepadStateChanged(object sender, GamepadEventArgs e)
@@ -90,12 +88,14 @@ namespace Scorpio.GUI.Controls
         {
             Invoke(new Action(() =>
             {
+                // -200 200 rot hack (progress bar would crash over -100:100 range)
+                // so limit it to -100:100
+                var limitedRot = ScalingUtils.SymmetricalConstrain((int) (result.Direction * 100), 100); 
+
                 lblAcc.Text = result.Acceleration.ToString("0.##");
                 lblDir.Text = result.Direction.ToString("0.##");
-                lblRot.Text = result.Rotation.ToString("0.##");
-                pbAcc.SetProgressNoAnimation((int)(result.Acceleration  * 100) + 100); // Progress bar has range 0-200
-                pbDir.SetProgressNoAnimation((int)(result.Direction * 100) + 100);
-                pbRot.SetProgressNoAnimation((int)(result.Rotation * 100) + 100);
+                pbAcc.SetProgressNoAnimation((int)result.Acceleration + 100); // Progress bar has range 0-200, shift + 100
+                pbDir.SetProgressNoAnimation((int)limitedRot + 100); // Progress bar has range 0-200, shift + 100
             }));
         }
 
@@ -123,7 +123,7 @@ namespace Scorpio.GUI.Controls
         {
             if (_latestResult is null) return;
 
-            var msg = new RoverControlCommand(_latestResult.Direction, _latestResult.Acceleration, _latestResult.Rotation, _latestResult.DoRotation);
+            var msg = new RoverControlCommand(_latestResult.Direction, _latestResult.Acceleration);
             _eventBus?.Publish(msg);
         }
 
@@ -157,10 +157,8 @@ namespace Scorpio.GUI.Controls
 
             lblAcc.Text = string.Empty;
             lblDir.Text = string.Empty;
-            lblRot.Text = string.Empty;
             pbAcc.SetProgressNoAnimation(0);
             pbDir.SetProgressNoAnimation(0);
-            pbRot.SetProgressNoAnimation(0);
 
             _isStarted = false;
         }
