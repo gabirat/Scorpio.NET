@@ -143,11 +143,12 @@ namespace Scorpio.Api
         private static void UseEventBus(IApplicationBuilder app)
         {
             var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
+            var conn = app.ApplicationServices.GetRequiredService<IRabbitMqConnection>();
+            conn.TryConnect();
 
             eventBus.Subscribe<SaveSensorDataEvent, SaveSensorDataEventHandler>();
             eventBus.Subscribe<SaveManySensorDataEvent, SaveManySensorDataEventHandler>();
             eventBus.Subscribe<UbiquitiDataReceivedEvent, UbiquitiDataReceivedEventHandler>();
-            //eventBus.Subscribe<RoverControlCommand, RoverControlEventHandler>();
         }
     }
 

@@ -88,11 +88,8 @@ namespace Scorpio.Messaging.RabbitMQ
                     _persistentConnection.TryConnect();
                 }
 
-                using (var channel = _persistentConnection.CreateModel())
-                {
-                    channel.QueueBind(queue: _queueName, exchange: _exchangeName, routingKey: eventName);
-                }
-
+                ConsumerChannel.QueueBind(queue: _queueName, exchange: _exchangeName, routingKey: eventName);
+                
                 var log = $"RabbitMQ bound routingKey: {eventName} to queue: {_queueName} using exchange {_exchangeName}";
                 _logger.LogInformation(log);
             }
@@ -166,7 +163,7 @@ namespace Scorpio.Messaging.RabbitMQ
                     var concreteType = typeof(IIntegrationEventHandler<>).MakeGenericType(eventType);
                     await (Task)concreteType
                         .GetMethod(nameof(IIntegrationEventHandler<IIntegrationEvent>.Handle))
-                        .Invoke(handler, new[] { integrationEvent });
+                        ?.Invoke(handler, new[] { integrationEvent });
                 }
             }
         }
