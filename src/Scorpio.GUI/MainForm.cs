@@ -4,6 +4,7 @@ using NLog.Windows.Forms;
 using Scorpio.Messaging.Abstractions;
 using Scorpio.Messaging.RabbitMQ;
 using System.Windows.Forms;
+using Scorpio.Messaging.Sockets;
 
 namespace Scorpio.GUI
 {
@@ -52,10 +53,11 @@ namespace Scorpio.GUI
 
         private void SetupMessaging()
         { 
-            var conn = (RabbitMqConnection)_iocFactory.Resolve<IRabbitMqConnection>();
+//            var conn = (RabbitMqConnection)_iocFactory.Resolve<IRabbitMqConnection>();
+//
+//            conn.OnConnected += (_, __) => _logger.LogInformation("RabbitMQ connected!");
+//            conn.OnDisconnected += (_, __) => _logger.LogError("RabbitMQ disconnected");
 
-            conn.OnConnected += (_, __) => _logger.LogInformation("RabbitMQ connected!");
-            conn.OnDisconnected += (_, __) => _logger.LogError("RabbitMQ disconnected");
         }
     }
 }

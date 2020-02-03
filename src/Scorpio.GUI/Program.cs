@@ -11,6 +11,7 @@ using System;
 using System.Threading;
 using System.Windows.Forms;
 using Scorpio.Instrumentation.Vivotek;
+using Scorpio.Messaging.Sockets;
 
 namespace Scorpio.GUI
 {
@@ -72,6 +73,14 @@ namespace Scorpio.GUI
                 .SingleInstance()
                 .ExternallyOwned();
 
+            var socketsConfig = new SocketConfiguration();
+            config.GetSection("socketClient").Bind(socketsConfig);
+
+            builder.RegisterInstance(socketsConfig)
+                .As<SocketConfiguration>()
+                .SingleInstance()
+                .ExternallyOwned();
+
             builder.RegisterType<LoggerFactory>()
                 .As<ILoggerFactory>()
                 .SingleInstance();
@@ -80,8 +89,10 @@ namespace Scorpio.GUI
                 .As(typeof(ILogger<>))
                 .SingleInstance();
 
-            SetupRabbitMqConnection(builder, config);
-            SetupRabbitMqEventBus(builder, config);
+            builder.AddSocketClientConnection(socketsConfig);
+            builder.AddSocketClientEventBus();
+           // SetupRabbitMqConnection(builder, config);
+           // SetupRabbitMqEventBus(builder, config);
 
             builder.RegisterGeneric(typeof(ExponentialGamepadProcessor<,>))
                 .As(typeof(IGamepadProcessor<,>))
