@@ -5,6 +5,7 @@ using RabbitMQ.Client.Exceptions;
 using System;
 using System.IO;
 using System.Net.Sockets;
+using System.Threading;
 using Polly;
 
 namespace Scorpio.Messaging.RabbitMQ
@@ -26,7 +27,7 @@ namespace Scorpio.Messaging.RabbitMQ
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public bool IsConnected => _connection != null && _connection.IsOpen && !_disposed;
+        public bool IsConnected => _connection != null && _connection.IsOpen;
 
         public IModel CreateModel()
         {
@@ -37,16 +38,24 @@ namespace Scorpio.Messaging.RabbitMQ
 
             return _connection.CreateModel();
         }
-        
-        public bool TryConnect()
-        {
-            if (_connectionFactory is ConnectionFactory cf)
-            {
-                _logger.LogInformation($"RabbitMQ connecting to: {cf.Endpoint}");
-            }
 
+        public bool TryConnect() => TryConnect(CancellationToken.None);
+
+        public bool TryConnect(CancellationToken cancellationToken)
+        {
             lock (_syncLock)
             {
+                if (IsConnected)
+                {
+                    _logger.LogWarning("Already connected!");
+                    return true;
+                }
+
+                if (_connectionFactory is ConnectionFactory cf)
+                {
+                    _logger.LogInformation($"RabbitMQ connecting to: {cf.Endpoint}");
+                }
+
                 Policy
                     .Handle<BrokerUnreachableException>()
                     .Or<SocketException>()
@@ -55,7 +64,15 @@ namespace Scorpio.Messaging.RabbitMQ
                         _logger.LogCritical($"Reconnecting: {retryNumber}");
                         return TimeSpan.FromSeconds(3);
                     })
-                    .Execute(() => _connection = _connectionFactory.CreateConnection());
+                    .Execute(() =>
+                    {
+                        if (cancellationToken.IsCancellationRequested)
+                        {
+                            _logger.LogInformation("Connection stop request");
+                            return;
+                        }
+                        _connection = _connectionFactory.CreateConnection();
+                    });
 
                 if (IsConnected)
                 {
@@ -74,7 +91,7 @@ namespace Scorpio.Messaging.RabbitMQ
                 return false;
             }
         }
-
+        
         protected void OnConnectionBlocked(object sender, ConnectionBlockedEventArgs e)
         {
             if (_disposed) return;
@@ -112,7 +129,9 @@ namespace Scorpio.Messaging.RabbitMQ
 
             try
             {
+                _connection?.Close();
                 _connection?.Dispose();
+                _logger.LogInformation("Disposing RabbitMQ connection...");
             }
             catch (IOException ex)
             {

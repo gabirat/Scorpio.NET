@@ -27,6 +27,11 @@ namespace Scorpio.Messaging.RabbitMQ
         private readonly IRabbitMqConnection _persistentConnection;
         private readonly string _queueName;
         private IModel _consumerChannel;
+        protected IModel ConsumerChannel
+        {
+            get => _consumerChannel ?? (_consumerChannel = CreateConsumerChannel());
+            private set => _consumerChannel = value;
+        }
 
         public RabbitMqEventBus(IRabbitMqConnection persistentConnection, ILogger<RabbitMqEventBus> logger,
             ILifetimeScope autofac, IEventBusSubscriptionManager subsManager, RabbitConfig config)
@@ -38,12 +43,17 @@ namespace Scorpio.Messaging.RabbitMQ
             _autofac = autofac;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _subsManager = subsManager ?? new GenericEventBusSubscriptionManager();
-            _consumerChannel = CreateConsumerChannel();
         }
 
         public void Publish(IntegrationEvent @event)
         {
             var routingKey = @event.GetType().Name;
+
+            if (!_persistentConnection.IsConnected)
+            {
+                _logger.LogError("Trying to send message, but disconnected, please connect first");
+                return;
+            }
 
             using (var channel = _persistentConnection.CreateModel())
             {
@@ -98,7 +108,7 @@ namespace Scorpio.Messaging.RabbitMQ
 
         public void Dispose()
         {
-            _consumerChannel?.Dispose();
+            ConsumerChannel?.Dispose();
             _subsManager.Clear();
         }
 
@@ -129,8 +139,8 @@ namespace Scorpio.Messaging.RabbitMQ
 
             channel.CallbackException += (sender, ea) =>
             {
-                _consumerChannel.Dispose();
-                _consumerChannel = CreateConsumerChannel();
+                ConsumerChannel.Dispose();
+                ConsumerChannel = CreateConsumerChannel();
             };
 
             return channel;

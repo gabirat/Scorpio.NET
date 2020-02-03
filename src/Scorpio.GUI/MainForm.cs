@@ -1,4 +1,7 @@
-﻿using Autofac;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Autofac;
 using Microsoft.Extensions.Logging;
 using NLog.Windows.Forms;
 using Scorpio.Messaging.Abstractions;
@@ -12,6 +15,13 @@ namespace Scorpio.GUI
         private readonly ILifetimeScope _iocFactory;
         private readonly ILogger<MainForm> _logger;
         private readonly IEventBus _eventBus;
+
+        private IRabbitMqConnection _mqConnection;
+        private IRabbitMqConnection MqConnection
+        {
+            get => _mqConnection ?? (_mqConnection = _iocFactory.Resolve<IRabbitMqConnection>());
+            set => _mqConnection = value;
+        }
 
         public MainForm(ILifetimeScope iocFactory, ILogger<MainForm> logger)
         {
@@ -52,10 +62,42 @@ namespace Scorpio.GUI
 
         private void SetupMessaging()
         { 
-            var conn = (RabbitMqConnection)_iocFactory.Resolve<IRabbitMqConnection>();
+            MqConnection.OnConnected += (_, __) => _logger.LogInformation("RabbitMQ connected!");
+            MqConnection.OnDisconnected += (_, __) => _logger.LogError("RabbitMQ disconnected");
+        }
 
-            conn.OnConnected += (_, __) => _logger.LogInformation("RabbitMQ connected!");
-            conn.OnDisconnected += (_, __) => _logger.LogError("RabbitMQ disconnected");
+        private CancellationTokenSource _cts;
+        private void btnConnect_Click(object sender, System.EventArgs e)
+        {
+            try
+            {
+                _cts = new CancellationTokenSource();
+                Task.Factory.StartNew(() => MqConnection?.TryConnect(_cts.Token), _cts.Token);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message, ex);
+            }
+        }
+
+        private void btnDisconnect_Click(object sender, System.EventArgs e)
+        {
+            try
+            {
+                _cts.Cancel(false);
+                MqConnection?.Dispose();
+                _cts?.Dispose();
+                _mqConnection = null;
+                _cts = null;
+            }
+            catch (NullReferenceException)
+            {
+                _logger.LogWarning("Already disconnected");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message, ex);
+            }
         }
     }
 }

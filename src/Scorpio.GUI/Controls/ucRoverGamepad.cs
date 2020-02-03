@@ -10,6 +10,7 @@ using System;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using Newtonsoft.Json;
 using Scorpio.Messaging.Abstractions;
 using Scorpio.Messaging.Messages;
 
@@ -29,6 +30,7 @@ namespace Scorpio.GUI.Controls
             set => _autofac = value;
         }
 
+        private bool _logMessages;
         private bool _isStarted;
         private GamepadPoller _poller;
         private IGamepadProcessor<RoverMixer, RoverProcessorResult> _gamepadProcessor;
@@ -56,7 +58,7 @@ namespace Scorpio.GUI.Controls
 
         private void CbGamepadIndex_SelectedIndexChanged(object sender, EventArgs e)
         {
-            _gamepadIndex = int.Parse(((ComboBox) sender).Text);
+            _gamepadIndex = int.Parse(((ComboBox)sender).Text);
             btnStop_Click(this, EventArgs.Empty);
             btnStart_Click(this, EventArgs.Empty);
         }
@@ -90,7 +92,7 @@ namespace Scorpio.GUI.Controls
             {
                 // -200 200 rot hack (progress bar would crash over -100:100 range)
                 // so limit it to -100:100
-                var limitedRot = ScalingUtils.SymmetricalConstrain((int) (result.Direction * 100), 100); 
+                var limitedRot = ScalingUtils.SymmetricalConstrain((int)(result.Direction * 100), 100);
 
                 lblAcc.Text = result.Acceleration.ToString("0.##");
                 lblDir.Text = result.Direction.ToString("0.##");
@@ -106,7 +108,7 @@ namespace Scorpio.GUI.Controls
                 _logger.LogWarning("Already started!");
                 return;
             }
-            
+
             // Start gamepad poller
             _poller = new GamepadPoller(_gamepadIndex, _pollerThreadSleepTime);
             _poller.GamepadStateChanged += _poller_GamepadStateChanged;
@@ -125,42 +127,49 @@ namespace Scorpio.GUI.Controls
 
             var msg = new RoverControlCommand(_latestResult.Direction, _latestResult.Acceleration);
             _eventBus?.Publish(msg);
+            if (_logMessages) _logger.LogDebug(JsonConvert.SerializeObject(msg));
         }
 
         private void btnStop_Click(object sender, EventArgs e)
-        {
-            if (_isStarted == false) return;
+            {
+                if (_isStarted == false) return;
 
-            // Stop publishing to rabbit mq
-            _timer.Stop();
+                // Stop publishing to rabbit mq
+                _timer.Stop();
 
-            // Stop gamepad polling
-            _poller.StopPolling();
-            _poller.GamepadStateChanged -= _poller_GamepadStateChanged;
-            
-            _logger.LogInformation("Rover gamepad stopped");
-            SetStateStopped();
-        }
+                // Stop gamepad polling
+                _poller.StopPolling();
+                _poller.GamepadStateChanged -= _poller_GamepadStateChanged;
 
-        private void SetStateStarted()
-        {
-            lblState.Text = "Started";
-            lblState.ForeColor = Color.Green;
+                _logger.LogInformation("Rover gamepad stopped");
+                SetStateStopped();
+            }
 
-            _isStarted = true;
-        }
+            private void SetStateStarted()
+            {
+                lblState.Text = "Started";
+                lblState.ForeColor = Color.Green;
 
-        private void SetStateStopped()
-        {
-            lblState.Text = "Stopped";
-            lblState.ForeColor = Color.Red;
+                _isStarted = true;
+            }
 
-            lblAcc.Text = string.Empty;
-            lblDir.Text = string.Empty;
-            pbAcc.SetProgressNoAnimation(0);
-            pbDir.SetProgressNoAnimation(0);
+            private void SetStateStopped()
+            {
+                lblState.Text = "Stopped";
+                lblState.ForeColor = Color.Red;
 
-            _isStarted = false;
+                lblAcc.Text = string.Empty;
+                lblDir.Text = string.Empty;
+                pbAcc.SetProgressNoAnimation(0);
+                pbDir.SetProgressNoAnimation(0);
+
+                _isStarted = false;
+            }
+
+            private void chbLogMessages_CheckedChanged(object sender, EventArgs e)
+            {
+                var chb = (CheckBox)sender;
+                _logMessages = chb.Checked;
+            }
         }
     }
-}
