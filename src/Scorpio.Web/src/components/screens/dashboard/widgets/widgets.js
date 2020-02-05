@@ -2,6 +2,7 @@ import StatisticWidget from "./statisticWidget";
 import GamepadAnalogs from "./gamepadAnalogs";
 import ChartWidget from "./chartWidget";
 import BatteryWidget from "./batteryWidget";
+import UbiquitiWidget from "./ubiquitiWidget";
 
 export const widgets = [
   {
@@ -42,6 +43,16 @@ export const widgets = [
       value: "BatteryWidget",
       text: "Battery",
       description: "Display battery value"
+    }
+  },
+  {
+    component: UbiquitiWidget,
+    type: "UbiquitiWidget",
+    dropdown: {
+      key: "UbiquitiWidget",
+      value: "UbiquitiWidget",
+      text: "Ubiquiti",
+      description: "Display ubiquiti stats"
     }
   }
 ];

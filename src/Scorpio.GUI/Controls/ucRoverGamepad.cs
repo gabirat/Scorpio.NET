@@ -34,7 +34,7 @@ namespace Scorpio.GUI.Controls
         private bool _isStarted;
         private GamepadPoller _poller;
         private IGamepadProcessor<RoverMixer, RoverProcessorResult> _gamepadProcessor;
-        private int _pollerThreadSleepTime = 50; // default
+        private int _pollerThreadSleepTime = 40; // default 40
         private ILogger<ucRoverGamepad> _logger;
         private int _gamepadIndex;
         private RoverProcessorResult _latestResult;
@@ -115,7 +115,7 @@ namespace Scorpio.GUI.Controls
             _poller.StartPolling();
 
             // Start publishing messages
-            _timer.Start(50); // send message every 50 ms
+            _timer.Start(20); // send message every 50 ms
 
             _logger.LogInformation($"Rover gamepad started with index: {_gamepadIndex}");
             SetStateStarted();
@@ -131,45 +131,45 @@ namespace Scorpio.GUI.Controls
         }
 
         private void btnStop_Click(object sender, EventArgs e)
-            {
-                if (_isStarted == false) return;
+        {
+            if (_isStarted == false) return;
 
-                // Stop publishing to rabbit mq
-                _timer.Stop();
+            // Stop publishing to rabbit mq
+            _timer.Stop();
 
-                // Stop gamepad polling
-                _poller.StopPolling();
-                _poller.GamepadStateChanged -= _poller_GamepadStateChanged;
+            // Stop gamepad polling
+            _poller.StopPolling();
+            _poller.GamepadStateChanged -= _poller_GamepadStateChanged;
 
-                _logger.LogInformation("Rover gamepad stopped");
-                SetStateStopped();
-            }
+            _logger.LogInformation("Rover gamepad stopped");
+            SetStateStopped();
+        }
 
-            private void SetStateStarted()
-            {
-                lblState.Text = "Started";
-                lblState.ForeColor = Color.Green;
+        private void SetStateStarted()
+        {
+            lblState.Text = "Started";
+            lblState.ForeColor = Color.Green;
 
-                _isStarted = true;
-            }
+            _isStarted = true;
+        }
 
-            private void SetStateStopped()
-            {
-                lblState.Text = "Stopped";
-                lblState.ForeColor = Color.Red;
+        private void SetStateStopped()
+        {
+            lblState.Text = "Stopped";
+            lblState.ForeColor = Color.Red;
 
-                lblAcc.Text = string.Empty;
-                lblDir.Text = string.Empty;
-                pbAcc.SetProgressNoAnimation(0);
-                pbDir.SetProgressNoAnimation(0);
+            lblAcc.Text = string.Empty;
+            lblDir.Text = string.Empty;
+            pbAcc.SetProgressNoAnimation(0);
+            pbDir.SetProgressNoAnimation(0);
 
-                _isStarted = false;
-            }
+            _isStarted = false;
+        }
 
-            private void chbLogMessages_CheckedChanged(object sender, EventArgs e)
-            {
-                var chb = (CheckBox)sender;
-                _logMessages = chb.Checked;
-            }
+        private void chbLogMessages_CheckedChanged(object sender, EventArgs e)
+        {
+            var chb = (CheckBox)sender;
+            _logMessages = chb.Checked;
         }
     }
+}

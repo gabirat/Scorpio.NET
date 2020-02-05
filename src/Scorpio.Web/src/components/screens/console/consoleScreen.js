@@ -1,19 +1,25 @@
 import React, { Component } from "react";
 import { Button, Dropdown, Segment } from "semantic-ui-react";
 import MessagingService from "../../../services/MessagingService";
+import { TOPICS } from "../../../constants/appConstants";
 
 class ConsoleScreen extends Component {
   constructor(props) {
     super(props);
+    this.handlers = {};
     this.state = { logs: [], rows: 25 };
   }
 
   componentDidMount() {
-    MessagingService.subscribe("home", data => {
-      this.writeLog(data);
+    Object.values(TOPICS).forEach(topic => {
+      this.handlers[topic] = data => this.writeLog(data);
+      MessagingService.subscribe(topic, this.handlers[topic]);
     });
-    MessagingService.subscribe("ubiquiti", data => {
-      this.writeLog(data);
+  }
+
+  componentWillUnmount() {
+    Object.values(TOPICS).forEach(topic => {
+      MessagingService.unsubscribe(topic, this.handlers[topic]);
     });
   }
 

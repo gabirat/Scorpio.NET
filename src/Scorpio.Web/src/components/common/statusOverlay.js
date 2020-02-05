@@ -1,27 +1,35 @@
 import React, { useEffect, useState } from "react";
 import { Segment, Icon } from "semantic-ui-react";
+import MessagingService from "../../services/MessagingService";
+
+const SignleState = ({ resource, isOk }) => {
+  return (
+    <div className="text-large" style={{ marginTop: "4px" }}>
+      <Icon color={isOk ? "green" : "red"} name="heartbeat"></Icon>
+      {resource}: <span className={isOk ? "ok" : "nok"}>{isOk ? "OK" : "NOK"}</span>
+    </div>
+  );
+};
 
 const Statusoverlay = () => {
-  const [blink, setBlink] = useState(false);
+  const [isSignalrOk, setSignalrOk] = useState(false);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setBlink(blnk => !blnk);
-    }, 1000);
+    const signalRHandler = state => {
+      setSignalrOk(state === "Connected");
+    };
+    MessagingService.subscribeConnectionChange(signalRHandler);
 
     return () => {
-      clearInterval(interval);
+      MessagingService.unSubscribeConnectionChange(signalRHandler);
     };
   }, []);
 
   return (
     <Segment className="scorpio-status-overlay-container">
-      <div>
-        <Icon className={blink ? "scorpio-heartbeat-blink" : "scorpio-heartbeat-normal"} color="red" name="heartbeat"></Icon>API: connected
-      </div>
-      <div>
-        <Icon className={blink ? "scorpio-heartbeat-blink" : "scorpio-heartbeat-normal"} name="wheelchair"></Icon> Lazik: rak
-      </div>
+      <SignleState resource={"SignalR"} isOk={isSignalrOk} />
+      <SignleState resource={"RabbitMQ"} isOk={false} />
+      <SignleState resource={"MongoDB"} isOk={true} />
     </Segment>
   );
 };

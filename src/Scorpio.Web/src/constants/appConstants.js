@@ -39,5 +39,6 @@ export const API = {
 
 export const TOPICS = {
   SENSOR_DATA: "sensor",
-  BATTERY_DATA: "battery"
+  BATTERY_DATA: "battery",
+  UBIQUITI_DATA: "ubiquiti"
 };

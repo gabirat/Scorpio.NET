@@ -7,20 +7,29 @@ class MessagingService {
   constructor() {
     this._connection = null;
     this._watchdogInterval = null;
-    // this._recoverConnection = this._recoverConnection.bind(this);
+    this._subsQueue = [];
+    this._connectionStateObservers = [];
   }
+
+  subscribeConnectionChange = handler => this._connectionStateObservers.push(handler);
+  unSubscribeConnectionChange = handler => (this._connectionStateObservers = this._connectionStateObservers.filter(o => o !== handler));
 
   // Subscribe for given topic. If any messages appear on it, the handler will be called with received data.
   subscribe(topic, handler) {
-    //debugger;
     if (typeof handler !== "function" || typeof topic !== "string") return;
 
     // con might be null here
-    if (this._connection) {
+    if (this._connection && this._connection.connectionState === "Connected") {
       LogService.info(`SignalR: subscribed to ${topic}`);
-      this._connection.on(topic, data => {
-        handler(data);
-      });
+      this._connection.on(topic, handler);
+    } else {
+      LogService.warn(
+        `Trying to subscribe to topic ${topic}, but current signalR state is: ${
+          this._connection ? this._connection.connectionState : "NULL"
+        }, queuing subscription`
+      );
+
+      this._subsQueue.push({ topic: topic, handler: handler });
     }
   }
 
@@ -50,8 +59,6 @@ class MessagingService {
       return;
     }
 
-    //this._watchdogInterval = setInterval(this._recoverConnection, 2000);
-
     const endpoint = API.SIGNALR;
     this._connection = new SignalR.HubConnectionBuilder()
       .withUrl(endpoint)
@@ -64,12 +71,33 @@ class MessagingService {
 
     this._setup();
 
-    await this._connection.start();
+    await this._connection
+      .start()
+      .then(this._onConnected)
+      .catch(this._errorHandler);
   }
 
-  _recoverConnection = async () => {
-    if (this._connection && this._connection.connectionState === "Disconnected") {
-      await this.connectAsync();
+  _onConnected = () => {
+    LogService.info("SignalR connected!");
+    this._processPendingSubsciptions();
+    this._notifyConnectionStateChanged();
+  };
+
+  _processPendingSubsciptions = () => {
+    if (this._connection && this._connection.connectionState === "Connected" && this._subsQueue.length > 0) {
+      LogService.debug("Processing pending subscriptions...", this._subsQueue);
+      for (let i = 0; i <= this._subsQueue.length + 1; i++) {
+        const sub = this._subsQueue.pop();
+        this.subscribe(sub.topic, sub.handler);
+      }
+    }
+  };
+
+  _notifyConnectionStateChanged = () => {
+    if (Array.isArray(this._connectionStateObservers) && this._connectionStateObservers.length > 0 && this._connection) {
+      this._connectionStateObservers.forEach(notify => {
+        notify(this._connection.connectionState);
+      });
     }
   };
 
@@ -85,15 +113,18 @@ class MessagingService {
   _setup() {
     this._connection.onreconnecting(err => {
       LogService.info("SignalR reconnecting: ", err);
+      this._notifyConnectionStateChanged();
     });
 
     this._connection.onreconnected(connId => {
       LogService.info("SignalR reconnected: ", connId);
+      this._notifyConnectionStateChanged();
     });
 
     this._connection.onclose(err => {
       LogService.error("SignalR errored", err);
       this._errorHandler(err);
+      this._notifyConnectionStateChanged();
     });
   }
 
