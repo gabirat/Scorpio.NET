@@ -1,23 +1,5 @@
 version: "3"
 services:
- #api:
- #   build:
- #    context: ./
- #    dockerfile: ./src/Scorpio.Api/Dockerfile
- #   image: scorpio/webapi
- #   container_name: "scorpio_webapi"
- #   environment:
- #     - RabbitMq__host=rabbitmq
- #     - MongoDb__ConnectionString=mongodb://mongodbuser:mongodbpassword@mongodb:27017
- #     - MongoDb__Database=scorpiodb
- #     # TODO whis will not work when deployed on rover, we will need either rover ip here, or dns, or abadon cors
- #     - WEBAPP_URL=localhost
- #   ports:
- #     - "8081:80"
- #   depends_on:
- #    - rabbitmq
- #    - mongodb
-
  rabbitmq:
     image: "rabbitmq:3-management"
     container_name: "scorpio_rabbitmq"
@@ -27,21 +9,21 @@ services:
     volumes:
       - 'rabbitmq_data:/data'
 
-# mongodb:
-#    image: "mongo:latest"
-#    container_name: "scorpio_mongodb"
-#    command: mongod --auth
-#    environment:
-#      MONGO_INITDB_ROOT_USERNAME: mongodbuser
-#      MONGO_INITDB_ROOT_PASSWORD: mongodbpassword
-#      MONGO_INITDB_DATABASE: scorpiodb
-#      MONGODB_DATA_DIR: /data/db
-#      MONDODB_LOG_DIR: /dev/null
-#    volumes:
-#      - mongodb_data:/data/db
-#    ports:
-#       - '27017:27017'
+ mongodb:
+    image: "mongo:latest"
+    container_name: "scorpio_mongodb"
+    command: mongod --auth
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongodbuser
+      MONGO_INITDB_ROOT_PASSWORD: mongodbpassword
+      MONGO_INITDB_DATABASE: scorpiodb
+      MONGODB_DATA_DIR: /data/db
+      MONDODB_LOG_DIR: /dev/null
+    volumes:
+      - mongodb_data:/data/db
+    ports:
+       - '27017:27017'
 
 volumes:
   rabbitmq_data:
-#  mongodb_data:
+  mongodb_data:
