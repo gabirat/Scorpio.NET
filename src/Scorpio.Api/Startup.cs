@@ -1,3 +1,4 @@
+using System;
 using Matty.Framework;
 using Matty.Framework.Enums;
 using Microsoft.AspNetCore.Builder;
@@ -105,6 +106,7 @@ namespace Scorpio.Api
             services.AddTransient<ISensorRepository, SensorRepository>();
             services.AddTransient<ISensorDataRepository, SensorDataRepository>();
             services.AddTransient<IStreamRepository, StreamRepository>();
+            services.AddTransient<IPositionRepository, PositionRepository>();
 
             services.AddTransient<UbiquitiStatsProvider>();
 
@@ -219,9 +221,11 @@ namespace Scorpio.Api
             var rabbitMqConnectionString = $"amqp://{user}:{password}@{host}:{port}{virtualHost}";
             var mongoDbConnectionString = config.GetValue<string>("MongoDb:ConnectionString");
 
+            var timeout = TimeSpan.FromSeconds(1.5);
+
             services.AddHealthChecks()
-                .AddRabbitMQ(rabbitMqConnectionString, sslOption: null, name: "RabbitMQ")
-                .AddMongoDb(mongoDbConnectionString);
+                .AddRabbitMQ(rabbitMqConnectionString, sslOption: null, name: "RabbitMQ", timeout: timeout)
+                .AddMongoDb(mongoDbConnectionString, timeout: timeout, name: "MongoDb");
         }
     }
 }
