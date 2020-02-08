@@ -61,5 +61,56 @@ namespace Scorpio.Messaging.RabbitMQ
 
             return services;
         }
+
+
+        public static void SetupRabbitMqConnection(this ContainerBuilder builder, IConfiguration config)
+        {
+            builder.Register<IRabbitMqConnection>(ctx =>
+                {
+                    var logger = ctx.Resolve<ILogger<RabbitMqConnection>>();
+
+                    var factory = new ConnectionFactory
+                    {
+                        HostName = config["rabbitMq:host"],
+                        Port = Int32.Parse(config["rabbitMq:port"]),
+                        UserName = config["rabbitMq:userName"],
+                        Password = config["rabbitMq:password"],
+                        VirtualHost = config["rabbitMq:virtualHost"]
+                    };
+
+                    logger.LogInformation("************************************");
+                    logger.LogInformation($"RabbitMQ factory created: {factory.UserName}:{factory.Password}@{factory.HostName}:{factory.Port}{factory.VirtualHost}");
+                    logger.LogInformation("************************************");
+
+                    return new RabbitMqConnection(factory, logger);
+                })
+                .SingleInstance();
+        }
+
+        public static void SetupRabbitMqEventBus(this ContainerBuilder builder, IConfiguration config)
+        {
+            builder.RegisterType<GenericEventBusSubscriptionManager>()
+                .As<IEventBusSubscriptionManager>()
+                .SingleInstance();
+
+            builder.Register<RabbitMqEventBus>(ctx =>
+                {
+                    var conn = ctx.Resolve<IRabbitMqConnection>();
+                    var logger = ctx.Resolve<ILogger<RabbitMqEventBus>>();
+                    var scope = ctx.Resolve<ILifetimeScope>();
+                    var subsManager = ctx.Resolve<IEventBusSubscriptionManager>();
+
+                    var rabbitConfig = new RabbitConfig
+                    {
+                        ExchangeName = config["rabbitMq:exchangeName"],
+                        MyQueueName = config["rabbitMq:myQueueName"],
+                        MessageTimeToLive = config["rabbitMq:messageTTL"],
+                    };
+
+                    return new RabbitMqEventBus(conn, logger, scope, subsManager, rabbitConfig);
+                })
+                .As<IEventBus>()
+                .SingleInstance();
+        }
     }
 }

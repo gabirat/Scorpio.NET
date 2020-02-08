@@ -1,5 +1,6 @@
 ﻿using RabbitMQ.Client;
 using System;
+using System.Threading;
 
 namespace Scorpio.Messaging.RabbitMQ
 {
@@ -8,7 +9,11 @@ namespace Scorpio.Messaging.RabbitMQ
         bool IsConnected { get; }
 
         bool TryConnect();
+        bool TryConnect(CancellationToken cancellationToken);
 
         IModel CreateModel();
+
+        event EventHandler<EventArgs> OnConnected;
+        event EventHandler<EventArgs> OnDisconnected;
     }
 }

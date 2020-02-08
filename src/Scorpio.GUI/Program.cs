@@ -2,15 +2,13 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
-using RabbitMQ.Client;
 using Scorpio.Gamepad.Processors;
 using Scorpio.GUI.Streaming;
-using Scorpio.Messaging.Abstractions;
+using Scorpio.Instrumentation.Vivotek;
 using Scorpio.Messaging.RabbitMQ;
 using System;
 using System.Threading;
 using System.Windows.Forms;
-using Scorpio.Instrumentation.Vivotek;
 
 namespace Scorpio.GUI
 {
@@ -80,8 +78,8 @@ namespace Scorpio.GUI
                 .As(typeof(ILogger<>))
                 .SingleInstance();
 
-            SetupRabbitMqConnection(builder, config);
-            SetupRabbitMqEventBus(builder, config);
+            builder.SetupRabbitMqConnection(config);
+            builder.SetupRabbitMqEventBus(config);
 
             builder.RegisterGeneric(typeof(ExponentialGamepadProcessor<,>))
                 .As(typeof(IGamepadProcessor<,>))
@@ -99,55 +97,6 @@ namespace Scorpio.GUI
             return builder;
         }
 
-        private static void SetupRabbitMqConnection(ContainerBuilder builder, IConfiguration config)
-        {
-            builder.Register<IRabbitMqConnection>(ctx =>
-                {
-                    var logger = ctx.Resolve<ILogger<RabbitMqConnection>>();
-
-                    var factory = new ConnectionFactory
-                    {
-                        HostName = config["rabbitMq:host"],
-                        Port = config.GetValue<int>("rabbitMq:port"),
-                        UserName = config["rabbitMq:userName"],
-                        Password = config["rabbitMq:password"],
-                        VirtualHost = config["rabbitMq:virtualHost"]
-                    };
-
-                    logger.LogInformation("************************************");
-                    logger.LogInformation($"RabbitMQ factory created: {factory.UserName}:{factory.Password}@{factory.HostName}:{factory.Port}{factory.VirtualHost}");
-                    logger.LogInformation("************************************");
-
-                    return new RabbitMqConnection(factory, logger);
-                })
-                .SingleInstance();
-        }
-
-        private static void SetupRabbitMqEventBus(ContainerBuilder builder, IConfiguration config)
-        {
-            builder.RegisterType<GenericEventBusSubscriptionManager>()
-                .As<IEventBusSubscriptionManager>()
-                .SingleInstance();
-
-            builder.Register<RabbitMqEventBus>(ctx =>
-            {
-                var conn = ctx.Resolve<IRabbitMqConnection>();
-                var logger = ctx.Resolve<ILogger<RabbitMqEventBus>>();
-                var scope = ctx.Resolve<ILifetimeScope>();
-                var subsManager = ctx.Resolve<IEventBusSubscriptionManager>();
-
-                var rabbitConfig = new RabbitConfig
-                {
-                    ExchangeName = config["rabbitMq:exchangeName"],
-                    MyQueueName = config["rabbitMq:myQueueName"],
-                    MessageTimeToLive = config["rabbitMq:messageTTL"],
-                };
-
-                return new RabbitMqEventBus(conn, logger, scope, subsManager, rabbitConfig);
-            })
-            .As<IEventBus>()
-            .SingleInstance();
-        }
 
         [Obsolete("YES I KNOW ITS OBSOLETE", false)]
         private static void SetupLogger()

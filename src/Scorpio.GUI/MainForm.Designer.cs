@@ -36,6 +36,8 @@
             this.ucStreamControl3 = new Scorpio.GUI.Controls.ucStreamControl();
             this.ucStreamControl2 = new Scorpio.GUI.Controls.ucStreamControl();
             this.ucStreamControl1 = new Scorpio.GUI.Controls.ucStreamControl();
+            this.btnConnect = new System.Windows.Forms.Button();
+            this.btnDisconnect = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -122,11 +124,33 @@
             this.ucStreamControl1.Size = new System.Drawing.Size(271, 126);
             this.ucStreamControl1.TabIndex = 4;
             // 
+            // btnConnect
+            // 
+            this.btnConnect.Location = new System.Drawing.Point(101, 322);
+            this.btnConnect.Name = "btnConnect";
+            this.btnConnect.Size = new System.Drawing.Size(93, 30);
+            this.btnConnect.TabIndex = 10;
+            this.btnConnect.Text = "Connect";
+            this.btnConnect.UseVisualStyleBackColor = true;
+            this.btnConnect.Click += new System.EventHandler(this.btnConnect_Click);
+            // 
+            // btnDisconnect
+            // 
+            this.btnDisconnect.Location = new System.Drawing.Point(101, 358);
+            this.btnDisconnect.Name = "btnDisconnect";
+            this.btnDisconnect.Size = new System.Drawing.Size(93, 30);
+            this.btnDisconnect.TabIndex = 10;
+            this.btnDisconnect.Text = "Disconnect";
+            this.btnDisconnect.UseVisualStyleBackColor = true;
+            this.btnDisconnect.Click += new System.EventHandler(this.btnDisconnect_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1160, 777);
+            this.Controls.Add(this.btnDisconnect);
+            this.Controls.Add(this.btnConnect);
             this.Controls.Add(this.ucRoverGamepad1);
             this.Controls.Add(this.ucVivotekController1);
             this.Controls.Add(this.ucStreamControl4);
@@ -151,6 +175,8 @@
         private Controls.ucStreamControl ucStreamControl4;
         private Controls.ucVivotekController ucVivotekController1;
         private Controls.ucRoverGamepad ucRoverGamepad1;
+        private System.Windows.Forms.Button btnConnect;
+        private System.Windows.Forms.Button btnDisconnect;
     }
 }
 

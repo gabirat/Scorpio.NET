@@ -10,6 +10,7 @@ using System;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using Newtonsoft.Json;
 using Scorpio.Messaging.Abstractions;
 using Scorpio.Messaging.Messages;
 
@@ -29,10 +30,11 @@ namespace Scorpio.GUI.Controls
             set => _autofac = value;
         }
 
+        private bool _logMessages;
         private bool _isStarted;
         private GamepadPoller _poller;
         private IGamepadProcessor<RoverMixer, RoverProcessorResult> _gamepadProcessor;
-        private int _pollerThreadSleepTime = 50; // default
+        private int _pollerThreadSleepTime = 40; // default 40
         private ILogger<ucRoverGamepad> _logger;
         private int _gamepadIndex;
         private RoverProcessorResult _latestResult;
@@ -56,7 +58,7 @@ namespace Scorpio.GUI.Controls
 
         private void CbGamepadIndex_SelectedIndexChanged(object sender, EventArgs e)
         {
-            _gamepadIndex = int.Parse(((ComboBox) sender).Text);
+            _gamepadIndex = int.Parse(((ComboBox)sender).Text);
             btnStop_Click(this, EventArgs.Empty);
             btnStart_Click(this, EventArgs.Empty);
         }
@@ -76,8 +78,6 @@ namespace Scorpio.GUI.Controls
             pbAcc.Maximum = 200;
             pbDir.Minimum = 0;
             pbDir.Maximum = 200;
-            pbRot.Minimum = 0;
-            pbRot.Maximum = 200;
         }
 
         private void _poller_GamepadStateChanged(object sender, GamepadEventArgs e)
@@ -90,12 +90,14 @@ namespace Scorpio.GUI.Controls
         {
             Invoke(new Action(() =>
             {
+                // -200 200 rot hack (progress bar would crash over -100:100 range)
+                // so limit it to -100:100
+                var limitedRot = ScalingUtils.SymmetricalConstrain((int)(result.Direction * 100), 100);
+
                 lblAcc.Text = result.Acceleration.ToString("0.##");
                 lblDir.Text = result.Direction.ToString("0.##");
-                lblRot.Text = result.Rotation.ToString("0.##");
-                pbAcc.SetProgressNoAnimation((int)(result.Acceleration  * 100) + 100); // Progress bar has range 0-200
-                pbDir.SetProgressNoAnimation((int)(result.Direction * 100) + 100);
-                pbRot.SetProgressNoAnimation((int)(result.Rotation * 100) + 100);
+                pbAcc.SetProgressNoAnimation((int)result.Acceleration + 100); // Progress bar has range 0-200, shift + 100
+                pbDir.SetProgressNoAnimation((int)limitedRot + 100); // Progress bar has range 0-200, shift + 100
             }));
         }
 
@@ -106,14 +108,14 @@ namespace Scorpio.GUI.Controls
                 _logger.LogWarning("Already started!");
                 return;
             }
-            
+
             // Start gamepad poller
             _poller = new GamepadPoller(_gamepadIndex, _pollerThreadSleepTime);
             _poller.GamepadStateChanged += _poller_GamepadStateChanged;
             _poller.StartPolling();
 
             // Start publishing messages
-            _timer.Start(50); // send message every 50 ms
+            _timer.Start(20); // send message every 50 ms
 
             _logger.LogInformation($"Rover gamepad started with index: {_gamepadIndex}");
             SetStateStarted();
@@ -123,8 +125,9 @@ namespace Scorpio.GUI.Controls
         {
             if (_latestResult is null) return;
 
-            var msg = new RoverControlCommand(_latestResult.Direction, _latestResult.Acceleration, _latestResult.Rotation, _latestResult.DoRotation);
+            var msg = new RoverControlCommand(_latestResult.Direction, _latestResult.Acceleration);
             _eventBus?.Publish(msg);
+            if (_logMessages) _logger.LogDebug(JsonConvert.SerializeObject(msg));
         }
 
         private void btnStop_Click(object sender, EventArgs e)
@@ -137,7 +140,7 @@ namespace Scorpio.GUI.Controls
             // Stop gamepad polling
             _poller.StopPolling();
             _poller.GamepadStateChanged -= _poller_GamepadStateChanged;
-            
+
             _logger.LogInformation("Rover gamepad stopped");
             SetStateStopped();
         }
@@ -157,12 +160,16 @@ namespace Scorpio.GUI.Controls
 
             lblAcc.Text = string.Empty;
             lblDir.Text = string.Empty;
-            lblRot.Text = string.Empty;
             pbAcc.SetProgressNoAnimation(0);
             pbDir.SetProgressNoAnimation(0);
-            pbRot.SetProgressNoAnimation(0);
 
             _isStarted = false;
+        }
+
+        private void chbLogMessages_CheckedChanged(object sender, EventArgs e)
+        {
+            var chb = (CheckBox)sender;
+            _logMessages = chb.Checked;
         }
     }
 }

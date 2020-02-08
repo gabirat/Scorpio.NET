@@ -1,6 +1,8 @@
+using System;
 using Matty.Framework;
 using Matty.Framework.Enums;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -21,6 +23,10 @@ using Scorpio.Messaging.Messages;
 using Scorpio.Messaging.RabbitMQ;
 using Scorpio.ProcessRunner;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Newtonsoft.Json.Linq;
 
 namespace Scorpio.Api
 {
@@ -81,6 +87,7 @@ namespace Scorpio.Api
             // Register strongly typed config mapping
             services.Configure<RabbitMqConfiguration>(Configuration.GetSection("RabbitMq"));
             services.Configure<MongoDbConfiguration>(Configuration.GetSection("MongoDb"));
+            services.Configure<UbiquitiPollerConfiguration>(Configuration.GetSection("Ubiquiti"));
 
             // Register event bus
             services.AddRabbitMqConnection(Configuration);
@@ -99,6 +106,7 @@ namespace Scorpio.Api
             services.AddTransient<ISensorRepository, SensorRepository>();
             services.AddTransient<ISensorDataRepository, SensorDataRepository>();
             services.AddTransient<IStreamRepository, StreamRepository>();
+            services.AddTransient<IPositionRepository, PositionRepository>();
 
             services.AddTransient<UbiquitiStatsProvider>();
 
@@ -107,6 +115,8 @@ namespace Scorpio.Api
             services.AddUbiquitiPoller(Configuration);
 
             services.AddCorsSetup(Configuration);
+
+            services.AddHealthChecks(Configuration);
         }
 
 
@@ -134,6 +144,11 @@ namespace Scorpio.Api
             {
                 endpoints.MapControllers();
                 endpoints.MapHub<MainHub>("/hub");
+                endpoints.MapHealthChecks("/health", new HealthCheckOptions
+                {
+                    Predicate = _ => true,
+                    ResponseWriter = WriteHealthResponse
+                });
             });
 
             UseEventBus(app);
@@ -142,11 +157,29 @@ namespace Scorpio.Api
         private static void UseEventBus(IApplicationBuilder app)
         {
             var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
+            var conn = app.ApplicationServices.GetRequiredService<IRabbitMqConnection>();
+            conn.TryConnect();
 
             eventBus.Subscribe<SaveSensorDataEvent, SaveSensorDataEventHandler>();
             eventBus.Subscribe<SaveManySensorDataEvent, SaveManySensorDataEventHandler>();
             eventBus.Subscribe<UbiquitiDataReceivedEvent, UbiquitiDataReceivedEventHandler>();
-            //eventBus.Subscribe<RoverControlCommand, RoverControlEventHandler>();
+        }
+
+        private static Task WriteHealthResponse(HttpContext context, HealthReport result)
+        {
+            context.Response.ContentType = "application/json";
+
+            var json = new JObject(
+                new JProperty("status", result.Status.ToString()),
+                new JProperty("isHealthy", result.Status == HealthStatus.Healthy),
+                new JProperty("results", new JObject(result.Entries.Select(pair =>
+                    new JProperty(pair.Key, new JObject(
+                        new JProperty("status", pair.Value.Status.ToString()),
+                        new JProperty("isHealthy", pair.Value.Status == HealthStatus.Healthy),
+                        new JProperty("description", pair.Value.Description)))))));
+
+            return context.Response.WriteAsync(
+                json.ToString(Formatting.Indented));
         }
     }
 
@@ -164,7 +197,6 @@ namespace Scorpio.Api
 
         public static void AddCorsSetup(this IServiceCollection services, IConfiguration config)
         {
-
             var corsOrigins = "http://" + (config["BACKEND_ORIGIN"] ?? "localhost:3000");
             services.AddCors(settings =>
             {
@@ -176,6 +208,24 @@ namespace Scorpio.Api
                         .AllowCredentials();
                 });
             });
+        }
+
+        public static void AddHealthChecks(this IServiceCollection services, IConfiguration config)
+        {
+            var user = config["RabbitMq:userName"];
+            var password = config["RabbitMq:password"];
+            var host = config["RabbitMq:host"];
+            var port = config["RabbitMq:port"];
+            var virtualHost = config["RabbitMq:virtualHost"];
+
+            var rabbitMqConnectionString = $"amqp://{user}:{password}@{host}:{port}{virtualHost}";
+            var mongoDbConnectionString = config.GetValue<string>("MongoDb:ConnectionString");
+
+            var timeout = TimeSpan.FromSeconds(1.5);
+
+            services.AddHealthChecks()
+                .AddRabbitMQ(rabbitMqConnectionString, sslOption: null, name: "RabbitMQ", timeout: timeout)
+                .AddMongoDb(mongoDbConnectionString, timeout: timeout, name: "MongoDb");
         }
     }
 }
