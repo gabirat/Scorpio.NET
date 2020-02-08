@@ -11,7 +11,7 @@ namespace Scorpio.Instrumentation.Ubiquiti
     public class UbiquitiStatsProvider
     {
         private readonly string _rootOip;
-        private Dictionary<string, PhysicalProperty> _responseFilterOids;
+        private readonly Dictionary<string, PhysicalProperty> _responseFilterOids;
         private readonly ISnmpService _snmpService;
 
         // Constructor for autofac
@@ -25,9 +25,10 @@ namespace Scorpio.Instrumentation.Ubiquiti
         }
 
         // Constructor for unit testing purposes
-        public UbiquitiStatsProvider(ISnmpService snmp)
+        public UbiquitiStatsProvider(ISnmpService snmp, Dictionary<string, PhysicalProperty> responseFilter)
         {
             _snmpService = snmp;
+            _responseFilterOids = responseFilter;
         }
 
         public Task<Dictionary<string, string>> GetStatsAsync(CancellationToken cancellationToken)

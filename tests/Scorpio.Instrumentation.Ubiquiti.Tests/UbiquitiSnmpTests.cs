@@ -23,14 +23,13 @@ namespace Scorpio.Instrumentation.Ubiquiti.Tests
                 { new Oid("1.3.6.1.4.1.41112.1.4.1.1.4.24"), new Integer32(41241)  }
             };
 
-            var ubi = new UbiquitiStatsProvider(sntpServiceMock.Object);
             var filterDict = new Dictionary<string, PhysicalProperty>
             {
                 { "1.3.6.1.4.1.41112.1.4.1.1.6.1", new PhysicalProperty { Magnitude = "signalPower", Unit = "dBm" } },
                 { "1.3.6.1.4.1.41112.1.4.1.1.4.1", new PhysicalProperty { Magnitude = "frequency", Unit = "MHz" } },
             };
 
-            ubi.ResponseFilter = filterDict;
+            var ubi = new UbiquitiStatsProvider(sntpServiceMock.Object, filterDict);
             sntpServiceMock.Setup(x => x.Walk(It.IsAny<SnmpVersion>(), It.IsAny<string>())).Returns(mockResponse);
 
 
