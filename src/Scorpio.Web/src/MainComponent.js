@@ -10,7 +10,6 @@ import Alert from "react-s-alert";
 import { genericApi } from "./api/genericApi";
 import { API } from "./constants/appConstants";
 import AlertDispatcher from "./services/AlertDispatcher";
-import LogService from "./services/LogService";
 import DashboardScreen from "./components/screens/dashboard/dashboardScreen";
 import StreamScreen from "./components/screens/stream/streamScreen";
 import GamepadScreen from "./components/screens/gamepad/gamepadScreen";

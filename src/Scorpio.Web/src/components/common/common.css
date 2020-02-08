@@ -43,3 +43,32 @@
 .nok {
   background-color: rgb(255, 58, 84);
 }
+
+.mrg-left-auto {
+  margin-left: auto !important;
+}
+
+.mrg-right-auto {
+  margin-right: auto !important;
+}
+
+.mrg-right-sm {
+  margin-right: 5px;
+}
+
+.hidden {
+  visibility: hidden !important;
+}
+
+.display-none {
+  display: none !important;
+}
+
+.visible {
+  visibility: visible !important;
+}
+
+.status-wrapper-expanded {
+  border-bottom: 1px solid gray;
+  margin-bottom: 5px;
+}
