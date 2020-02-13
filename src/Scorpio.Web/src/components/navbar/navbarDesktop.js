@@ -11,7 +11,7 @@ const NavBarDesktop = ({ history }) => {
   return (
     <Menu fixed="top">
       <Menu.Item>
-        <Image size="tiny" src={process.env.PUBLIC_URL + "/logo.png"} />
+        <Image className="pointer" size="tiny" src={process.env.PUBLIC_URL + "/logo.png"} onClick={_ => handleClick(_, { name: "/" })} />
       </Menu.Item>
       <MenuItems onClick={handleClick} />
       <Menu.Item name="/about" as="a" position="right" onClick={handleClick}>

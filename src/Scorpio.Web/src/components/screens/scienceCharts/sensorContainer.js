@@ -6,6 +6,7 @@ import { API } from "../../../constants/appConstants";
 import Chart from "./chart";
 
 const SensorContainer = ({ sensor, onEditClicked }) => {
+  const [isRenderable, setIsRenderable] = useState(false);
   const [visible, setVisible] = useState(false);
   const [data, setData] = useState([]);
 
@@ -17,7 +18,11 @@ const SensorContainer = ({ sensor, onEditClicked }) => {
       const endpoint = API.SENSOR_DATA.GET_PAGED_FILTERED.format(sensor.sensorKey, 1, 2000);
       const result = await genericApi(endpoint, "GET");
       if (result.response && result.response.ok) {
-        setData(result.body.values);
+        const arr = result.body.values;
+        if (Array.isArray(arr) && arr.length > 0 && !isNaN(Number.parseFloat(arr[0].value))) {
+          setIsRenderable(true);
+          setData(result.body.values);
+        }
       }
     }
   };
@@ -36,10 +41,18 @@ const SensorContainer = ({ sensor, onEditClicked }) => {
           </div>
         </Accordion.Title>
         <Accordion.Content active={visible} style={{ height: data.length === 0 ? "inherit" : "75vh" }}>
-          {data.length === 0 ? (
-            <Message color="orange">No data associated with sensor {sensor.name}</Message>
+          {isRenderable ? (
+            <>
+              {data.length === 0 ? (
+                <Message color="orange">No data associated with sensor {sensor.name}</Message>
+              ) : (
+                <Chart data={data} sensor={sensor} />
+              )}
+            </>
           ) : (
-            <Chart data={data} sensor={sensor} />
+            <Message color="orange">
+              Given sensor cannot be plotted: {sensor.name} This might be becouse value is a complex type (like GPS) or there is no data
+            </Message>
           )}
         </Accordion.Content>
       </Accordion>

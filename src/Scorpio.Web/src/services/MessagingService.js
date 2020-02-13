@@ -9,6 +9,7 @@ class MessagingService {
     this._watchdogInterval = null;
     this._subsQueue = [];
     this._connectionStateObservers = [];
+    this._everBeenConnected = false;
   }
 
   subscribeConnectionChange = handler => this._connectionStateObservers.push(handler);
@@ -63,21 +64,23 @@ class MessagingService {
     this._connection = new SignalR.HubConnectionBuilder()
       .withUrl(endpoint)
       .withHubProtocol(new MessagePackHubProtocol())
-      .configureLogging(SignalR.LogLevel.Debug)
-      .withAutomaticReconnect([0, 1000, 3000, 6000])
+      .configureLogging(SignalR.LogLevel.Information)
+      .withAutomaticReconnect([0, 1000, 3000])
       .build();
 
     window.scorpioMessaging.signalR = this._connection;
 
-    this._setup();
-
-    await this._connection
-      .start()
-      .then(this._onConnected)
-      .catch(this._errorHandler);
+    try {
+      this._setup();
+      await this._connection.start();
+      this._onConnected();
+    } catch (err) {
+      this._errorHandler(err);
+    }
   }
 
   _onConnected = () => {
+    this._everBeenConnected = true;
     LogService.info("SignalR connected!");
     this._processPendingSubsciptions();
     this._notifyConnectionStateChanged();
@@ -128,9 +131,10 @@ class MessagingService {
     });
   }
 
-  _errorHandler = error => {
-    LogService.error(error);
-    this.connectAsync();
+  _errorHandler = async error => {
+    LogService.error("Error handler", error);
+
+    if (!this._everBeenConnected) this.connectAsync();
   };
 }
 
