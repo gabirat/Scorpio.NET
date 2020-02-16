@@ -25,8 +25,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scorpio.Gamepad.Processors"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scorpio.Gamepad.Models", "src\Scorpio.Gamepad.Models\Scorpio.Gamepad.Models.csproj", "{4F4CE1B6-FA09-4901-9E84-157B820B16A9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scorpio.Messaging.Stub", "src\Scorpio.Messaging.Stub\Scorpio.Messaging.Stub.csproj", "{52D69C50-EE75-4554-A035-04EB3191B43E}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scorpio.ProcessRunner", "src\Scorpio.ProcessRunner\Scorpio.ProcessRunner.csproj", "{0860F25E-3C51-4438-A746-85927CCF48B1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scorpio.GUI", "src\Scorpio.GUI\Scorpio.GUI.csproj", "{1214AB9D-EEE6-4A1F-A03C-3A2474648570}"
@@ -40,6 +38,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{3EBF5943-C31F-4C0C-9215-1BAD18BA538A}"
 	ProjectSection(SolutionItems) = preProject
 		scripts\deploy_web.ps1 = scripts\deploy_web.ps1
+		scripts\installConfigureRabbitMq.sh = scripts\installConfigureRabbitMq.sh
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scorpio.Instrumentation.Vivotek", "src\Scorpio.Instrumentation.Vivotek\Scorpio.Instrumentation.Vivotek.csproj", "{BB4897AB-AE17-4A15-A6FA-96D44C7C7989}"
@@ -50,11 +49,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{B2627FFB
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scorpio.Instrumentation.Ubiquiti.Tests", "tests\Scorpio.Instrumentation.Ubiquiti.Tests\Scorpio.Instrumentation.Ubiquiti.Tests.csproj", "{1D78E1E1-1AB6-423E-A4E5-2FBD5663E0BA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scorpio.Messaging.Sockets", "Scorpio.Messaging.Sockets\Scorpio.Messaging.Sockets.csproj", "{F33CBA44-9AE4-4E30-92FF-8AF44FCE36F9}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{D95CFDDC-AD1C-4E2C-85C5-D56BEC050F89}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scorpio.Examples.BarbequeueClient", "examples\Scorpio.Examples.BarbequeueClient\Scorpio.Examples.BarbequeueClient.csproj", "{14B27D82-69D7-4457-AB20-4353C828431E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scorpio.Examples.BarbequeueClient", "examples\Scorpio.Examples.BarbequeueClient\Scorpio.Examples.BarbequeueClient.csproj", "{14B27D82-69D7-4457-AB20-4353C828431E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scorpio.Examples.RabbitMQ", "examples\Scorpio.Examples.RabbitMQ\Scorpio.Examples.RabbitMQ.csproj", "{4D040350-F7DC-45FE-9DDB-C4E636F9AD1D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scorpio.Messaging.Sockets", "src\Scorpio.Messaging.Sockets\Scorpio.Messaging.Sockets.csproj", "{0FFB8F77-5639-4A00-B855-A589DE7D9DEE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -86,10 +87,6 @@ Global
 		{4F4CE1B6-FA09-4901-9E84-157B820B16A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4F4CE1B6-FA09-4901-9E84-157B820B16A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4F4CE1B6-FA09-4901-9E84-157B820B16A9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{52D69C50-EE75-4554-A035-04EB3191B43E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{52D69C50-EE75-4554-A035-04EB3191B43E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{52D69C50-EE75-4554-A035-04EB3191B43E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{52D69C50-EE75-4554-A035-04EB3191B43E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0860F25E-3C51-4438-A746-85927CCF48B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0860F25E-3C51-4438-A746-85927CCF48B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0860F25E-3C51-4438-A746-85927CCF48B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -118,24 +115,28 @@ Global
 		{1D78E1E1-1AB6-423E-A4E5-2FBD5663E0BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1D78E1E1-1AB6-423E-A4E5-2FBD5663E0BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1D78E1E1-1AB6-423E-A4E5-2FBD5663E0BA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F33CBA44-9AE4-4E30-92FF-8AF44FCE36F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F33CBA44-9AE4-4E30-92FF-8AF44FCE36F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F33CBA44-9AE4-4E30-92FF-8AF44FCE36F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F33CBA44-9AE4-4E30-92FF-8AF44FCE36F9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{14B27D82-69D7-4457-AB20-4353C828431E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{14B27D82-69D7-4457-AB20-4353C828431E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{14B27D82-69D7-4457-AB20-4353C828431E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{14B27D82-69D7-4457-AB20-4353C828431E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D040350-F7DC-45FE-9DDB-C4E636F9AD1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D040350-F7DC-45FE-9DDB-C4E636F9AD1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D040350-F7DC-45FE-9DDB-C4E636F9AD1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D040350-F7DC-45FE-9DDB-C4E636F9AD1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FFB8F77-5639-4A00-B855-A589DE7D9DEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FFB8F77-5639-4A00-B855-A589DE7D9DEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FFB8F77-5639-4A00-B855-A589DE7D9DEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FFB8F77-5639-4A00-B855-A589DE7D9DEE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{FDCE29D6-4470-418E-AB6F-1C60F5BFA0B9} = {36D1A7DA-DB49-4469-85CA-C1C743C1B6AE}
-		{52D69C50-EE75-4554-A035-04EB3191B43E} = {D95CFDDC-AD1C-4E2C-85C5-D56BEC050F89}
 		{146BCDF6-0354-4401-BBDD-57A52D2598A6} = {CBD1421E-6E95-4799-A726-63B2F97383A8}
 		{1D78E1E1-1AB6-423E-A4E5-2FBD5663E0BA} = {B2627FFB-FC23-4564-AE64-E7B87AAD8C4B}
 		{14B27D82-69D7-4457-AB20-4353C828431E} = {D95CFDDC-AD1C-4E2C-85C5-D56BEC050F89}
+		{4D040350-F7DC-45FE-9DDB-C4E636F9AD1D} = {D95CFDDC-AD1C-4E2C-85C5-D56BEC050F89}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2DC344A6-6D2E-421B-8AB8-0D8D50BE54A1}

@@ -14,9 +14,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Scorpio.Messaging.Sockets\Scorpio.Messaging.Sockets.csproj" />
     <ProjectReference Include="..\..\src\Scorpio.Messaging.Abstractions\Scorpio.Messaging.Abstractions.csproj" />
     <ProjectReference Include="..\..\src\Scorpio.Messaging.Messages\Scorpio.Messaging.Messages.csproj" />
+    <ProjectReference Include="..\..\src\Scorpio.Messaging.Sockets\Scorpio.Messaging.Sockets.csproj" />
   </ItemGroup>
 
 </Project>

@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\Scorpio.Messaging.Abstractions\Scorpio.Messaging.Abstractions.csproj" />
+    <ProjectReference Include="..\Scorpio.Messaging.Abstractions\Scorpio.Messaging.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>
