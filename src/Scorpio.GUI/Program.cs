@@ -5,7 +5,7 @@ using NLog.Extensions.Logging;
 using Scorpio.Gamepad.Processors;
 using Scorpio.GUI.Streaming;
 using Scorpio.Instrumentation.Vivotek;
-using Scorpio.Messaging.RabbitMQ;
+using Scorpio.Messaging.Sockets;
 using System;
 using System.Threading;
 using System.Windows.Forms;
@@ -32,9 +32,9 @@ namespace Scorpio.GUI
                 var services = PopulateServices(builder);
                 _container = services.Build();
 
-#pragma warning disable 618
+                #pragma warning disable 618
                 SetupLogger();
-#pragma warning restore 618
+                #pragma warning restore 618
 
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
@@ -70,6 +70,14 @@ namespace Scorpio.GUI
                 .SingleInstance()
                 .ExternallyOwned();
 
+            var socketsConfig = new SocketConfiguration();
+            config.GetSection("socketClient").Bind(socketsConfig);
+
+            builder.RegisterInstance(socketsConfig)
+                .As<SocketConfiguration>()
+                .SingleInstance()
+                .ExternallyOwned();
+
             builder.RegisterType<LoggerFactory>()
                 .As<ILoggerFactory>()
                 .SingleInstance();
@@ -78,8 +86,11 @@ namespace Scorpio.GUI
                 .As(typeof(ILogger<>))
                 .SingleInstance();
 
-            builder.SetupRabbitMqConnection(config);
-            builder.SetupRabbitMqEventBus(config);
+//            SetupRabbitMqConnection(builder, config);
+//            SetupRabbitMqEventBus(builder, config);
+
+            builder.AddSocketClientConnection(socketsConfig);
+            builder.AddSocketClientEventBus();
 
             builder.RegisterGeneric(typeof(ExponentialGamepadProcessor<,>))
                 .As(typeof(IGamepadProcessor<,>))

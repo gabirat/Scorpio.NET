@@ -1,4 +1,6 @@
-﻿namespace Scorpio.Messaging.Abstractions
+﻿using Newtonsoft.Json;
+
+namespace Scorpio.Messaging.Abstractions
 {
     /// <summary>
     /// Base class for creating bus messages (both events and commands).
@@ -6,5 +8,10 @@
     /// </summary>
     public abstract class IntegrationEvent : IIntegrationEvent
     {
+        [JsonIgnore]
+        public string KeyOverride { get; protected set; }
+
+        [JsonIgnore]
+        public string QueueName { get; protected set; }
     }
 }

@@ -1,11 +1,11 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Autofac;
+﻿using Autofac;
 using Microsoft.Extensions.Logging;
 using NLog.Windows.Forms;
 using Scorpio.Messaging.Abstractions;
 using Scorpio.Messaging.RabbitMQ;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Scorpio.GUI
@@ -17,11 +17,7 @@ namespace Scorpio.GUI
         private readonly IEventBus _eventBus;
 
         private IRabbitMqConnection _mqConnection;
-        private IRabbitMqConnection MqConnection
-        {
-            get => _mqConnection ?? (_mqConnection = _iocFactory.Resolve<IRabbitMqConnection>());
-            set => _mqConnection = value;
-        }
+        private IRabbitMqConnection MqConnection => _mqConnection ?? (_mqConnection = _iocFactory.Resolve<IRabbitMqConnection>());
 
         public MainForm(ILifetimeScope iocFactory, ILogger<MainForm> logger)
         {

@@ -123,7 +123,7 @@ namespace Scorpio.GUI.Controls
 
         private void TimerElapsedAction()
         {
-            if (_latestResult is null) return;
+            if (_latestResult is null) _latestResult = new RoverProcessorResult();
 
             var msg = new RoverControlCommand(_latestResult.Direction, _latestResult.Acceleration);
             _eventBus?.Publish(msg);
