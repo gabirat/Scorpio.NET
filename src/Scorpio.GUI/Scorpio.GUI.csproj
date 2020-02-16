@@ -227,10 +227,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Scorpio.Messaging.Sockets\Scorpio.Messaging.Sockets.csproj">
-      <Project>{f33cba44-9ae4-4e30-92ff-8af44fce36f9}</Project>
-      <Name>Scorpio.Messaging.Sockets</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Scorpio.Gamepad.IO\Scorpio.Gamepad.IO.csproj">
       <Project>{8728facb-63ff-4068-8553-0c0b1f80d96d}</Project>
       <Name>Scorpio.Gamepad.IO</Name>
