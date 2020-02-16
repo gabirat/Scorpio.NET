@@ -1,14 +1,14 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 
 namespace Scorpio.Messaging.Sockets.Workers
 {
-    internal abstract class WorkerBase
+    internal abstract class WorkerBase : IWorker
     {
-        protected virtual int WorkerSleepTime => 5;
+        protected virtual int WorkerSleepTime => 10;
         internal WorkerStatus Status { get; set; }
         protected Task Task;
         protected CancellationTokenSource CancellationTokenSource;
@@ -88,7 +88,7 @@ namespace Scorpio.Messaging.Sockets.Workers
         {
             Logger.LogError($"Worker faulted: {task.Exception?.Message}", task.Exception?.ToString());
             Status = WorkerStatus.Faulted;
-            Task.Delay(1000).Wait();
+            Task.Delay(500).Wait();
             Start();
         }
     }

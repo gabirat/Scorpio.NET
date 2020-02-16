@@ -29,7 +29,7 @@ namespace Scorpio.Messaging.Sockets.Workers
             {
                 try
                 {
-                    NetworkStream.Write(data, 0, data.Length);
+                    NetworkStream?.Write(data, 0, data.Length);
                 }
                 catch (IOException ex)
                 {

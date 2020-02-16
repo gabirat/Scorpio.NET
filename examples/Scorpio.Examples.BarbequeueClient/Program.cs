@@ -67,7 +67,7 @@ namespace Scorpio.Examples.BarbequeueClient
 
         public Task Handle(RoverControlCommand @event)
         {
-            _logger.LogInformation("Received some shit");
+            _logger.LogInformation("Received:");
             _logger.LogInformation(JsonConvert.SerializeObject(@event));
             return Task.FromResult(0);
         }

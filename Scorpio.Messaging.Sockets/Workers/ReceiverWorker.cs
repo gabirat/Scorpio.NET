@@ -22,23 +22,17 @@ namespace Scorpio.Messaging.Sockets.Workers
 
         protected override void DoWork()
         {
-            if (!NetworkStream.CanRead || !NetworkStream.DataAvailable)
+            if (!NetworkStream.CanRead)
                 return;
 
             try
             {
                 // Receive header first - 4 bytes indicating total packet length
-                var header = new byte[4];
-
-                // Convert to integer with correct endianness
-                NetworkStream.Read(header, 0, 4);
-
-                int headerLengthInt = BitConverter.ToInt32(header, 0);
-                int length = IPAddress.NetworkToHostOrder(headerLengthInt);
+                var length = ReceiveHeader();
 
                 // Receive actual packet
-                NetworkStream.Read(_data, 0, length);
- 
+                ReceivePayload(length);
+
                 // Invoke event
                 var eventArgs = new PacketReceivedEventArgs(_data, length);
                 PacketReceived?.Invoke(this, eventArgs);
@@ -47,11 +41,37 @@ namespace Scorpio.Messaging.Sockets.Workers
             {
                 Logger.LogWarning("Received message, length bytes error (invalid protocol)");
             }
-            catch (IOException ex) 
+            catch (IOException ex)
             {
                 // Critical fault - probably need to restart connection
                 var eventArgs = new FaultExceptionEventArgs(ex);
                 ReceiverNetworkFault?.Invoke(this, eventArgs);
+            }
+        }
+
+        private int ReceiveHeader()
+        {
+            var header = new byte[4];
+
+            int receivedSize = 0;
+            while (receivedSize < 4)
+            {
+                receivedSize += NetworkStream.Read(header, receivedSize, 4 - receivedSize);
+            }
+
+            // Convert to integer with correct endianness
+            int headerLengthInt = BitConverter.ToInt32(header, 0);
+            int length = IPAddress.NetworkToHostOrder(headerLengthInt);
+            return length;
+        }
+
+        private void ReceivePayload(int length)
+        {
+            int receivedSize = 0;
+
+            while (receivedSize < length)
+            {
+                receivedSize += NetworkStream.Read(_data, receivedSize, length - receivedSize);
             }
         }
     }
