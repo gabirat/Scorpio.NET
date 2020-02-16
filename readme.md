@@ -1,4 +1,5 @@
-### NIE COMMITUJEMY NA MASTERA
-Tam ma by zawsze dzialajacy kod. (commit na mastera jest zablokowany)
+### Clean code is a must.
 
-Pracujemy git-flowem, tj. tworzymy feature branche. Gdy feature jest skonczony, mergujemy go do developa. Jesli nadal jest ok, tworzymy pull request do mastera.
+Clean code & software crafsmanship enthusiast. Software engineer.
+
+![ci](https://github.com/projscorpio/Scorpio.NET/workflows/ci/badge.svg)
