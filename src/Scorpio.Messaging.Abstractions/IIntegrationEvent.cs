@@ -2,5 +2,7 @@
 {
     public interface IIntegrationEvent
     {
+        string KeyOverride { get; }
+        string QueueName { get; }
     }
 }

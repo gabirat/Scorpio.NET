@@ -10,11 +10,10 @@ namespace Scorpio.Messaging.Sockets
 {
     public class SocketClient : ISocketClient
     {
-        public event EventHandler<EventArgs> OnConnected;
-        public event EventHandler<EventArgs> OnDisconnected;
-        public bool IsConnected { get; private set; }
+        public event EventHandler<EventArgs> Connected;
+        public event EventHandler<EventArgs> Disconnected;
+        public bool IsConnected => _client != null && _client.Connected;
         private TcpClient _client;
-
 
         // TODO lock
         private NetworkStream _stream;
@@ -22,8 +21,12 @@ namespace Scorpio.Messaging.Sockets
         {
             get
             {
-                _stream = _client?.GetStream();
-                return _stream;
+                if (_client.Connected)
+                {
+                    _stream = _client?.GetStream();
+                    return _stream;
+                }
+                return null;
             }
             private set => _stream = value;
         }
@@ -31,12 +34,16 @@ namespace Scorpio.Messaging.Sockets
         private readonly ILogger<SocketClient> _logger;
         private readonly SocketConfiguration _options;
         private readonly object _syncLock = new object();
-        private bool _disposed;
 
-        public SocketClient(ILogger<SocketClient> logger, IOptions<SocketConfiguration> options)
+        public SocketClient(ILogger<SocketClient> logger, SocketConfiguration options)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+            _options = options ?? throw new ArgumentNullException(nameof(options));
+        }
+
+        public SocketClient(ILogger<SocketClient> logger, IOptions<SocketConfiguration> options)
+            : this(logger, options.Value)
+        {
         }
 
         public bool TryConnect()
@@ -54,9 +61,9 @@ namespace Scorpio.Messaging.Sockets
 
                 if (IsConnected)
                 {
-                    OnConnected?.Invoke(this, EventArgs.Empty);
+                    Connected?.Invoke(this, EventArgs.Empty);
 
-                    var msg = $"Socket connection acquired a connection {_options.Host}:{_options.Host};";
+                    var msg = $"Socket connection acquired a connection {_options.Host}:{_options.Port};";
                     _logger.LogInformation(msg);
                     return true;
                 }
@@ -75,39 +82,35 @@ namespace Scorpio.Messaging.Sockets
 
                 _client = new TcpClient();
                 _client.Connect(endpoint);
-                IsConnected = true;
+                Connected?.Invoke(this, EventArgs.Empty);
             }
             catch (SocketException ex)
             {
-                _logger.LogError("Error while connecting to TCP server", ex.Message, ex);
+                _logger.LogError("Error while connecting to TCP server: " + ex.Message, ex);
+                throw;
             }
             catch (Exception ex)
             {
-                _logger.LogError("Error while connecting to TCP server", ex.Message, ex);
+                _logger.LogError("Error while connecting to TCP server: " + ex.Message, ex);
             }
         }
 
         public void Disconnect()
         {
-            OnDisconnected?.Invoke(this, EventArgs.Empty);
+            Disconnected?.Invoke(this, EventArgs.Empty);
             _client?.Close();
             _client = null;
-            _stream= null;
-            IsConnected = false;
+            _stream = null;
         }
 
         public void Dispose()
         {
-            if (_disposed) return;
-
-            _disposed = true;
-
             try
             {
                 _client?.Dispose();
                 Stream?.Dispose();
             }
-            catch (IOException ex)
+            catch (Exception ex)
             {
                 _logger.LogCritical(ex.ToString());
             }
