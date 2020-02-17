@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Net.Sockets;
 
 namespace Scorpio.Messaging.Sockets.Workers
 {
@@ -40,6 +41,11 @@ namespace Scorpio.Messaging.Sockets.Workers
             catch (ArgumentOutOfRangeException)
             {
                 Logger.LogWarning("Received message, length bytes error (invalid protocol)");
+            }
+            catch (IOException ex) when (ex.InnerException is SocketException innerEx && innerEx.SocketErrorCode == SocketError.TimedOut)
+            {
+                // Receive timeout
+                // Swallow
             }
             catch (IOException ex)
             {

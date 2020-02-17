@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -20,12 +19,13 @@ namespace Scorpio.Messaging.Sockets
             {
                 var logger = sp.GetRequiredService<ILogger<SocketClient>>();
                 var config = sp.GetRequiredService<IOptions<SocketConfiguration>>();
+                var autofac = sp.GetRequiredService<ILifetimeScope>();
 
                 logger.LogInformation("**********************************************************");
                 logger.LogInformation($"Socket trying to connect: {config.Value.Host}:{config.Value.Port}");
                 logger.LogInformation("**********************************************************");
 
-                return new SocketClient(logger, config);
+                return new SocketClient(autofac, logger, config);
             });
         }
 
@@ -34,54 +34,52 @@ namespace Scorpio.Messaging.Sockets
         /// </summary>
         /// <param name="builder"></param>
         /// <param name="socketConfiguration"></param>
-        public static void AddSocketClientConnection(this ContainerBuilder builder, SocketConfiguration socketConfiguration)
+        public static ContainerBuilder AddSocketClientConnection(this ContainerBuilder builder, SocketConfiguration socketConfiguration)
         {
-            builder.Register<ISocketClient>(ctx =>
+             builder.Register<ISocketClient>(ctx =>
                 {
                     var logger = ctx.Resolve<ILogger<SocketClient>>();
                     var options = Options.Create(socketConfiguration);
+                    var autofac = ctx.Resolve<ILifetimeScope>();
 
                     logger.LogInformation("**********************************************************");
                     logger.LogInformation($"Socket trying to connect: {options.Value.Host}:{options.Value.Port}");
                     logger.LogInformation("**********************************************************");
 
-                    return new SocketClient(logger, options);
+                    return new SocketClient(autofac, logger, options);
                 })
                 .SingleInstance();
+
+             return builder;
         }
 
-
-        // TODO: extension methods for microsoft IOC
         /// <summary>
         /// Microsoft extension
         /// </summary>
         /// <param name="services"></param>
-        /// <param name="config"></param>
         /// <returns></returns>
-        public static IServiceCollection AddSocketClientEventBus(this IServiceCollection services, IConfiguration config)
+        public static IServiceCollection AddSocketClientEventBus(this IServiceCollection services)
         {
             services.AddSingleton<IEventBusSubscriptionManager, GenericEventBusSubscriptionManager>();
-            //            services.AddSingleton<IEventBus, RabbitMqEventBus>(provider =>
-            //            {
-            //                var conn = provider.GetRequiredService<IRabbitMqConnection>();
-            //                var logger = provider.GetRequiredService<ILogger<RabbitMqEventBus>>();
-            //                var scope = provider.GetRequiredService<ILifetimeScope>();
-            //                var subsManager = provider.GetRequiredService<IEventBusSubscriptionManager>();
-            //
-            //                var rabbitConfig = new RabbitConfig
-            //                {
-            //                    ExchangeName = config["RabbitMq:exchangeName"],
-            //                    MyQueueName = config["RabbitMq:myQueueName"],
-            //                    MessageTimeToLive = config["RabbitMq:messageTTL"]
-            //                };
-            //
-            //                return new RabbitMqEventBus(conn, logger, scope, subsManager, rabbitConfig);
-            //            });
+            services.AddSingleton<IEventBus, SocketEventBus>(provider =>
+            {
+                var client = provider.GetRequiredService<ISocketClient>();
+                var logger = provider.GetRequiredService<ILogger<SocketEventBus>>();
+                var scope = provider.GetRequiredService<ILifetimeScope>();
+                var subsManager = provider.GetRequiredService<IEventBusSubscriptionManager>();
+
+                return new SocketEventBus(client, logger, subsManager, scope);
+            });
 
             return services;
         }
 
-        public static void AddSocketClientEventBus(this ContainerBuilder builder)
+        /// <summary>
+        /// Autofac extension
+        /// </summary>
+        /// <param name="builder"></param>
+        /// <returns></returns>
+        public static ContainerBuilder AddSocketClientEventBus(this ContainerBuilder builder)
         {
             builder.RegisterType<GenericEventBusSubscriptionManager>()
                 .As<IEventBusSubscriptionManager>()
@@ -97,6 +95,8 @@ namespace Scorpio.Messaging.Sockets
                 })
                 .As<IEventBus>()
                 .SingleInstance();
+
+            return builder;
         }
     }
 }

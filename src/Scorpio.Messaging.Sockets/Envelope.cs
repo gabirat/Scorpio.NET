@@ -6,25 +6,53 @@ using System.Text;
 
 namespace Scorpio.Messaging.Sockets
 {
+    /// <summary>
+    /// Represents wrapper around network message (integration event)
+    /// </summary>
     public class Envelope
     {
+        /// <summary>
+        /// Message unique key
+        /// </summary>
         [JsonProperty("key")]
         public string Key { get; set; }
 
+        /// <summary>
+        /// Payload object
+        /// </summary>
         [JsonProperty("data")]
         public object Data { get; set; }
 
-        public static byte[] Build(IntegrationEvent @event)
+        /// <summary>
+        /// Builds an envelope from integration event.
+        /// </summary>
+        /// <param name="event"></param>
+        /// <returns></returns>
+        public static Envelope Build(IntegrationEvent @event)
         {
             var key = string.IsNullOrWhiteSpace(@event.KeyOverride) ? @event.GetType().Name : @event.KeyOverride;
 
-            var enveloped = new Envelope
+            return new Envelope
             {
                 Data = @event,
                 Key = key
             };
+        }
 
-            var message = JsonConvert.SerializeObject(enveloped);
+        /// <summary>
+        /// Serialize envelope to byte array
+        /// </summary>
+        /// <returns></returns>
+        public byte[] Serialize() => Serialize(this);
+
+        /// <summary>
+        /// Serialize envelope to byte array
+        /// </summary>
+        /// <param name="envelope"></param>
+        /// <returns></returns>
+        public byte[] Serialize(Envelope envelope)
+        {
+            var message = JsonConvert.SerializeObject(envelope);
             var body = Encoding.UTF8.GetBytes(message);
             var header = BitConverter.GetBytes(IPAddress.HostToNetworkOrder(body.Length));
             var packet = new byte[body.Length + sizeof(int)];
@@ -38,6 +66,11 @@ namespace Scorpio.Messaging.Sockets
             return packet;
         }
 
+        /// <summary>
+        /// Deserialize byte array to envelope
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
         public static Envelope Deserialize(byte[] data)
         {
             if (data is null)

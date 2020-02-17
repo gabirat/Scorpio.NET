@@ -70,12 +70,14 @@ namespace Scorpio.Api
 
     public static class ApplicationBuilderExtensions
     {
-        public static void UseExceptionHandlingMiddleware(this IApplicationBuilder app)
+        public static IApplicationBuilder UseExceptionHandlingMiddleware(this IApplicationBuilder app)
         {
             if (app is null)
                 throw new ArgumentNullException(nameof(app));
 
             app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+            return app;
         }
     }
 }

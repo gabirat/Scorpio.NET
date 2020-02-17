@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Scorpio.Messaging.Abstractions;
-using Scorpio.Messaging.Sockets.Workers;
 using System;
 using System.Threading.Tasks;
 
@@ -14,8 +13,6 @@ namespace Scorpio.Messaging.Sockets
         private readonly ILogger<SocketEventBus> _logger;
         private readonly IEventBusSubscriptionManager _busSubscriptionManager;
         private readonly ILifetimeScope _autofac;
-        private readonly object _sendSyncLock;
-        private NetworkWorkersFacade _workersFacade;
 
         public SocketEventBus(ISocketClient socketClient,
             ILogger<SocketEventBus> logger,
@@ -25,64 +22,29 @@ namespace Scorpio.Messaging.Sockets
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _busSubscriptionManager = busSubscriptionManager ?? throw new ArgumentNullException(nameof(busSubscriptionManager));
             _autofac = autofac ?? throw new ArgumentNullException(nameof(autofac));
-            _sendSyncLock = new object();
 
             _socketClient = socketClient ?? throw new ArgumentNullException(nameof(socketClient));
-            _socketClient.Connected += (s, e) => CreateWorkersFacade();
-            _socketClient.Disconnected += (s, e) => DestroyWorkerFacade();
+            _socketClient.MessageReceived += async (s, e) => await ProcessEvent(e?.Envelope);
             _socketClient.TryConnect();
         }
-        
-        private void CreateWorkersFacade()
-        {
-            _logger.LogInformation("Creating workers facade...");
-            _workersFacade = new NetworkWorkersFacade(_autofac);
-            _workersFacade.NetworkWorkerFaulted += _workersFacade_NetworkWorkerFaulted;
-            _workersFacade.PacketReceived += _workersFacade_PacketReceived;
-            _workersFacade.NetworkStream = _socketClient?.Stream;
-            _workersFacade.Start();
-        }
 
-        private void DestroyWorkerFacade()
-        {
-            _logger.LogInformation("Destroying workers facade...");
-            _workersFacade.NetworkWorkerFaulted -= _workersFacade_NetworkWorkerFaulted;
-            _workersFacade.PacketReceived -= _workersFacade_PacketReceived;
-            _workersFacade.Stop();
-            _workersFacade = null;
-        }
-
-        private void _workersFacade_NetworkWorkerFaulted(object sender, FaultExceptionEventArgs e)
-        {
-            var ex = e.GetException();
-            _logger.LogError($"{sender.GetType().FullName} faulted: " + ex?.Message, ex);
-
-            lock (_sendSyncLock)
-            {
-                _socketClient.Disconnect();
-                _socketClient.TryConnect();
-            }
-        }
-
-        private async void _workersFacade_PacketReceived(object sender, PacketReceivedEventArgs e)
+        public void Publish(IntegrationEvent @event)
         {
             try
             {
-                var envelope = Envelope.Deserialize(e.Packet);
-                await ProcessEvent(envelope);
+                _socketClient.Enqueue(@event);
             }
-            catch (JsonSerializationException)
+            catch (Exception ex)
             {
-                _logger.LogWarning("Received message, but cannot deserialize (invalid protocol)");
-            }
-            catch (JsonReaderException)
-            {
-                _logger.LogWarning("Received message, but cannot deserialize (invalid protocol)");
+                _logger.LogError("Lost connection while writing message: " + ex.Message, ex);
             }
         }
-        
+
         private async Task ProcessEvent(Envelope envelope)
         {
+            if (envelope is null)
+                return;
+            
             if (!_busSubscriptionManager.HasSubscriptionsForEvent(envelope.Key))
                 return;
 
@@ -103,30 +65,6 @@ namespace Scorpio.Messaging.Sockets
                         .GetMethod(nameof(IIntegrationEventHandler<IIntegrationEvent>.Handle))
                         ?.Invoke(handler, new[] { integrationEvent });
                 }
-            }
-        }
-
-        public void Publish(IntegrationEvent @event)
-        {
-            try
-            {
-                lock (_sendSyncLock)
-                {
-                    if (!_socketClient.IsConnected)
-                        _socketClient.TryConnect();
-
-                    if (_socketClient.Stream != null
-                        && _socketClient.Stream.CanWrite
-                        && _workersFacade.SenderStatus == WorkerStatus.Running)
-                    {
-                        byte[] message = Envelope.Build(@event);
-                        _workersFacade.Enqueue(message);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("Lost connection while writing message: " + ex.Message, ex);
             }
         }
 

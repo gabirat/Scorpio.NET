@@ -24,7 +24,7 @@ namespace Scorpio.Examples.BarbequeueClient
             BuildContainer();
             var eventBus = _container.Resolve<IEventBus>();
             eventBus.Subscribe<RoverControlCommand, RoverControlCommandHandler>();
- 
+
             while (true)
             {
                 var msg = new RoverControlCommand(-14423.1f, 313.11312f);
@@ -36,9 +36,10 @@ namespace Scorpio.Examples.BarbequeueClient
 
         private void BuildContainer()
         {
-            var socketConf = new SocketConfiguration()
+            var socketConf = new SocketConfiguration
             {
-                Host = "192.168.43.166",
+                //Host = "192.168.43.166",
+                Host = "127.0.0.1",
                 Port = 5000
             };
 
@@ -47,10 +48,10 @@ namespace Scorpio.Examples.BarbequeueClient
                 .Enrich.FromLogContext()
                 .WriteTo.Console();
 
-            var builder = new ContainerBuilder();
-            builder.RegisterSerilog(loggerConfig);
-            builder.AddSocketClientConnection(socketConf);
-            builder.AddSocketClientEventBus();
+            var builder = new ContainerBuilder()
+                .RegisterSerilog(loggerConfig)
+                .AddSocketClientConnection(socketConf)
+                .AddSocketClientEventBus();
             builder.RegisterType<RoverControlCommandHandler>().InstancePerDependency();
             _container = builder.Build();
         }
