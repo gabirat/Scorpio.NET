@@ -1,15 +1,18 @@
-using System;
 using Matty.Framework;
 using Matty.Framework.Enums;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
 using Scorpio.Api.DataAccess;
 using Scorpio.Api.EventHandlers;
 using Scorpio.Api.Events;
@@ -21,12 +24,11 @@ using Scorpio.Instrumentation.Ubiquiti;
 using Scorpio.Messaging.Abstractions;
 using Scorpio.Messaging.Messages;
 using Scorpio.Messaging.RabbitMQ;
+using Scorpio.Messaging.Sockets;
 using Scorpio.ProcessRunner;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Newtonsoft.Json.Linq;
 
 namespace Scorpio.Api
 {
@@ -55,7 +57,6 @@ namespace Scorpio.Api
                         options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                     });
 
-            // Create custom BadRequest response to match MattyFramework response shape
             services.Configure<ApiBehaviorOptions>(options =>
             {
                 options.InvalidModelStateResponseFactory = context =>
@@ -81,42 +82,33 @@ namespace Scorpio.Api
                 options.SwaggerDoc("v1", new OpenApiInfo { Title = "ScorpioAPI", Version = "v1" });
             });
 
+            services.AddLogging(opt => { opt.AddConsole(c => { c.TimestampFormat = "[HH:mm:ss:fff] "; }); });
+
             // This allows access http context and user in constructor
-            services.AddHttpContextAccessor();
-
-            // Register strongly typed config mapping
-            services.Configure<RabbitMqConfiguration>(Configuration.GetSection("RabbitMq"));
-            services.Configure<MongoDbConfiguration>(Configuration.GetSection("MongoDb"));
-            services.Configure<UbiquitiPollerConfiguration>(Configuration.GetSection("Ubiquiti"));
-
-            // Register event bus
-            services.AddRabbitMqConnection(Configuration);
-            services.AddRabbitMqEventBus(Configuration);
-
-            services.AddTransient<IGenericProcessRunner, GenericProcessRunner>();
-
-            // Event-bus event handlers
-            services.AddTransient<SaveSensorDataEventHandler>();
-            services.AddTransient<SaveManySensorDataEventHandler>();
-            services.AddTransient<RoverControlEventHandler>();
-            services.AddTransient<UbiquitiDataReceivedEventHandler>();
-
-            // Repositories
-            services.AddTransient<IUiConfigurationRepository, UiConfigurationRepository>();
-            services.AddTransient<ISensorRepository, SensorRepository>();
-            services.AddTransient<ISensorDataRepository, SensorDataRepository>();
-            services.AddTransient<IStreamRepository, StreamRepository>();
-            services.AddTransient<IPositionRepository, PositionRepository>();
-
-            services.AddTransient<UbiquitiStatsProvider>();
-
-            services.AddTransient<IGamepadProcessor<RoverMixer, RoverProcessorResult>, ExponentialGamepadProcessor<RoverMixer, RoverProcessorResult>>();
-
-            services.AddUbiquitiPoller(Configuration);
-
-            services.AddCorsSetup(Configuration);
-
-            services.AddHealthChecks(Configuration);
+            services.AddHttpContextAccessor()
+                .Configure<RabbitMqConfiguration>(Configuration.GetSection("RabbitMq"))
+                .Configure<MongoDbConfiguration>(Configuration.GetSection("MongoDb"))
+                .Configure<UbiquitiPollerConfiguration>(Configuration.GetSection("Ubiquiti"))
+                .Configure<SocketConfiguration>(Configuration.GetSection("socketClient"))
+                //.AddRabbitMqConnection(Configuration)
+                //.AddRabbitMqEventBus(Configuration)
+                .AddSocketClientConnection()
+                .AddSocketClientEventBus()
+                .AddTransient<IGenericProcessRunner, GenericProcessRunner>()
+                .AddTransient<SaveSensorDataEventHandler>()
+                .AddTransient<SaveManySensorDataEventHandler>()
+                .AddTransient<RoverControlEventHandler>()
+                .AddTransient<UbiquitiDataReceivedEventHandler>()
+                .AddTransient<IUiConfigurationRepository, UiConfigurationRepository>()
+                .AddTransient<ISensorRepository, SensorRepository>()
+                .AddTransient<ISensorDataRepository, SensorDataRepository>()
+                .AddTransient<IStreamRepository, StreamRepository>()
+                .AddTransient<IPositionRepository, PositionRepository>()
+                .AddTransient<UbiquitiStatsProvider>()
+                .AddTransient<IGamepadProcessor<RoverMixer, RoverProcessorResult>, ExponentialGamepadProcessor<RoverMixer, RoverProcessorResult>>()
+                .AddUbiquitiPoller(Configuration)
+                .AddCorsSetup(Configuration)
+                .AddHealthChecks(Configuration);
         }
 
 
@@ -154,15 +146,18 @@ namespace Scorpio.Api
             UseEventBus(app);
         }
 
-        private static void UseEventBus(IApplicationBuilder app)
+        private static IApplicationBuilder UseEventBus(IApplicationBuilder app)
         {
-            var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
-            var conn = app.ApplicationServices.GetRequiredService<IRabbitMqConnection>();
-            conn.TryConnect();
+            // RabbitMQ connection requires connecting - this can be refactored later
+            var rabbitMqConnection = app.ApplicationServices.GetService<IRabbitMqConnection>();
+            rabbitMqConnection?.TryConnect();
 
+            var eventBus = app.ApplicationServices.GetService<IEventBus>();
             eventBus.Subscribe<SaveSensorDataEvent, SaveSensorDataEventHandler>();
             eventBus.Subscribe<SaveManySensorDataEvent, SaveManySensorDataEventHandler>();
             eventBus.Subscribe<UbiquitiDataReceivedEvent, UbiquitiDataReceivedEventHandler>();
+
+            return app;
         }
 
         private static Task WriteHealthResponse(HttpContext context, HealthReport result)
@@ -185,7 +180,7 @@ namespace Scorpio.Api
 
     public static class StartupExtensions
     {
-        public static void AddUbiquitiPoller(this IServiceCollection services, IConfiguration config)
+        public static IServiceCollection AddUbiquitiPoller(this IServiceCollection services, IConfiguration config)
         {
             var enabled = config.GetValue<bool>("Ubiquiti:EnablePoller");
 
@@ -193,9 +188,11 @@ namespace Scorpio.Api
             {
                 services.AddHostedService<UbiquitiPollerHostedService>();
             }
+
+            return services;
         }
 
-        public static void AddCorsSetup(this IServiceCollection services, IConfiguration config)
+        public static IServiceCollection AddCorsSetup(this IServiceCollection services, IConfiguration config)
         {
             var corsOrigins = "http://" + (config["BACKEND_ORIGIN"] ?? "localhost:3000");
             services.AddCors(settings =>
@@ -208,6 +205,8 @@ namespace Scorpio.Api
                         .AllowCredentials();
                 });
             });
+
+            return services;
         }
 
         public static void AddHealthChecks(this IServiceCollection services, IConfiguration config)
@@ -224,7 +223,7 @@ namespace Scorpio.Api
             var timeout = TimeSpan.FromSeconds(1.5);
 
             services.AddHealthChecks()
-                .AddRabbitMQ(rabbitMqConnectionString, sslOption: null, name: "RabbitMQ", timeout: timeout)
+                //.AddRabbitMQ(rabbitMqConnectionString, sslOption: null, name: "RabbitMQ", timeout: timeout)
                 .AddMongoDb(mongoDbConnectionString, timeout: timeout, name: "MongoDb");
         }
     }

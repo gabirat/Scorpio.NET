@@ -33,7 +33,6 @@
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.9.5" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.0.0" />
     <PackageReference Include="MongoDB.Driver" Version="2.9.3" />
-    <PackageReference Include="Serilog.AspNetCore" Version="3.1.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0-rc4" />
   </ItemGroup>
 
@@ -44,6 +43,7 @@
     <ProjectReference Include="..\Scorpio.Messaging.Abstractions\Scorpio.Messaging.Abstractions.csproj" />
     <ProjectReference Include="..\Scorpio.Messaging.Messages\Scorpio.Messaging.Messages.csproj" />
     <ProjectReference Include="..\Scorpio.Messaging.RabbitMQ\Scorpio.Messaging.RabbitMQ.csproj" />
+    <ProjectReference Include="..\Scorpio.Messaging.Sockets\Scorpio.Messaging.Sockets.csproj" />
     <ProjectReference Include="..\Scorpio.ProcessRunner\Scorpio.ProcessRunner.csproj" />
   </ItemGroup>
 
