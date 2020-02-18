@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using Microsoft.AspNetCore.Mvc;
 using Scorpio.Api.DataAccess;
 using Scorpio.Api.Models;
 using Scorpio.Api.Paging;
@@ -56,6 +57,24 @@ namespace Scorpio.Api.Controllers
         {
             SensorDataValidatorExecutor.Execute(entity, true);
             return base.Update(id, entity);
+        }
+
+        [HttpDelete("many/{sensorKey}")]
+        public async Task<IActionResult> RemoveRange(string sensorKey, DateTime? from, DateTime? to)
+        {
+            var result = new ServiceResult<long>();
+
+            if (to.HasValue && from.HasValue && to < from)
+                throw new ArgumentException("Date 'from' cannot be higher than 'to'");
+
+            var deletedCount = await Repository.RemoveRange(sensorKey, from, to);
+
+            result.Data = deletedCount;
+            result.AddSuccessMessage(deletedCount > 0
+                ? $"Deleted {deletedCount} entries"
+                : "No data matching criteria to delete");
+
+            return Ok(result);
         }
     }
 }

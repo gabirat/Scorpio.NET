@@ -27,7 +27,8 @@ export const API = {
     GET_LATEST_FILTERED: baseUrl + "/api/sensorData/sensorKey/{0}/latest",
     UPDATE: baseUrl + "/api/sensorData/{0}",
     ADD: baseUrl + "/api/sensorData",
-    DELETE: baseUrl + "/api/sensorData/{0}"
+    DELETE: baseUrl + "/api/sensorData/{0}",
+    DELETE_MANY: baseUrl + "/api/sensorData/many/{0}"
   },
   STREAMS: {
     GET_ALL: baseUrl + "/api/stream",
