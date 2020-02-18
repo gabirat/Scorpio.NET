@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Net;
 using System.Threading.Tasks;
@@ -28,6 +29,10 @@ namespace Scorpio.Api
             try
             {
                 await _next(httpContext);
+            }
+            catch (ValidationException ex)
+            {
+                await HandleExceptionAsync(ex, httpContext, HttpStatusCode.BadRequest);
             }
             catch (Exception ex)
             {
