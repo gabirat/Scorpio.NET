@@ -103,7 +103,6 @@ namespace Scorpio.Api
                 .AddTransient<ISensorRepository, SensorRepository>()
                 .AddTransient<ISensorDataRepository, SensorDataRepository>()
                 .AddTransient<IStreamRepository, StreamRepository>()
-                .AddTransient<IPositionRepository, PositionRepository>()
                 .AddTransient<UbiquitiStatsProvider>()
                 .AddTransient<IGamepadProcessor<RoverMixer, RoverProcessorResult>, ExponentialGamepadProcessor<RoverMixer, RoverProcessorResult>>()
                 .AddUbiquitiPoller(Configuration)

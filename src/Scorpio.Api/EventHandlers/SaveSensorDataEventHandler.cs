@@ -8,6 +8,7 @@ using Scorpio.Messaging.Abstractions;
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
+using Scorpio.Api.Validation;
 
 namespace Scorpio.Api.EventHandlers
 {
@@ -37,6 +38,8 @@ namespace Scorpio.Api.EventHandlers
                 Value = @event.Value.ToString(CultureInfo.InvariantCulture),
                 TimeStamp = @event.Time ?? DateTime.UtcNow
             };
+
+            SensorDataValidatorExecutor.Execute(entity, true);
 
             var created = await _sensorDataRepository.CreateAsync(entity);
 

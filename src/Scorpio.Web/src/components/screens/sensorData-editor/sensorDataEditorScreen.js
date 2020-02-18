@@ -10,6 +10,7 @@ import AddButtonMenuContainer from "../../common/addButtonMenuContainer";
 import Spinner from "../../common/spinner";
 import Pager from "../../common/pager";
 import SensorDataWizard from "./sensorDataEditorWizard";
+import WipeDataWizard from "./wipeDataWizard";
 
 const FILTER_ALL_KEY = "__all";
 
@@ -23,6 +24,7 @@ class SensorDataEditorScreen extends Component {
     this.state = {
       entities: [],
       runWizard: false,
+      runWipeWizard: false,
       isFetched: false,
       currentPage: 1,
       itemsPerPage: 50,
@@ -104,6 +106,7 @@ class SensorDataEditorScreen extends Component {
     await genericApi(url, isUpdate ? "PUT" : "POST", data);
     await this.fetchItems(currentPage, itemsPerPage, selectedSensor);
     this.setState({ editingEntity: null, runWizard: false });
+    this.fetchItems(currentPage, itemsPerPage, selectedSensor);
   };
 
   onCloseWizard = () => this.setState({ runWizard: false });
@@ -114,8 +117,25 @@ class SensorDataEditorScreen extends Component {
     this.fetchItems(currentPage, itemsPerPage, sensorKey);
   };
 
+  onWipeDataClick = () => {
+    this.setState({ runWipeWizard: true });
+  };
+
+  onWipeWizardSubmit = async data => {
+    const { selectedSensor, currentPage, itemsPerPage } = this.state;
+    this.setState({ runWipeWizard: false });
+
+    let url = new URL(API.SENSOR_DATA.DELETE_MANY.format(data.sensorKey));
+
+    if (data.from) url.searchParams.append("from", data.from);
+    if (data.to) url.searchParams.append("to", data.to);
+
+    await genericApi(url.toString(), "DELETE");
+    this.fetchItems(currentPage, itemsPerPage, selectedSensor);
+  };
+
   render() {
-    const { isFetched, entities, runWizard, itemsPerPage, currentPage, editingEntity, selectedSensor, showId } = this.state;
+    const { isFetched, entities, runWizard, runWipeWizard, itemsPerPage, currentPage, editingEntity, selectedSensor, showId } = this.state;
     const hasData = Array.isArray(entities) && entities.length > 0;
     const renderSensorKeyCol = selectedSensor && selectedSensor === FILTER_ALL_KEY;
     const renderIdCol = !!showId;
@@ -123,6 +143,7 @@ class SensorDataEditorScreen extends Component {
     return (
       <>
         {runWizard && <SensorDataWizard initialValues={editingEntity} onClose={this.onCloseWizard} onSubmit={this.onWizardFinished} />}
+        {runWipeWizard && <WipeDataWizard onClose={_ => this.setState({ runWipeWizard: false })} onSubmit={this.onWipeWizardSubmit} />}
         <Segment attached="bottom" style={{ padding: "1em" }}>
           <AddButtonMenuContainer
             addText={"Add new data point"}
@@ -133,6 +154,7 @@ class SensorDataEditorScreen extends Component {
                 showId={showId}
                 onShowIdChanged={checked => this.setState({ showId: checked })}
                 defaultFilter={selectedSensor}
+                onWipeDataClick={this.onWipeDataClick}
               />
             }
           >
