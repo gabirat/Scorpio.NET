@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="./leaflet.css"/>
+
+    <script src="./leaflet.js"></script>
+
+    <script src="./sql.js"></script>
+
+    <script src="../Leaflet.TileLayer.MBTiles.js"></script>
+
+    <meta charset="utf-8">
+    <title>Leaflet.TileLayer.MBTiles demo</title>
+    <style>
+
+        #map {
+            width: 700px;
+            height: 700px;
+        }
+    </style> 
+</head>
+<body>
+    <div style="width:700px; margin:0 auto; margin-top:20px" id='map'></div>
+    <script>
+
+        var map = new L.Map('map').fitWorld(); // wyświetli mapę aby cały plik został narysowany w oknie
+        //var map = new L.Map('map').setView([38.3730379, -110.7140391], 15); // - ustawi ekran na współrzędnych 51.xxx 15.xxx, z zoomem 12
+        map.on('contextmenu', onMapClick); //obsługa prawego przycisku myszy
+        function onMapClick(e) { //podpinam event 'e' pod kliknięcie PPM
+            var tekst = window.prompt("Podaj nazwę znacznika", ""); // wyświetla okienko w przeglądarce, okienko zapisane jako zmienna tekst
+            if (tekst != null) { // wykonaj tylko jesli coś jest wpisane w polu tekstowym
+                L.marker([e.latlng.lat, e.latlng.lng]).bindTooltip(tekst, { permanent: true, className: "my-label", offset: [0, 0] }).addTo(map); // tworzy marker we współrzędnych pozycji kursora w chwili kliknięcia PPM, podpina pod marker tekst i dodaje to wszystko do rendera mapy
+            }
+
+        }
+
+        var mb = L.tileLayer.mbTiles('./test_map.mbtiles', { //ładujemy mapę z pliku do pamięci
+            minZoom: 2,
+            maxZoom: 19
+        }).addTo(map);
+
+
+        mb.on('databaseloaded', function (ev) { //jeśli mapa wczytana pomyślnie to napisz w konsoli JEST GIT
+            console.info('JEST GIT', ev);
+        });
+        mb.on('databaseerror', function (ev) {
+            console.info('NIE JEST GIT', ev); //jeśli mapa nie wczytana pomyślnie to napisz w konsoli NIE JEST GIT
+        });
+    </script>
+</body>
+</html>
