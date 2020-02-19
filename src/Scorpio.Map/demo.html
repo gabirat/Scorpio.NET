@@ -1,13 +1,13 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" href="./leaflet.css"/>
+    <link rel="stylesheet" href="./leaflet.css" />
 
     <script src="./leaflet.js"></script>
 
     <script src="./sql.js"></script>
 
-    <script src="../Leaflet.TileLayer.MBTiles.js"></script>
+    <script src="./Leaflet.TileLayer.MBTiles.js"></script>
 
     <meta charset="utf-8">
     <title>Leaflet.TileLayer.MBTiles demo</title>
@@ -17,11 +17,18 @@
             width: 700px;
             height: 700px;
         }
-    </style> 
+    </style>
 </head>
 <body>
     <div style="width:700px; margin:0 auto; margin-top:20px" id='map'></div>
     <script>
+
+        var arrowIcon = L.icon({
+        iconUrl: './images/arrow.png',
+
+        iconSize:     [24, 24], // size of the icon
+        iconAnchor:   [12, 12] // point of the icon which will correspond to marker's location
+    });
 
         var map = new L.Map('map').fitWorld(); // wyświetli mapę aby cały plik został narysowany w oknie
         //var map = new L.Map('map').setView([38.3730379, -110.7140391], 15); // - ustawi ekran na współrzędnych 51.xxx 15.xxx, z zoomem 12
@@ -29,7 +36,8 @@
         function onMapClick(e) { //podpinam event 'e' pod kliknięcie PPM
             var tekst = window.prompt("Podaj nazwę znacznika", ""); // wyświetla okienko w przeglądarce, okienko zapisane jako zmienna tekst
             if (tekst != null) { // wykonaj tylko jesli coś jest wpisane w polu tekstowym
-                L.marker([e.latlng.lat, e.latlng.lng]).bindTooltip(tekst, { permanent: true, className: "my-label", offset: [0, 0] }).addTo(map); // tworzy marker we współrzędnych pozycji kursora w chwili kliknięcia PPM, podpina pod marker tekst i dodaje to wszystko do rendera mapy
+                //L.marker([e.latlng.lat, e.latlng.lng], {icon: arrowIcon}).bindTooltip(tekst, { permanent: true, className: "my-label", offset: [0, 0] }).addTo(map); // tworzy marker we współrzędnych pozycji kursora w chwili kliknięcia PPM, podpina pod marker tekst i dodaje to wszystko do rendera mapy
+                L.marker([e.latlng.lat, e.latlng.lng], {icon: arrowIcon}).addTo(map);
             }
 
         }
