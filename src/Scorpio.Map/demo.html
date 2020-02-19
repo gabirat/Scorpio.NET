@@ -2,15 +2,13 @@
 <html>
 <head>
     <link rel="stylesheet" href="./leaflet.css" />
-
     <script src="./leaflet.js"></script>
-
     <script src="./sql.js"></script>
-
+    <script src="./leaflet.rotatedMarker.js"></script>
     <script src="./Leaflet.TileLayer.MBTiles.js"></script>
 
     <meta charset="utf-8">
-    <title>Leaflet.TileLayer.MBTiles demo</title>
+    <title>Scorpio Leaflet Map demo</title>
     <style>
 
         #map {
@@ -28,7 +26,14 @@
 
         iconSize:     [24, 24], // size of the icon
         iconAnchor:   [12, 12] // point of the icon which will correspond to marker's location
-    });
+        });
+
+        var filuIcon = L.icon({
+        iconUrl: './images/filu.png',
+
+        iconSize:     [24, 24], // size of the icon
+        iconAnchor:   [12, 12] // point of the icon which will correspond to marker's location
+        });
 
         var map = new L.Map('map').fitWorld(); // wyświetli mapę aby cały plik został narysowany w oknie
         //var map = new L.Map('map').setView([38.3730379, -110.7140391], 15); // - ustawi ekran na współrzędnych 51.xxx 15.xxx, z zoomem 12
@@ -37,7 +42,7 @@
             var tekst = window.prompt("Podaj nazwę znacznika", ""); // wyświetla okienko w przeglądarce, okienko zapisane jako zmienna tekst
             if (tekst != null) { // wykonaj tylko jesli coś jest wpisane w polu tekstowym
                 //L.marker([e.latlng.lat, e.latlng.lng], {icon: arrowIcon}).bindTooltip(tekst, { permanent: true, className: "my-label", offset: [0, 0] }).addTo(map); // tworzy marker we współrzędnych pozycji kursora w chwili kliknięcia PPM, podpina pod marker tekst i dodaje to wszystko do rendera mapy
-                L.marker([e.latlng.lat, e.latlng.lng], {icon: arrowIcon}).addTo(map);
+                L.marker([e.latlng.lat, e.latlng.lng], {icon: filuIcon}).addTo(map);
             }
 
         }
@@ -46,6 +51,11 @@
             minZoom: 2,
             maxZoom: 19
         }).addTo(map);
+
+        var m = L.marker(map.getCenter(), {
+            rotationAngle: -90,
+            icon: arrowIcon
+            }).addTo(map); // zrotowany marker na środku mapy
 
 
         mb.on('databaseloaded', function (ev) { //jeśli mapa wczytana pomyślnie to napisz w konsoli JEST GIT
