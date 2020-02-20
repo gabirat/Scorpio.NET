@@ -72,10 +72,12 @@ namespace Scorpio.Api
 
             // SignalR - real time messaging with front end
             services.AddSignalR(settings =>
-            {
-                settings.EnableDetailedErrors = true;
-            })
-            .AddMessagePackProtocol();
+                {
+                    settings.EnableDetailedErrors = true;
+                    settings.KeepAliveInterval = TimeSpan.FromSeconds(5.0);
+                    settings.ClientTimeoutInterval = TimeSpan.FromSeconds(20.0);
+                })
+                .AddMessagePackProtocol();
 
             services.AddSwaggerGen(options =>
             {

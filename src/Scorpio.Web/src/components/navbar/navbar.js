@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Container, Responsive } from "semantic-ui-react";
+import { Responsive } from "semantic-ui-react";
 import NavBarDesktop from "./navbarDesktop";
 import NavBarMobile from "./navbarMobile";
 
@@ -35,4 +35,8 @@ export default class NavBar extends Component {
   }
 }
 
-const NavBarChildren = ({ children }) => <Container style={{ marginTop: "5em", width: "100%" }}>{children}</Container>;
+const NavBarChildren = ({ children }) => (
+  <div fluid style={{ marginTop: "5em", width: "100%" }}>
+    {children}
+  </div>
+);

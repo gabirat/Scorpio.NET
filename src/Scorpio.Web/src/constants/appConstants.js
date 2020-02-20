@@ -39,8 +39,10 @@ export const API = {
   }
 };
 
+// Pascal-cased topics are frontend => backend directed
 export const TOPICS = {
   SENSOR_DATA: "sensor",
   BATTERY_DATA: "battery",
-  UBIQUITI_DATA: "ubiquiti"
+  UBIQUITI_DATA: "ubiquiti",
+  ROVER_CONTROL: "RoverControlCommand"
 };

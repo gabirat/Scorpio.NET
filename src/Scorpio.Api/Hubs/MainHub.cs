@@ -2,7 +2,9 @@
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Scorpio.Messaging.Abstractions;
+using Scorpio.Messaging.Messages;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Scorpio.Api.Hubs
@@ -35,9 +37,20 @@ namespace Scorpio.Api.Hubs
         #endregion
 
         #region Following methods are callable from the UI via SignalR
-        public void Data(object data)
+
+        [HubMethodName("RoverControlCommand")]
+        public void RoverControlCommand(Dictionary<string, object> data)
         {
-            Console.WriteLine($"Received SignalR data: {JsonConvert.SerializeObject(data)}");
+            if (!data.ContainsKey("acc") || !data.ContainsKey("dir")) return;
+
+            if (float.TryParse(data["acc"].ToString(), out var acc) &&
+                float.TryParse(data["dir"].ToString(), out var dir))
+            {
+                var command = new RoverControlCommand(dir, acc);
+                _logger.LogInformation($"Received SignalR data: {JsonConvert.SerializeObject(command)}");
+                _eventBus.Publish(command);
+            }
+
         }
         #endregion
     }

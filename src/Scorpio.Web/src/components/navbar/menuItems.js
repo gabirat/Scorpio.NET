@@ -8,6 +8,10 @@ const MenuItems = ({ onClick }) => {
         <Icon name="dashboard" />
         Dashboard
       </Menu.Item>
+      <Menu.Item name="/control" as="a" onClick={onClick}>
+        <Icon name="shipping fast" />
+        Control
+      </Menu.Item>
       <Menu.Item name="/stream" as="a" onClick={onClick}>
         <Icon name="video" />
         Stream

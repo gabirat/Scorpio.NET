@@ -15,12 +15,14 @@ class MessagingService {
   subscribeConnectionChange = handler => this._connectionStateObservers.push(handler);
   unSubscribeConnectionChange = handler => (this._connectionStateObservers = this._connectionStateObservers.filter(o => o !== handler));
 
+  isConnected = () => this._connection && this._connection.connectionState === "Connected";
+
   // Subscribe for given topic. If any messages appear on it, the handler will be called with received data.
   subscribe(topic, handler) {
     if (typeof handler !== "function" || typeof topic !== "string") return;
 
     // con might be null here
-    if (this._connection && this._connection.connectionState === "Connected") {
+    if (this.isConnected()) {
       LogService.info(`SignalR: subscribed to ${topic}`);
       this._connection.on(topic, handler);
     } else {
@@ -45,7 +47,7 @@ class MessagingService {
 
   // Send message to given topic.
   send(topic, message) {
-    if (!this._connection || this._connection.connectionState !== "Connected") {
+    if (!this.isConnected()) {
       LogService.error("SignalR: send message request, bot state is not connected");
       return;
     }
@@ -55,7 +57,7 @@ class MessagingService {
 
   // Starts the connection. Returns promise (awaitable).
   async connectAsync() {
-    if (this._connection && this._connection.connectionState === "Connected") {
+    if (this.isConnected()) {
       LogService.info("SignalR: trying to connect, but already connected, abadoning.");
       return;
     }
@@ -87,7 +89,7 @@ class MessagingService {
   };
 
   _processPendingSubsciptions = () => {
-    if (this._connection && this._connection.connectionState === "Connected" && this._subsQueue.length > 0) {
+    if (this.isConnected() && this._subsQueue.length > 0) {
       LogService.debug("Processing pending subscriptions...", this._subsQueue);
       for (let i = 0; i <= this._subsQueue.length + 1; i++) {
         const sub = this._subsQueue.pop();
