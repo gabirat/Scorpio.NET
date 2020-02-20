@@ -31,7 +31,7 @@ namespace Scorpio.Api.Hubs
 
         public override Task OnDisconnectedAsync(Exception exception)
         {
-            _logger.LogInformation($"SignalR user disconnected: {exception?.ToString()}");
+            _logger.LogWarning($"SignalR user disconnected: {exception?.Message}");
             return base.OnDisconnectedAsync(exception);
         }
         #endregion
@@ -41,10 +41,13 @@ namespace Scorpio.Api.Hubs
         [HubMethodName("RoverControlCommand")]
         public void RoverControlCommand(Dictionary<string, object> data)
         {
-            if (!data.ContainsKey("acc") || !data.ContainsKey("dir")) return;
+            const string accKey = "acc";
+            const string dirKey = "dir";
 
-            if (float.TryParse(data["acc"].ToString(), out var acc) &&
-                float.TryParse(data["dir"].ToString(), out var dir))
+            if (!data.ContainsKey(accKey) || !data.ContainsKey(dirKey)) return;
+
+            if (float.TryParse(data[accKey].ToString(), out var acc) &&
+                float.TryParse(data[dirKey].ToString(), out var dir))
             {
                 var command = new RoverControlCommand(dir, acc);
                 _logger.LogInformation($"Received SignalR data: {JsonConvert.SerializeObject(command)}");

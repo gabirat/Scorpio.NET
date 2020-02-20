@@ -16,5 +16,9 @@ namespace Scorpio.Messaging.Messages
             Dir = dir;
             Acc = acc;
         }
+
+        public RoverControlCommand()
+        {
+        }
     }
 }
