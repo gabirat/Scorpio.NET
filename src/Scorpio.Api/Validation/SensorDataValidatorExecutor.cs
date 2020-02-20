@@ -1,31 +1,27 @@
-﻿using Scorpio.Api.Models;
+﻿using System.ComponentModel.DataAnnotations;
+using Scorpio.Api.Models;
 using System.Linq;
 
 namespace Scorpio.Api.Validation
 {
     public class SensorDataValidatorExecutor
     {
-        public static bool Execute(SensorData sensorData, bool doThrow = false)
+        public static void Execute(SensorData sensorData, bool doThrow = false)
         {
-            var result = true;
-
             var validators = SensorDataValidatorsFactory.GetValidators(sensorData.SensorKey).ToList();
-            if (!validators.Any()) return true;
+            if (!validators.Any()) return;
 
-            if (doThrow)
+            try
             {
                 foreach (var validator in validators)
                 {
                     validator.Validate(sensorData);
                 }
             }
-
-            foreach (var validator in validators)
+            catch (ValidationException)
             {
-                result &= validator.IsValid(sensorData);
+                if (doThrow) throw;
             }
-
-            return result;
         }
     }
 }

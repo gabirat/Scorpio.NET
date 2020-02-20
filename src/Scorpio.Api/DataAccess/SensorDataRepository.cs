@@ -20,10 +20,10 @@ namespace Scorpio.Api.DataAccess
 
             var builder = Builders<SensorData>.Filter;
 
-            var filter = builder.And(builder.Eq("SensorKey", sensorKey),
-                builder.And(
-                    builder.Lte("TimeStamp", new BsonDateTime(dateTo)),
-                    builder.Gte("TimeStamp", new BsonDateTime(dateFrom))));
+            var dateFilters = builder.Lte("TimeStamp", new BsonDateTime(dateTo)) 
+                              & builder.Gte("TimeStamp", new BsonDateTime(dateFrom));
+
+            var filter = builder.Eq("SensorKey", sensorKey) & dateFilters;
 
             var result = await Collection.DeleteManyAsync(filter);
             return result.DeletedCount;
