@@ -49,7 +49,7 @@ namespace Scorpio.Api.Hubs
             if (float.TryParse(data[accKey].ToString(), out var acc) &&
                 float.TryParse(data[dirKey].ToString(), out var dir))
             {
-                var command = new RoverControlCommand(dir, acc);
+                var command = new RoverControlCommand(dir, acc); // {KeyOverride = "drive"};
                 _logger.LogInformation($"Received SignalR data: {JsonConvert.SerializeObject(command)}");
                 _eventBus.Publish(command);
             }

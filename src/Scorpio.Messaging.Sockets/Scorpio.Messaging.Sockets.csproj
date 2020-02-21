@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Scorpio.Messaging.Abstractions\Scorpio.Messaging.Abstractions.csproj" />
+    <ProjectReference Include="..\Scorpio.Messaging.Messages\Scorpio.Messaging.Messages.csproj" />
   </ItemGroup>
 
 </Project>

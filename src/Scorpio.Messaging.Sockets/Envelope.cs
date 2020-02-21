@@ -53,15 +53,16 @@ namespace Scorpio.Messaging.Sockets
         public byte[] Serialize(Envelope envelope)
         {
             var message = JsonConvert.SerializeObject(envelope);
-            var body = Encoding.UTF8.GetBytes(message);
-            var header = BitConverter.GetBytes(IPAddress.HostToNetworkOrder(body.Length));
-            var packet = new byte[body.Length + sizeof(int)];
+            var payload = Encoding.UTF8.GetBytes(message);
+            //var header = BitConverter.GetBytes(IPAddress.HostToNetworkOrder(body.Length));
+            var header = BitConverter.GetBytes(payload.Length);
+            var packet = new byte[payload.Length + sizeof(int)];
 
             // The packet is:
             // 0x01 0x00 0x00 0x00  <- header, indicating message length of 1
             // 0xaa <- example payload (actually invalid, needs to be valid JSON)
             Buffer.BlockCopy(header, 0, packet, 0, sizeof(int));
-            Buffer.BlockCopy(body, 0, packet, sizeof(int), body.Length);
+            Buffer.BlockCopy(payload, 0, packet, sizeof(int), payload.Length);
 
             return packet;
         }

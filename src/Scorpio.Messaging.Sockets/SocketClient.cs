@@ -8,6 +8,7 @@ using Scorpio.Messaging.Sockets.Workers;
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace Scorpio.Messaging.Sockets
 {
@@ -27,7 +28,7 @@ namespace Scorpio.Messaging.Sockets
         {
             get
             {
-                if (_client.Connected)
+                if (_client != null && _client.Connected)
                 {
                     _stream = _client?.GetStream();
                     return _stream;
@@ -49,18 +50,30 @@ namespace Scorpio.Messaging.Sockets
         }
 
 
-        public bool TryConnect()
+        public bool TryConnect(CancellationToken ct)
         {
             lock (_syncLock)
             {
-                Policy
-                    .Handle<SocketException>()
-                    .WaitAndRetryForever(retryNumber =>
-                    {
-                        _logger.LogCritical($"Reconnecting: {retryNumber}");
-                        return TimeSpan.FromSeconds(2);
-                    })
-                    .Execute(Connect);
+                try
+                {
+                    Policy
+                        .Handle<SocketException>()
+                        .WaitAndRetryForever(retryNumber =>
+                        {
+                            _logger.LogCritical($"Reconnecting: {retryNumber}");
+                            return TimeSpan.FromSeconds(2);
+                        })
+                        .Execute(token =>
+                        {
+                            Connect();
+                            token.ThrowIfCancellationRequested();
+                        }, ct);
+                }
+                catch (OperationCanceledException)
+                {
+                    _logger.LogWarning($"Operation {nameof(TryConnect)} was cancelled...");
+                    throw;
+                }
 
                 if (IsConnected)
                 {
@@ -75,6 +88,8 @@ namespace Scorpio.Messaging.Sockets
                 return false;
             }
         }
+
+        public void TryConnect() => TryConnect(CancellationToken.None);
 
         private void Connect()
         {
@@ -153,10 +168,13 @@ namespace Scorpio.Messaging.Sockets
 
         protected virtual void DestroyWorkerFacade()
         {
+            if (_workersFacade is null) return;
+
             _logger.LogInformation("Destroying workers facade...");
+
             _workersFacade.NetworkWorkerFaulted -= WorkersFacade_NetworkWorkerFaulted;
             _workersFacade.PacketReceived -= WorkersFacade_PacketReceived;
-            _workersFacade.Stop();
+            _workersFacade?.Stop();
             _workersFacade = null;
         }
         private void WorkersFacade_NetworkWorkerFaulted(object sender, FaultExceptionEventArgs e)
@@ -192,6 +210,7 @@ namespace Scorpio.Messaging.Sockets
         {
             try
             {
+                DestroyWorkerFacade();
                 _client?.Dispose();
                 Stream?.Dispose();
             }

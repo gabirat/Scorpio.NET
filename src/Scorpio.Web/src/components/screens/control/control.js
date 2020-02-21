@@ -34,11 +34,11 @@ class Control extends Component {
 
       if (scorpioMessaging && scorpioMessaging.isConnected() && enableMovement) {
         const roverControlCommand = this.buildRoverControlCommand(this.lastVector);
-        const limitedRoverControlCommand = this.limitMaxSpeed(roverControlCommand, 0.8);
+        const limitedRoverControlCommand = this.limitMaxSpeed(roverControlCommand, 0.2137);
         scorpioMessaging.send(TOPICS.ROVER_CONTROL, limitedRoverControlCommand);
         LogService.debug("Sending control", limitedRoverControlCommand);
       }
-    }, 100);
+    }, 50);
   }
 
   componentWillUnmount() {
@@ -48,7 +48,7 @@ class Control extends Component {
   buildRoverControlCommand(vector) {
     if (!vector || !vector.x || !vector.y) return { acc: 0, dir: 0 };
 
-    const selfRotateDelta = 0.25;
+    const selfRotateDelta = 0.2;
     // rotate in place
     if (Math.abs(vector.y) <= selfRotateDelta) {
       return {
@@ -67,7 +67,7 @@ class Control extends Component {
     if (maxSpeedMultipler <= 0) throw new Error("Multiple cannot be <0");
 
     return {
-      acc: roverControlCommand.acc * maxSpeedMultipler,
+      acc: roverControlCommand.acc * 800.0 * maxSpeedMultipler,
       dir: roverControlCommand.dir
     };
   }

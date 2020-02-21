@@ -2,7 +2,11 @@
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Scorpio.Messaging.Abstractions;
+using Scorpio.Messaging.Messages;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Scorpio.Messaging.Sockets
@@ -13,6 +17,7 @@ namespace Scorpio.Messaging.Sockets
         private readonly ILogger<SocketEventBus> _logger;
         private readonly IEventBusSubscriptionManager _busSubscriptionManager;
         private readonly ILifetimeScope _autofac;
+        private readonly IList<string> _subscriptionKeys;
 
         public SocketEventBus(ISocketClient socketClient,
             ILogger<SocketEventBus> logger,
@@ -22,12 +27,13 @@ namespace Scorpio.Messaging.Sockets
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _busSubscriptionManager = busSubscriptionManager ?? throw new ArgumentNullException(nameof(busSubscriptionManager));
             _autofac = autofac ?? throw new ArgumentNullException(nameof(autofac));
+            _subscriptionKeys = new List<string>();
 
             _socketClient = socketClient ?? throw new ArgumentNullException(nameof(socketClient));
             _socketClient.MessageReceived += async (s, e) => await ProcessEvent(e?.Envelope);
             _socketClient.TryConnect();
         }
-
+        
         public void Publish(IntegrationEvent @event)
         {
             try
@@ -68,22 +74,36 @@ namespace Scorpio.Messaging.Sockets
             }
         }
 
-        public void Subscribe<TEvent, THandler>()
+        public void Subscribe<TEvent, THandler>(string keyOverride = null)
             where TEvent : IIntegrationEvent
             where THandler : IIntegrationEventHandler<TEvent>
         {
-            var eventName = _busSubscriptionManager.GetEventKey<TEvent>();
+            var eventName = string.IsNullOrWhiteSpace(keyOverride) ? _busSubscriptionManager.GetEventKey<TEvent>() : keyOverride;
             _logger.LogInformation($"Socket subscription manager: subscribed to: {eventName}");
             _busSubscriptionManager.AddSubscription<TEvent, THandler>();
+            _subscriptionKeys.Add(eventName);
+            SendUpdatedSubscriptionList();
         }
 
-        public void Unsubscribe<TEvent, THandler>()
+        public void Unsubscribe<TEvent, THandler>(string keyOverride = null)
             where TEvent : IIntegrationEvent
             where THandler : IIntegrationEventHandler<TEvent>
         {
-            var eventName = _busSubscriptionManager.GetEventKey<TEvent>();
+
+            var eventName = string.IsNullOrWhiteSpace(keyOverride) ? _busSubscriptionManager.GetEventKey<TEvent>() : keyOverride;
             _logger.LogInformation($"Socket subscription manager: unsubscribed from: {eventName}");
             _busSubscriptionManager.RemoveSubscription<TEvent, THandler>();
+            _subscriptionKeys.Remove(eventName);
+            SendUpdatedSubscriptionList();
+        }
+
+        private void SendUpdatedSubscriptionList()
+        {
+            if (_subscriptionKeys.Any())
+            {
+                var advertiseCommand = new AdvertiseCommand(_subscriptionKeys);
+                Publish(advertiseCommand);
+            }
         }
     }
 }

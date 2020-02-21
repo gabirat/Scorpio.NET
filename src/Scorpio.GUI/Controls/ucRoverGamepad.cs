@@ -96,7 +96,7 @@ namespace Scorpio.GUI.Controls
 
                 lblAcc.Text = result.Acceleration.ToString("0.##");
                 lblDir.Text = result.Direction.ToString("0.##");
-                pbAcc.SetProgressNoAnimation((int)result.Acceleration + 100); // Progress bar has range 0-200, shift + 100
+                //pbAcc.SetProgressNoAnimation((int)result.Acceleration + 100); // Progress bar has range 0-200, shift + 100
                 pbDir.SetProgressNoAnimation((int)limitedRot + 100); // Progress bar has range 0-200, shift + 100
             }));
         }
@@ -125,7 +125,7 @@ namespace Scorpio.GUI.Controls
         {
             if (_latestResult is null) _latestResult = new RoverProcessorResult();
 
-            var msg = new RoverControlCommand(_latestResult.Direction, _latestResult.Acceleration);
+            var msg = new RoverControlCommand(_latestResult.Direction, _latestResult.Acceleration * 8.0f);
             _eventBus?.Publish(msg);
             if (_logMessages) _logger.LogDebug(JsonConvert.SerializeObject(msg));
         }

@@ -27,6 +27,7 @@ using Scorpio.Messaging.RabbitMQ;
 using Scorpio.Messaging.Sockets;
 using Scorpio.ProcessRunner;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -106,21 +107,26 @@ namespace Scorpio.Api
                 .AddTransient<ISensorDataRepository, SensorDataRepository>()
                 .AddTransient<IStreamRepository, StreamRepository>()
                 .AddTransient<UbiquitiStatsProvider>()
-                .AddTransient<IGamepadProcessor<RoverMixer, RoverProcessorResult>, ExponentialGamepadProcessor<RoverMixer, RoverProcessorResult>>()
+                .AddTransient<IGamepadProcessor<RoverMixer, RoverProcessorResult>,
+                    ExponentialGamepadProcessor<RoverMixer, RoverProcessorResult>>()
                 .AddUbiquitiPoller(Configuration)
-                .AddCorsSetup(Configuration)
-                .AddHealthChecks(Configuration);
+                .AddHealthChecks(Configuration)
+                .AddHostedService<EventBusHostedService>();
         }
 
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IConfiguration config)
         {
-            if (env.EnvironmentName.ToLower() == "development")
+            // Make sure the CORS middleware is ahead of SignalR.
+            app.UseCors(builder =>
             {
-                app.UseDeveloperExceptionPage();
-                app.UseCors("corsPolicy");
-            }
+                var origins = config.GetSection("AllowedOrigins").AsEnumerable().Select(x => x.Value).Where(x => x != null).ToArray();
+                builder.WithOrigins(origins)
+                    .WithMethods("GET", "POST", "PUT", "OPTIONS", "DELETE")
+                    .AllowAnyHeader()
+                    .AllowCredentials();
+            });
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
@@ -129,9 +135,12 @@ namespace Scorpio.Api
             // specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1"); });
 
-            app.UseRouting();
-
             app.UseExceptionHandlingMiddleware();
+
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
+
+            app.UseRouting();
 
             app.UseEndpoints(endpoints =>
             {
@@ -143,24 +152,8 @@ namespace Scorpio.Api
                     ResponseWriter = WriteHealthResponse
                 });
             });
-
-            UseEventBus(app);
         }
-
-        private static IApplicationBuilder UseEventBus(IApplicationBuilder app)
-        {
-            // RabbitMQ connection requires connecting - this can be refactored later
-            var rabbitMqConnection = app.ApplicationServices.GetService<IRabbitMqConnection>();
-            rabbitMqConnection?.TryConnect();
-
-            var eventBus = app.ApplicationServices.GetService<IEventBus>();
-            eventBus.Subscribe<SaveSensorDataEvent, SaveSensorDataEventHandler>();
-            eventBus.Subscribe<SaveManySensorDataEvent, SaveManySensorDataEventHandler>();
-            eventBus.Subscribe<UbiquitiDataReceivedEvent, UbiquitiDataReceivedEventHandler>();
-
-            return app;
-        }
-
+        
         private static Task WriteHealthResponse(HttpContext context, HealthReport result)
         {
             context.Response.ContentType = "application/json";
@@ -186,31 +179,12 @@ namespace Scorpio.Api
             var enabled = config.GetValue<bool>("Ubiquiti:EnablePoller");
 
             if (enabled)
-            {
                 services.AddHostedService<UbiquitiPollerHostedService>();
-            }
 
             return services;
         }
 
-        public static IServiceCollection AddCorsSetup(this IServiceCollection services, IConfiguration config)
-        {
-            var corsOrigins = "http://" + (config["BACKEND_ORIGIN"] ?? "localhost:3000");
-            services.AddCors(settings =>
-            {
-                settings.AddPolicy("corsPolicy", builder =>
-                {
-                    builder.WithOrigins(corsOrigins)
-                        .AllowAnyMethod()
-                        .AllowAnyHeader()
-                        .AllowCredentials();
-                });
-            });
-
-            return services;
-        }
-
-        public static void AddHealthChecks(this IServiceCollection services, IConfiguration config)
+        public static IServiceCollection AddHealthChecks(this IServiceCollection services, IConfiguration config)
         {
             var user = config["RabbitMq:userName"];
             var password = config["RabbitMq:password"];
@@ -226,6 +200,8 @@ namespace Scorpio.Api
             services.AddHealthChecks()
                 //.AddRabbitMQ(rabbitMqConnectionString, sslOption: null, name: "RabbitMQ", timeout: timeout)
                 .AddMongoDb(mongoDbConnectionString, timeout: timeout, name: "MongoDb");
+
+            return services;
         }
     }
 }
