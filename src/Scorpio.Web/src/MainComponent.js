@@ -23,6 +23,7 @@ import StatusOverlay from "./components/common/statusOverlay";
 import GamepadService from "./services/GamepadService";
 import MessagingService from "./services/MessagingService";
 import FiluRacer from "./components/common/filuRacer";
+import Control from "./components/screens/control/control";
 
 class MainComponent extends Component {
   async componentDidMount() {
@@ -63,6 +64,7 @@ class MainComponent extends Component {
             <Route exact path="/dashboard" component={DashboardScreen} />
             <Route exact path="/stream" component={StreamScreen} />
             <Route exact path="/gamepad" component={GamepadScreen} />
+            <Route exact path="/control" component={Control} />
             <Route exact path="/about" component={AboutScreen} />
             <Route exact path="/edit/sensor" component={SensorsEditorScreen} />
             <Route exact path="/edit/stream" component={StreamEditorScreen} />

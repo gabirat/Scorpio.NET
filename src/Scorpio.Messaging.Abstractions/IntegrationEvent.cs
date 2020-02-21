@@ -9,9 +9,9 @@ namespace Scorpio.Messaging.Abstractions
     public abstract class IntegrationEvent : IIntegrationEvent
     {
         [JsonIgnore]
-        public string KeyOverride { get; protected set; }
+        public virtual string KeyOverride { get; set; }
 
         [JsonIgnore]
-        public string QueueName { get; protected set; }
+        public string QueueName { get; set; }
     }
 }

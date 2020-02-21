@@ -1,6 +1,7 @@
 ﻿using Scorpio.Messaging.Abstractions;
 using Scorpio.Messaging.Sockets.Workers;
 using System;
+using System.Threading;
 
 namespace Scorpio.Messaging.Sockets
 {
@@ -39,7 +40,13 @@ namespace Scorpio.Messaging.Sockets
         /// Try connect to the host with default retry policy
         /// </summary>
         /// <returns></returns>
-        bool TryConnect();
+        void TryConnect();
+
+        /// <summary>
+        /// Try connect to the host with default retry policy
+        /// </summary>
+        /// <returns></returns>
+        bool TryConnect(CancellationToken cancellationToken);
 
         /// <summary>
         /// Disconnect from the host

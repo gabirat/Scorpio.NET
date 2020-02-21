@@ -6,6 +6,7 @@ using RabbitMQ.Client.Events;
 using Scorpio.Messaging.Abstractions;
 using System;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Scorpio.Messaging.RabbitMQ
@@ -75,7 +76,7 @@ namespace Scorpio.Messaging.RabbitMQ
             return props;
         }
 
-        public void Subscribe<TEvent, THandler>()
+        public void Subscribe<TEvent, THandler>(string keyOverride = null)
             where TEvent : IIntegrationEvent
             where THandler : IIntegrationEventHandler<TEvent>
         {
@@ -96,7 +97,7 @@ namespace Scorpio.Messaging.RabbitMQ
             _subsManager.AddSubscription<TEvent, THandler>();
         }
 
-        public void Unsubscribe<TEvent, THandler>()
+        public void Unsubscribe<TEvent, THandler>(string keyOverride = null)
             where TEvent : IIntegrationEvent
             where THandler : IIntegrationEventHandler<TEvent>
         {

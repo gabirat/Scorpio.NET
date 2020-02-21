@@ -1,36 +1,43 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Matty.Framework.Validation;
+using Newtonsoft.Json;
 using Scorpio.Api.Models;
-using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Scorpio.Api.Validation
 {
-    public class GpsDataValidator : SensorDataValidatorBase
+    public class GpsDataValidator : ISensorDataValidator
     {
-        public override string SensorKey => "gps";
+        public string SensorKey => "gps";
 
-        public override bool IsValid(SensorData sensorData)
+        public void Validate(SensorData sensorData)
         {
             try
             {
-                var json = JObject.Parse(sensorData.Value);
-
-                if (json.ContainsKey("lat") && json.ContainsKey("lon"))
-                {
-                    var lat = json.GetValue("lat");
-                    var lon = json.GetValue("lon");
-
-                    if (float.TryParse(lat.ToString(), out _) && float.TryParse(lon.ToString(), out _))
-                    {
-                        return true;
-                    }
-                }
-
-                return false;
+                var data = JsonConvert.DeserializeObject<GpsData>(sensorData.Value);
+                data.Validate();
             }
-            catch (Exception)
+            catch (JsonSerializationException ex)
             {
-                return false;
+                throw new ValidationException(ex.Message);
             }
+            catch (JsonReaderException ex)
+            {
+                throw new ValidationException(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Model class
+        /// </summary>
+        private class GpsData : ValidatableParamBase<GpsData>
+        {
+            [Required(ErrorMessage = "Field 'lat' is required")]
+            [JsonProperty("lat")]
+            public float? Latitude { get; set; }
+
+            [Required(ErrorMessage = "Field 'lon' is required")]
+            [JsonProperty("lon")]
+            public float? Longitude { get; set; }
         }
     }
 }

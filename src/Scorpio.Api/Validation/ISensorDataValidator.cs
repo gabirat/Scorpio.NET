@@ -17,12 +17,5 @@ namespace Scorpio.Api.Validation
         /// </summary>
         /// <param name="sensorData"></param>
         void Validate(SensorData sensorData);
-
-        /// <summary>
-        /// Returns true if SensorData is valid, false otherwise
-        /// </summary>
-        /// <param name="sensorData"></param>
-        /// <returns></returns>
-        bool IsValid(SensorData sensorData);
     }
 }

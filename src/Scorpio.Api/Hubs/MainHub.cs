@@ -2,7 +2,9 @@
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Scorpio.Messaging.Abstractions;
+using Scorpio.Messaging.Messages;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Scorpio.Api.Hubs
@@ -29,15 +31,29 @@ namespace Scorpio.Api.Hubs
 
         public override Task OnDisconnectedAsync(Exception exception)
         {
-            _logger.LogInformation($"SignalR user disconnected: {exception?.ToString()}");
+            _logger.LogWarning($"SignalR user disconnected: {exception?.Message}");
             return base.OnDisconnectedAsync(exception);
         }
         #endregion
 
         #region Following methods are callable from the UI via SignalR
-        public void Data(object data)
+
+        [HubMethodName("RoverControlCommand")]
+        public void RoverControlCommand(Dictionary<string, object> data)
         {
-            Console.WriteLine($"Received SignalR data: {JsonConvert.SerializeObject(data)}");
+            const string accKey = "acc";
+            const string dirKey = "dir";
+
+            if (!data.ContainsKey(accKey) || !data.ContainsKey(dirKey)) return;
+
+            if (float.TryParse(data[accKey].ToString(), out var acc) &&
+                float.TryParse(data[dirKey].ToString(), out var dir))
+            {
+                var command = new RoverControlCommand(dir, acc); // {KeyOverride = "drive"};
+                _logger.LogInformation($"Received SignalR data: {JsonConvert.SerializeObject(command)}");
+                _eventBus.Publish(command);
+            }
+
         }
         #endregion
     }

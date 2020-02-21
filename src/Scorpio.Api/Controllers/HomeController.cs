@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace Scorpio.Api.Controllers
 {
-    [Route("")]
+    [Route("api/[controller]")]
     [ApiController]
     [Produces("application/json")]
     public class HomeController : ControllerBase
