@@ -39,6 +39,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{3EBF
 	ProjectSection(SolutionItems) = preProject
 		scripts\deploy_web.ps1 = scripts\deploy_web.ps1
 		scripts\installConfigureRabbitMq.sh = scripts\installConfigureRabbitMq.sh
+		scripts\releaseWebAndCopyToApiWwwroot.ps1 = scripts\releaseWebAndCopyToApiWwwroot.ps1
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scorpio.Instrumentation.Vivotek", "src\Scorpio.Instrumentation.Vivotek\Scorpio.Instrumentation.Vivotek.csproj", "{BB4897AB-AE17-4A15-A6FA-96D44C7C7989}"
